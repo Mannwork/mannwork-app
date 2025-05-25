@@ -1,13 +1,13 @@
 import { Text, View } from 'react-native';
 
-const SingOut = () => {
+const SingUp = () => {
   return (
     <View>
        <Text>
-        sign-out
+        sign-up
       </Text>
     </View>
   )
 }
 
-export default SingOut;
+export default SingUp;
