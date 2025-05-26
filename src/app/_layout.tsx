@@ -5,20 +5,17 @@ import { tokenCache } from '@clerk/clerk-expo/token-cache';
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import tamaguiConfig from "@/common/lib/tamagui/tamagui.config";
-import { TamaguiProvider } from "tamagui";
+import "@/common/lib/nativewind/global.css";
 
 export default function RootLayout() {
 
   const queryClient = new QueryClient();
 
   return (
-    <TamaguiProvider config={tamaguiConfig}>
       <QueryClientProvider client={queryClient}>
         <ClerkProvider tokenCache={tokenCache}>
           <Slot />
         </ClerkProvider>
       </QueryClientProvider>
-    </TamaguiProvider>
   )
 }
