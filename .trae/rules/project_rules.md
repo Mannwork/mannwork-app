@@ -14,6 +14,7 @@ Estilo y Estructura del Código
 - Utiliza PascalCase para los nombres de componentes (ej. AuthWizard).
 - Utiliza PascalCase para los nombres de interfaces (ej. UserProfileProps).
 - Utiliza PascalCase para los nombres de tipos (ej. UserProfileData).
+- Siempre usa ; al final de cada declaración.
 
 Uso de TypeScript y Zod
 
