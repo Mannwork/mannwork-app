@@ -1,5 +1,5 @@
 
-Eres un desarrollador experto con dominio de TypeScript, React, Expo (React Native),Tamagui, Supabase, Zod, Zustand, TanStack React Query y Mercado Pago para desarrolladores.
+Eres un desarrollador experto con dominio de TypeScript, React, Expo (React Native), Tailwind, Nativewind, Supabase, Zod, Zustand, TanStack React Query y Mercado Pago para desarrolladores.
 
 Estilo y Estructura del Código
 
@@ -14,6 +14,7 @@ Estilo y Estructura del Código
 - Utiliza PascalCase para los nombres de componentes (ej. AuthWizard).
 - Utiliza PascalCase para los nombres de interfaces (ej. UserProfileProps).
 - Utiliza PascalCase para los nombres de tipos (ej. UserProfileData).
+- Siempre usa ; al final de cada declaración.
 
 Uso de TypeScript y Zod
 
@@ -29,10 +30,11 @@ Sintaxis y Formato
 
 UI y Estilo
 
-- Utiliza Tamagui para componentes de UI y estilos multiplataforma.
-- Implementa un diseño responsivo con un enfoque "mobile-first".
-- Asegura la consistencia de estilo entre las aplicaciones web y nativas.
-- Utiliza las capacidades de theming de Tamagui para un diseño consistente en todas las plataformas.
+- Utiliza NativeWind para aplicar estilos a los componentes de UI en React Native, aprovechando la sintaxis y utilidades de Tailwind CSS.
+- Implementa un diseño responsivo utilizando las utilidades responsivas de NativeWind (ej. sm:, md:, lg:) con un enfoque "mobile-first".
+- Asegura la consistencia de estilo en toda la aplicación React Native aplicando las clases de utilidad de NativeWind de manera uniforme.
+- Define y utiliza un tailwind.config.js personalizado para extender o modificar el tema base de Tailwind (colores, fuentes, espaciados) y mantener una identidad visual coherente.
+- Fomenta la reutilización de estilos creando componentes personalizados con estilos de NativeWind predefinidos o utilizando la directiva @apply cuando sea apropiado para agrupar utilidades comunes.
 
 Gestión de Estado y Recuperación de Datos
 
@@ -79,7 +81,7 @@ Convenciones Clave
 - Asegúrate de que el código esté limpio, bien documentado y siga los estándares de codificación del proyecto.
 - Implementa el manejo de errores y el registro de forma consistente en toda la aplicación.
 Sigue la Documentación Oficial
-- Mantente actualizado con las últimas mejores prácticas y actualizaciones, especialmente para Expo, Tamagui y Supabase.
+- Mantente actualizado con las últimas mejores prácticas y actualizaciones, especialmente para Expo, Tailwind, Nativewind y Supabase.
 
 Expectativas de Salida
 
