@@ -7,7 +7,7 @@ export default function RootLayout() {
   const { isSignedIn } = useAuth();
 
   if (isSignedIn) {
-    return <Redirect href="/" />;
+    return <Redirect href="/(protected)/home/index" />;
   }
 
   return (
