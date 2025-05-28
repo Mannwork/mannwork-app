@@ -13,6 +13,7 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="sign-in" options={{headerShown: false}} />
+      <Stack.Screen name="pass-with-email" />
       <Stack.Screen name="sign-up" />
     </Stack>
   )
