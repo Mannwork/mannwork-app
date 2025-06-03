@@ -1,49 +1,84 @@
-import { useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Redirect, Tabs } from "expo-router";
+const TAB_LABELS = {
+  home: "Home",
+  chats: "Chats",
+  requests: "Solicitudes",
+  profile: "Perfil",
+};
 
-import { useAuth } from "@clerk/clerk-expo";
-
-import { supabase } from "@/common/lib/supabase/supabaseClient";
+const ACTIVE_COLOR = "#2D7A3E";
+const INACTIVE_COLOR = "#fff";
+const TAB_BAR_BG = "#2D7A3E";
 
 export default function RootLayout() {
-
-  const { isSignedIn, getToken } = useAuth();
-
-  if(!isSignedIn) {
-    return (
-      <Redirect href="/(auth)/sign-in" />
-    );
-  }
-
-  useEffect(()=> {
-    const syncSupabaseAuth = async () =>{
-      if(isSignedIn) {
-        try {
-          const supabaseAccessToken = await getToken({ template: 'supabase' });
-  
-          if (supabaseAccessToken) {
-            await supabase.auth.setSession({
-              access_token: supabaseAccessToken,
-              refresh_token: '',
-            })
-          } else {
-            console.warn("Failed to get Supabase token from Clerk.");
-          }
-        } catch (error) {
-          console.error("Error synchronizing Supabase auth with Clerk:", error);
-        }
-      } else {
-        await supabase.auth.signOut();
-      }
-    }
-
-    syncSupabaseAuth();
-  },[isSignedIn, getToken]);
+  const insets = useSafeAreaInsets();
 
   return (
-    <Tabs screenOptions={{headerShown: false}}>
-      <Tabs.Screen name="home"/>
+    <Tabs
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: TAB_BAR_BG,
+          borderTopWidth: 0,
+          height: 50 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 4,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 8,
+        },
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: keyof typeof TAB_LABELS = "home";
+          if (route.name === "chats") iconName = "chats";
+          if (route.name === "requests") iconName = "requests";
+          if (route.name === "profile") iconName = "profile";
+
+          let iconMaterial = "home";
+          if (iconName === "chats") iconMaterial = "chat";
+          if (iconName === "requests") iconMaterial = "inbox";
+          if (iconName === "profile") iconMaterial = "person";
+
+          return (
+            <View className="items-center justify-center">
+              <View
+                className={`items-center mt-1 justify-center ${
+                  focused ? "bg-white rounded-full" : ""
+                }`}
+                style={
+                  focused
+                    ? { minWidth: 56, minHeight: 32 }
+                    : { minWidth: 56, minHeight: 32 }
+                }
+              >
+                <MaterialIcons
+                  name={iconMaterial as any}
+                  size={26}
+                  color={focused ? ACTIVE_COLOR : INACTIVE_COLOR}
+                />
+              </View>
+              <Text
+                className={`text-xs mt-1  font-bold text-white`}
+                style={{
+                  fontFamily: "System",
+                  fontSize: 11,
+                  width: 80,
+                  textAlign: "center",
+                }}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {TAB_LABELS[iconName]}
+              </Text>
+            </View>
+          );
+        },
+      })}
+    >
+      <Tabs.Screen name="home" />
       <Tabs.Screen name="chats" />
       <Tabs.Screen name="requests" />
       <Tabs.Screen name="profile" />
