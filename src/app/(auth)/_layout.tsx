@@ -3,7 +3,6 @@ import { Redirect, Stack } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 
 export default function RootLayout() {
-
   const { isSignedIn } = useAuth();
 
   if (isSignedIn) {
@@ -29,5 +28,5 @@ export default function RootLayout() {
       />
       <Stack.Screen name="sign-up" />
     </Stack>
-  )
+  );
 }

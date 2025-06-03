@@ -42,11 +42,11 @@ const ProtectedLayout = () => {
 
   return (
     <Stack>
-      <Stack.Screen name="(mainTabs)" />
+      <Stack.Screen name="(mainTabs)" options={{ headerShown: false }} />
       <Stack.Screen name="membership" />
       <Stack.Screen name="users" />
     </Stack>
-  )
-}
+  );
+};
 
-export default ProtectedLayout
+export default ProtectedLayout;
