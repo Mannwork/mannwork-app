@@ -38,6 +38,11 @@ const mockCarousels = [
 ];
 
 const HomeScreen = () => {
+
+  const {user} = useUser();
+  const {signOut} = useAuth();
+
+
   return (
     <View className="flex-1 bg-gray-50">
       <Header />
