@@ -1,9 +1,9 @@
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import {
-    Text,
-    TextInput,
-    TextInputProps,
-    View,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
 } from 'react-native';
   
   type CustomInputProps<T extends FieldValues> = {
@@ -24,17 +24,13 @@ import {
           field: { value, onChange, onBlur },
           fieldState: { error },
         }) => (
-          <View className='gap-4'>
+          <View className='gap-2'>
             <TextInput
               {...props}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              style={[
-                props.style,
-                { borderColor: error ? 'crimson' : 'gray' },
-              ]}
-              className={'p-2 border border-[#ccc] rounded ' + props.className + (error ? ' border-red-500' : '')}
+              className={'p-3 border rounded-xl ' + props.className + (error ? ' border-red-500' : 'border-text-secondary')}
             />
             <Text className='text-red-500'>{error?.message}</Text>
           </View>

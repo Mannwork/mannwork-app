@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const userCredentialsScheme = z.object(
+export const signInCredentialsScheme = z.object(
     {
         email: z.string({ message: "El email es obligatorio."}).email({ message: "El email no es válido." }),
         password: z.string({ message: "La contraseña es obligatoria."})
@@ -10,3 +10,5 @@ export const userCredentialsScheme = z.object(
         .regex(/(?=.*\d)/, { message: "La contraseña debe contener al menos un número." })
     }
 );
+
+export type SignInFields = z.infer<typeof signInCredentialsScheme>;

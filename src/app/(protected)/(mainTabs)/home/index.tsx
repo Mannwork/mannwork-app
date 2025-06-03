@@ -1,11 +1,22 @@
-import { Text, View } from 'react-native'
+import { useAuth, useUser } from '@clerk/clerk-expo';
+import { Pressable, Text, View } from 'react-native';
 
 const HomeScreen = () => {
+
+  const {user} = useUser();
+  const {signOut} = useAuth();
+
+
   return (
     <View>
         <Text>
-            HomeScreen
+          {user?.firstName}
         </Text>
+        <Pressable onPress={()=>signOut()}>
+          <Text>
+            Cerrar sesión
+          </Text>
+        </Pressable>
     </View>
   )
 }
