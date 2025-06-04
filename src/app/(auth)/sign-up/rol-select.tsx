@@ -1,12 +1,8 @@
-import { Text, View } from "react-native"
+import { RolSelect } from "@/features/auth/sign-up/components/RolSelect"
 
 const RolSelectScreen = () => {
   return (
-    <View>
-        <Text>
-            RolSelect
-        </Text>
-    </View>
+    <RolSelect />
   )
 }
 

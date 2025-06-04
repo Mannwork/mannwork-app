@@ -4,7 +4,8 @@ import InfoCardSwiper from "@/features/home/InfoCardSwiper";
 import RecentSearches from "@/features/home/RecentSearches";
 import SearchBarInput from "@/features/home/SearchbarInput";
 import SubcategoryCarrousel from "@/features/home/SubcategoryCarrousel";
-import { ScrollView, View } from "react-native";
+import { useAuth, useUser } from "@clerk/clerk-expo";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 const mockCarousels = [
   {
@@ -42,7 +43,6 @@ const HomeScreen = () => {
   const {user} = useUser();
   const {signOut} = useAuth();
 
-
   return (
     <View className="flex-1 bg-gray-50">
       <Header />
@@ -59,6 +59,10 @@ const HomeScreen = () => {
           />
         ))}
         <View className="h-8" />
+        <Pressable onPress={()=> signOut()}>
+          <Text>Sign out</Text>
+        </Pressable>
+        <Text>{user?.firstName}</Text>
       </ScrollView>
     </View>
   );

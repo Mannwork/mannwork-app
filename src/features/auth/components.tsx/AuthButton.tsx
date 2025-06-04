@@ -1,6 +1,6 @@
 import { Pressable, PressableProps } from 'react-native';
 
-const SignInButton = ({children, className, onPress, ...rest}: PressableProps) => {
+const AuthButton = ({children, className, onPress, ...rest}: PressableProps) => {
   return (
     <Pressable 
         onPress={onPress}
@@ -12,4 +12,4 @@ const SignInButton = ({children, className, onPress, ...rest}: PressableProps) =
   )
 };
 
-export default SignInButton;
+export default AuthButton;
