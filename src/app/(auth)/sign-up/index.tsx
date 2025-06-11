@@ -1,12 +1,8 @@
-import { Text, View } from 'react-native'
+import SignUpForm from '@/features/auth/sign-up/components/SignUpForm'
 
 const SingUpScreen = () => {
   return (
-    <View>
-        <Text>
-            SingUpScreen
-        </Text>
-    </View>
+    <SignUpForm />
   )
 }
 
