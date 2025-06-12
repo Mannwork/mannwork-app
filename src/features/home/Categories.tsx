@@ -19,7 +19,7 @@ const Categories = () => (
     >
       {mockCategories.map((cat, idx) => (
         <Pressable key={idx} className="items-center mr-6">
-          <View className="bg-[#e3f5e9] p-3 rounded-full mb-1">
+          <View className="bg-green-mannwork-light p-3 rounded-full mb-1">
             <MaterialIcons name={cat.icon as any} size={28} color="#2D7A3E" />
           </View>
           <Text className="text-xs text-gray-700 font-medium">{cat.name}</Text>

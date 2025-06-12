@@ -4,7 +4,10 @@ const HomeLayout = () => {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="search-modal" options={{ presentation: "modal" }} />
+      <Stack.Screen
+        name="search-modal"
+        options={{ presentation: "fullScreenModal" }}
+      />
     </Stack>
   );
 };
