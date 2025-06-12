@@ -6,8 +6,6 @@ import * as WebBrowser from "expo-web-browser";
 
 import { useSSO } from "@clerk/clerk-expo";
 
-import SignInButton from "./SignInButton";
-
 import Facebook from "@/assets/social/icon-fb.png";
 import Google from "@/assets/social/icon-google.png";
 

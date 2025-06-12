@@ -16,6 +16,7 @@ const errorMessagesClerkES = {
     "verification_failed_reason_too_many_attempts": "Has realizado demasiados intentos. Por favor, inténtalo de nuevo más tarde.",
     "session_revoked": "Tu sesión ha sido revocada. Por favor, inicia sesión de nuevo.",
     "session_expired": "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+    "session_exists": "Ya existe una sesión activa.",
 };
 
 export const clerkErrorValidator = (error: any) => {
@@ -44,8 +45,6 @@ export const clerkErrorValidator = (error: any) => {
           const specificKey = `form_param_format_invalid_${error.errors[0].meta.paramName}`;
           displayMessage = errorMessagesClerkES[specificKey] || errorMessagesClerkES[clerkErrorCode] || longMessage || displayMessage;
       }
-      console.log("aca");
-      
     } else if (error.message) {
       displayMessage = error.message;
     }

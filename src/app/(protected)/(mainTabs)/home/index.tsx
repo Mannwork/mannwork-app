@@ -59,6 +59,10 @@ const HomeScreen = () => {
           />
         ))}
         <View className="h-8" />
+        <Pressable onPress={() => signOut()}>
+          <Text>Sign out</Text>
+        </Pressable>
+        <Text>{user?.firstName}</Text>
       </ScrollView>
     </View>
   );

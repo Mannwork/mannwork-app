@@ -10,11 +10,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="sign-in" options={{headerShown: false}} />
+    <Stack screenOptions={{headerShown: false}} >
+      <Stack.Screen name="sign-in" />
       <Stack.Screen 
         name="sign-in-modal" 
         options={{
+          headerShown: true,
+
           title: "Iniciar sesión", 
           presentation: "modal",
           headerStyle: {

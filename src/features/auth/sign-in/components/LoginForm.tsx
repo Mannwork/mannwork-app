@@ -1,4 +1,7 @@
-import { Text, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+
+import { router } from 'expo-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -10,10 +13,12 @@ import MyKeyboardAvoidingView from '@/common/components/MyKeyboardAvoidingView';
 
 import { clerkErrorValidator } from '../../utils/clerkErrorValidator';
 
+import AuthButton from '../../components.tsx/AuthButton';
 import { SignInFields, signInCredentialsScheme } from '../validators/signInCredentials.validator';
-import SignInButton from './SignInButton';
 
 const LoginForm = () => {
+  const [loading, setLoading] = useState(false);
+
   const {control, handleSubmit, setError, formState: { errors }} = useForm<SignInFields>({
     resolver: zodResolver(signInCredentialsScheme),
   });
@@ -24,6 +29,9 @@ const LoginForm = () => {
     if (!isLoaded) return;
 
     try {
+
+      setLoading(true);
+
       const signInAttempt = await signIn.create({
         identifier: data.email,
         password: data.password,
@@ -43,8 +51,16 @@ const LoginForm = () => {
       } else {
         setError('root', { message: 'Algo salió mal, intentalo de nuevo más tarde' });
       }
+
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const goToRegister = () => {
+    router.push('/(auth)/sign-up');
+  }
 
   return (
     <MyKeyboardAvoidingView className='justify-between p-8'>
@@ -61,7 +77,7 @@ const LoginForm = () => {
         <CustomInput 
           control={control}
           name='password'
-          placeholder="Ingrese su correo contraseña"
+          placeholder="Ingrese su contraseña"
           secureTextEntry
           autoComplete='password'
           autoCapitalize='none'
@@ -70,13 +86,22 @@ const LoginForm = () => {
         {errors.root && (
             <Text style={{ color: 'crimson' }}>{errors.root.message}</Text>
         )}
+
+        <View className='flex-row justify-between'>
+          <Pressable>
+            <Text className='text-sm text-text-secondary'>¿Olvidaste tu contraseña?</Text>
+          </Pressable>
+          <Pressable onPress={goToRegister}>
+            <Text className='text-sm text-text-secondary'>¿No tienes una cuenta? <Text className='font-semibold'>Registrate</Text></Text>
+          </Pressable>
+          </View>
       </View>
 
-      <SignInButton
+      <AuthButton
         onPress={handleSubmit(onSignIn)}
       >
-        <Text className='font-semibold'>Iniciar sesión</Text>
-      </SignInButton>
+        {loading ? <ActivityIndicator color="#2d7a3e" size="small" /> : <Text className='font-semibold'>Iniciar sesión</Text>}
+      </AuthButton>
     </MyKeyboardAvoidingView>
   )
 }
