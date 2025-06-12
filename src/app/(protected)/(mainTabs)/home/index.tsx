@@ -4,6 +4,8 @@ import InfoCardSwiper from "@/features/home/InfoCardSwiper";
 import RecentSearches from "@/features/home/RecentSearches";
 import SearchBarInput from "@/features/home/SearchbarInput";
 import SubcategoryCarrousel from "@/features/home/SubcategoryCarrousel";
+import { useUser } from "@clerk/clerk-expo";
+import { useAuth } from "@clerk/clerk-react";
 import { ScrollView, View } from "react-native";
 
 const mockCarousels = [
@@ -38,10 +40,8 @@ const mockCarousels = [
 ];
 
 const HomeScreen = () => {
-
-  const {user} = useUser();
-  const {signOut} = useAuth();
-
+  const { user } = useUser();
+  const { signOut } = useAuth();
 
   return (
     <View className="flex-1 bg-gray-50">
