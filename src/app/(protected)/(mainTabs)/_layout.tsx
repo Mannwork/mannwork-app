@@ -3,16 +3,16 @@ import { Tabs } from "expo-router";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+const TAB_BAR_BG = "#2D7A3E";
+const ACTIVE_COLOR = "#2D7A3E";
+const INACTIVE_COLOR = "#fff";
+
 const TAB_LABELS = {
   home: "Home",
   chats: "Chats",
   requests: "Solicitudes",
   profile: "Perfil",
 };
-
-const ACTIVE_COLOR = "#2D7A3E";
-const INACTIVE_COLOR = "#fff";
-const TAB_BAR_BG = "#2D7A3E";
 
 export default function RootLayout() {
   const insets = useSafeAreaInsets();

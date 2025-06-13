@@ -1,6 +1,7 @@
+import { useSearchStore } from "@/features/home/stores/searchStore";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -9,24 +10,39 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useCategories } from "../hooks/useCategories";
+import { searchCategories } from "../queries/categories";
 
 const SearchModalComponent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [recentSearches] = useState([
-    "Plomería",
-    "Electricista",
-    "Limpieza",
-    "Jardinería",
-  ]);
+  const { data: categories } = useCategories();
+  const addSearch = useSearchStore((state) => state.addSearch);
+
+  const searchResults = useMemo(() => {
+    if (!categories || !searchQuery.trim()) return [];
+    return searchCategories(categories, searchQuery);
+  }, [categories, searchQuery]);
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
     setIsLoading(true);
-    // Aquí iría la lógica de búsqueda
+    setIsLoading(false);
+  };
+
+  const handleResultPress = (category: string, subcategory: string) => {
+    addSearch(category, subcategory);
+    router.back();
     setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+      router.push({
+        pathname: "/(protected)/(mainTabs)/requests/create",
+        params: { category, subcategory },
+      });
+    }, 100);
+  };
+
+  const handleClose = () => {
+    router.back();
   };
 
   return (
@@ -37,7 +53,7 @@ const SearchModalComponent = () => {
           <Text className="text-xl font-bold text-white flex-1 text-center">
             ¿Qué necesitas?
           </Text>
-          <Pressable onPress={() => router.back()} className="w-6">
+          <Pressable onPress={handleClose} className="w-6">
             <MaterialIcons name="close" size={24} color="white" />
           </Pressable>
         </View>
@@ -70,43 +86,20 @@ const SearchModalComponent = () => {
               </Text>
             </View>
             <FlatList
-              data={[
-                {
-                  category: "Plomería",
-                  subcategories: [
-                    "Reparación de caños",
-                    "Instalación de grifos",
-                    "Desatascos",
-                  ],
-                },
-                {
-                  category: "Electricista",
-                  subcategories: [
-                    "Instalaciones eléctricas",
-                    "Reparaciones",
-                    "Iluminación",
-                  ],
-                },
-                {
-                  category: "Limpieza",
-                  subcategories: [
-                    "Limpieza de hogar",
-                    "Limpieza de oficinas",
-                    "Limpieza post-obra",
-                  ],
-                },
-              ]}
+              data={searchResults}
               renderItem={({ item }) => (
                 <Pressable
-                  onPress={() => setSearchQuery(item.category)}
+                  onPress={() =>
+                    handleResultPress(item.category, item.subcategory)
+                  }
                   className="flex-row items-center py-4 px-4 border-b border-gray-100"
                 >
                   <View className="flex-1">
-                    <Text className="text-xl font-bold text-green-mannwork">
+                    <Text className="text-lg font-bold text-green-mannwork">
                       {item.category}
                     </Text>
-                    <Text className="text-base text-gray-600 mt-1">
-                      {item.subcategories[0]}
+                    <Text className="text-sm text-gray-600 mt-1">
+                      {item.subcategory}
                     </Text>
                   </View>
                   <MaterialIcons
@@ -116,7 +109,9 @@ const SearchModalComponent = () => {
                   />
                 </Pressable>
               )}
-              keyExtractor={(item) => item.category}
+              keyExtractor={(item, index) =>
+                `${item.category}-${item.subcategory}-${index}`
+              }
             />
           </View>
         ) : (
@@ -129,32 +124,11 @@ const SearchModalComponent = () => {
             </View>
             <View className="flex-1">
               <FlatList
-                data={[
-                  "Plomería",
-                  "Electricista",
-                  "Limpieza",
-                  "Jardinería",
-                  "Pintura",
-                  "Carpintería",
-                  "Herrería",
-                  "Albañilería",
-                  "Gasista",
-                  "Aire acondicionado",
-                  "Mudanzas",
-                  "Limpieza de piscinas",
-                  "Instalación de pisos",
-                  "Techista",
-                  "Instalación de aberturas",
-                  "Instalación de cortinas",
-                  "Instalación de muebles",
-                  "Instalación de electrodomésticos",
-                  "Instalación de alarmas",
-                  "Instalación de cámaras de seguridad",
-                ]}
+                data={categories}
                 contentContainerStyle={{ paddingBottom: 16 }}
                 renderItem={({ item }) => (
                   <Pressable
-                    onPress={() => setSearchQuery(item)}
+                    onPress={() => setSearchQuery(item.name)}
                     className="flex-row items-center py-4 px-4 border-b border-gray-100"
                   >
                     <View className="bg-green-mannwork-light rounded-full p-2 mr-4">
@@ -165,7 +139,7 @@ const SearchModalComponent = () => {
                       />
                     </View>
                     <Text className="text-xl font-bold text-green-mannwork flex-1">
-                      {item}
+                      {item.name}
                     </Text>
                     <MaterialIcons
                       name="chevron-right"
@@ -174,7 +148,7 @@ const SearchModalComponent = () => {
                     />
                   </Pressable>
                 )}
-                keyExtractor={(item) => item}
+                keyExtractor={(item) => item.id.toString()}
               />
             </View>
           </View>

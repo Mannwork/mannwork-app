@@ -6,38 +6,7 @@ import SearchBarInput from "@/features/home/SearchbarInput";
 import SubcategoryCarrousel from "@/features/home/SubcategoryCarrousel";
 import { useUser } from "@clerk/clerk-expo";
 import { useAuth } from "@clerk/clerk-react";
-import { ScrollView, View } from "react-native";
-
-const mockCarousels = [
-  {
-    category: "Mascotas",
-    subcategories: [
-      "Paseador de perros",
-      "Alojamiento",
-      "Guardería de día",
-      "Mascotas general",
-    ],
-  },
-  {
-    category: "Hogar",
-    subcategories: [
-      "Plomería",
-      "Electricista",
-      "Limpieza",
-      "Jardinería",
-      "Pintura",
-    ],
-  },
-  {
-    category: "Transporte",
-    subcategories: [
-      "Fletes",
-      "Transporte escolar",
-      "Mudanzas",
-      "Transporte general",
-    ],
-  },
-];
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 const HomeScreen = () => {
   const { user } = useUser();
@@ -51,13 +20,7 @@ const HomeScreen = () => {
         <RecentSearches />
         <Categories />
         <InfoCardSwiper />
-        {mockCarousels.map((carousel, idx) => (
-          <SubcategoryCarrousel
-            key={idx}
-            category={carousel.category}
-            subcategories={carousel.subcategories}
-          />
-        ))}
+        <SubcategoryCarrousel />
         <View className="h-8" />
         <Pressable onPress={() => signOut()}>
           <Text>Sign out</Text>

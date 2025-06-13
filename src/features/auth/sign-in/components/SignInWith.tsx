@@ -8,6 +8,7 @@ import { useSSO } from "@clerk/clerk-expo";
 
 import Facebook from "@/assets/social/icon-fb.png";
 import Google from "@/assets/social/icon-google.png";
+import AuthButton from "../../components.tsx/AuthButton";
 
 const strategyIcons = {
   oauth_google: Google,
@@ -54,7 +55,7 @@ const SignInWith = ({ strategy }: SignInWithProps) => {
   }, []);
 
   return (
-    <SignInButton onPress={onPress}>
+    <AuthButton onPress={onPress}>
       <Image
         source={strategyIcons[strategy]}
         className="w-8 h-8 absolute left-4"
@@ -67,7 +68,7 @@ const SignInWith = ({ strategy }: SignInWithProps) => {
           ? "Acceda con Facebook"
           : "Acceda con correo electrónico"}
       </Text>
-    </SignInButton>
+    </AuthButton>
   );
 };
 
