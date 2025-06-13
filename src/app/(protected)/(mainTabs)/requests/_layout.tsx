@@ -1,12 +1,13 @@
 import { Stack } from "expo-router";
 
-const RequestsLayout = () => {
+export default function RequestsLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="create-request" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="create"
+        options={{ presentation: "fullScreenModal" }}
+      />
     </Stack>
   );
-};
-
-export default RequestsLayout;
+}
