@@ -4,18 +4,34 @@ import { FlatList, Pressable, Text, View } from "react-native";
 import { useCategories } from "./hooks/useCategories";
 import { useSearchStore } from "./stores/searchStore";
 
-const subcategoryIcons: Record<string, string> = {
-  // Mascotas
-  "Paseador de perros": "pets",
-  Alojamiento: "hotel",
-  "Guardería de día": "child-care",
-  "Mascotas general": "pets",
-  // Hogar
-  Plomería: "plumbing",
-  Electricista: "electrical-services",
+const categoryIcons: Record<string, string> = {
+  Carpintero: "carpenter",
+  Plomero: "plumbing",
+  Técnico: "build",
+  Albañil: "construction",
+  Tapicero: "weekend",
   Limpieza: "cleaning-services",
-  Jardinería: "yard",
-  Pintura: "format-paint",
+  Colocador: "handyman",
+  Electricista: "electrical-services",
+  Gasista: "local-fire-department",
+  Pintor: "format-paint",
+  Mudancero: "local-shipping",
+  Reformas: "home-repair-service",
+  Cerrajero: "vpn-key",
+  Jardinero: "yard",
+  Arquitecto: "architecture",
+  Herrero: "hardware",
+  Decorador: "style",
+  "Control de plagas": "bug-report",
+  Seguridad: "security",
+  Piletas: "pool",
+  Bienestar: "self-improvement",
+  Cuidadores: "face",
+  Mascotas: "pets",
+  "A/A": "ac-unit",
+  Belleza: "spa",
+  Autos: "directions-car",
+  Eventos: "celebration",
 };
 
 const SubcategoryCarrousel = () => {
@@ -28,10 +44,11 @@ const SubcategoryCarrousel = () => {
   const limitedCategories = categories.slice(0, 5);
 
   const handleSubcategoryPress = (category: string, subcategory: string) => {
+    const icon = categoryIcons[category];
     addSearch(category, subcategory);
     router.push({
       pathname: "/(protected)/(mainTabs)/requests/create",
-      params: { category, subcategory },
+      params: { category, subcategory, icon },
     });
   };
 
@@ -52,17 +69,20 @@ const SubcategoryCarrousel = () => {
                 onPress={() =>
                   handleSubcategoryPress(category.name, subcategory)
                 }
-                className="flex-row items-center bg-green-mannwork-light rounded-2xl px-5 py-3 mr-4"
-                style={{ minWidth: 160, maxWidth: 200 }}
+                className="flex-row items-center bg-green-mannwork-light rounded-2xl px-6 mr-4 w-48 h-20"
               >
                 <View className="bg-white rounded-full p-2 mr-3">
                   <MaterialIcons
-                    name={(subcategoryIcons[subcategory] || "category") as any}
+                    name={categoryIcons[category.name] || "category"}
                     size={28}
                     color="#2D7A3E"
                   />
                 </View>
-                <Text className="text-sm text-green-mannwork font-bold flex-1">
+                <Text
+                  className="text-xs text-green-mannwork font-bold flex-1 text-center"
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
                   {subcategory}
                 </Text>
               </Pressable>

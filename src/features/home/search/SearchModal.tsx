@@ -13,6 +13,36 @@ import {
 import { useCategories } from "../hooks/useCategories";
 import { searchCategories } from "../queries/categories";
 
+const categoryIcons: Record<string, string> = {
+  Carpintero: "carpenter",
+  Plomero: "plumbing",
+  Técnico: "build",
+  Albañil: "construction",
+  Tapicero: "weekend",
+  Limpieza: "cleaning-services",
+  Colocador: "handyman",
+  Electricista: "electrical-services",
+  Gasista: "local-fire-department",
+  Pintor: "format-paint",
+  Mudancero: "local-shipping",
+  Reformas: "home-repair-service",
+  Cerrajero: "vpn-key",
+  Jardinero: "yard",
+  Arquitecto: "architecture",
+  Herrero: "hardware",
+  Decorador: "style",
+  "Control de plagas": "bug-report",
+  Seguridad: "security",
+  Piletas: "pool",
+  Bienestar: "self-improvement",
+  Cuidadores: "face",
+  Mascotas: "pets",
+  "A/A": "ac-unit",
+  Belleza: "spa",
+  Autos: "directions-car",
+  Eventos: "celebration",
+};
+
 const SearchModalComponent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,12 +61,13 @@ const SearchModalComponent = () => {
   };
 
   const handleResultPress = (category: string, subcategory: string) => {
+    const icon = categoryIcons[category];
     addSearch(category, subcategory);
     router.back();
     setTimeout(() => {
       router.push({
         pathname: "/(protected)/(mainTabs)/requests/create",
-        params: { category, subcategory },
+        params: { category, subcategory, icon },
       });
     }, 100);
   };
@@ -133,7 +164,7 @@ const SearchModalComponent = () => {
                   >
                     <View className="bg-green-mannwork-light rounded-full p-2 mr-4">
                       <MaterialIcons
-                        name="category"
+                        name={categoryIcons[item.name] || "category"}
                         size={24}
                         color="#2D7A3E"
                       />

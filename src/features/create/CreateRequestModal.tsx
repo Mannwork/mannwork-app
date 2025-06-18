@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import ConfirmExitModal from "./components/ConfirmExitModal";
@@ -7,19 +7,23 @@ import ConfirmExitModal from "./components/ConfirmExitModal";
 interface CreateRequestModalProps {
   category: string;
   subcategory: string;
+  icon?: string;
 }
 
-const CreateRequestModal = ({
-  category,
-  subcategory,
-}: CreateRequestModalProps) => {
+const CreateRequestModal = (props: CreateRequestModalProps) => {
+  // Permitir recibir por props o por ruta
+  const params = useLocalSearchParams();
+  const category = props.category || params.category;
+  const subcategory = props.subcategory || params.subcategory;
+  const icon = props.icon || params.icon;
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [showExitModal, setShowExitModal] = useState(false);
 
   const handleBack = () => {
-    router.push("/(protected)/(mainTabs)/home/search-modal");
+    router.back();
   };
 
   return (
@@ -41,7 +45,11 @@ const CreateRequestModal = ({
         {/* Category Info */}
         <View className="items-center py-6">
           <View className="bg-green-mannwork-light rounded-full p-4 mb-3">
-            <MaterialIcons name="category" size={32} color="#2D7A3E" />
+            <MaterialIcons
+              name={icon || "category"}
+              size={32}
+              color="#2D7A3E"
+            />
           </View>
           <Text className="text-xl font-bold text-green-mannwork mb-1">
             {category}

@@ -1,5 +1,6 @@
 import { useSearchStore } from "@/features/home/stores/searchStore";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 
 const RecentSearches = () => {
@@ -7,12 +8,22 @@ const RecentSearches = () => {
 
   if (recentSearches.length === 0) return null;
 
+  const handleSearchPress = (category: string, subcategory: string) => {
+    router.push({
+      pathname: "/(protected)/(mainTabs)/requests/create",
+      params: { category, subcategory },
+    });
+  };
+
   return (
     <View className="mx-4 mt-3">
       <View className="flex-col gap-y-2 space-y-3">
         {recentSearches.map((search, idx) => (
-          <View
+          <Pressable
             key={search.timestamp}
+            onPress={() =>
+              handleSearchPress(search.category, search.subcategory)
+            }
             className="flex-row items-center bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-200"
           >
             <View className="flex-1">
@@ -26,7 +37,7 @@ const RecentSearches = () => {
             <Pressable onPress={() => removeSearch(idx)}>
               <MaterialIcons name="close" size={22} color="#888" />
             </Pressable>
-          </View>
+          </Pressable>
         ))}
       </View>
     </View>
