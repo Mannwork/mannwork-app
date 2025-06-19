@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 
 import { router } from "expo-router";
 
-import AuthButton from "@/features/auth/components.tsx/AuthButton";
+import AuthButton from "@/features/auth/components/AuthButton";
 import SignInWith from "@/features/auth/sign-in/components/SignInWith";
 
 import LogoWithText from "@/common/components/LogoWithText";
@@ -18,7 +18,7 @@ const SignIn = () => {
   return (
     <MyView className="items-center justify-evenly p-8">
       <View className="flex-1 items-center gap-12">
-        <LogoWithText className="h-56 w-56"/>
+        <LogoWithText className="h-56 w-56" />
         <Text className="max-w-[75%] font-semibold text-5xl text-center leading-tight">
           Encontra a profesionales que resuelven.
         </Text>
@@ -27,14 +27,17 @@ const SignIn = () => {
         <SignInWith strategy="oauth_google" />
         <SignInWith strategy="oauth_facebook" />
         <AuthButton onPress={openSignInModal}>
-          <MaterialIcons name="alternate-email" size={24} color="black" className="absolute left-4" />
-          <Text className="font-bold">
-            Acceda con correo electrónico
-          </Text>
+          <MaterialIcons
+            name="alternate-email"
+            size={24}
+            color="black"
+            className="absolute left-4"
+          />
+          <Text className="font-bold">Acceda con correo electrónico</Text>
         </AuthButton>
       </View>
     </MyView>
-  )
+  );
 };
 
 export default SignIn;

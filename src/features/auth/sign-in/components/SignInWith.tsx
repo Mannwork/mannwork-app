@@ -6,9 +6,10 @@ import * as WebBrowser from "expo-web-browser";
 
 import { useSSO } from "@clerk/clerk-expo";
 
+import AuthButton from "@/features/auth/components/AuthButton";
+
 import Facebook from "@/assets/social/icon-fb.png";
 import Google from "@/assets/social/icon-google.png";
-import AuthButton from "../../components.tsx/AuthButton";
 
 const strategyIcons = {
   oauth_google: Google,
@@ -25,8 +26,6 @@ export const useWarmUpBrowser = () => {
     };
   }, []);
 };
-
-console.log("Facebook", Facebook);
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -52,7 +51,7 @@ const SignInWith = ({ strategy }: SignInWithProps) => {
     } catch (error) {
       console.error(JSON.stringify(error, null, 2));
     }
-  }, []);
+  }, [startSSOFlow, strategy]);
 
   return (
     <AuthButton onPress={onPress}>
