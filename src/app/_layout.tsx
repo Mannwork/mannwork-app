@@ -2,13 +2,13 @@ import { StatusBar } from "react-native";
 
 import { Slot } from "expo-router";
 
+import { ClerkSupabaseProvider } from "@/common/providers/ClerkSupabaseProvider";
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "@/common/lib/nativewind/global.css";
-import { ClerkSupabaseProvider } from "@/common/providers/ClerkSupabaseProvider";
 
 export default function RootLayout() {
   const queryClient = new QueryClient();

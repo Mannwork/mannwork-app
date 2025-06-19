@@ -44,22 +44,22 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 -- Políticas RLS básicas para integración con Clerk
 CREATE POLICY "Users can view their own profile" ON public.users
   FOR SELECT 
-  USING (auth.jwt() ->> 'sub' = id);
+  USING ((SELECT auth.jwt() ->> 'sub') = id);
 
 CREATE POLICY "Users can update their own profile" ON public.users
   FOR UPDATE 
-  USING (auth.jwt() ->> 'sub' = id);
+  USING ((SELECT auth.jwt() ->> 'sub') = id);
 
 CREATE POLICY "Users can insert their own profile" ON public.users
   FOR INSERT 
-  WITH CHECK (auth.jwt() ->> 'sub' = id);
+  WITH CHECK ((SELECT auth.jwt() ->> 'sub') = id);
 
 -- Política para que el servicio (webhooks) pueda gestionar usuarios
 CREATE POLICY "Service role can manage users" ON public.users
   FOR ALL
   USING (
-    auth.jwt() ->> 'role' = 'service_role'
-    OR auth.role() = 'service_role'
+    (SELECT auth.jwt() ->> 'role') = 'service_role'
+    OR (SELECT auth.role()) = 'service_role'
   );
 
 -- Índices básicos para performance
