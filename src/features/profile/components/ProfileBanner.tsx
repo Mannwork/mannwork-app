@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -15,6 +16,9 @@ interface ProfileBannerProps {
 }
 
 const ProfileBanner = ({ user, onRequestQuote }: ProfileBannerProps) => {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -29,13 +33,25 @@ const ProfileBanner = ({ user, onRequestQuote }: ProfileBannerProps) => {
     }
     return stars;
   };
-  const insets = useSafeAreaInsets();
+
+  const handleSettingsPress = () => {
+    router.push("/(protected)/(mainTabs)/profile/settings-modal");
+  };
 
   return (
     <View
       className="bg-green-mannwork px-4 py-8"
       style={{ paddingTop: insets.top + 20 }}
     >
+      <View className="absolute top-0 right-4" style={{ top: insets.top + 20 }}>
+        <Pressable
+          onPress={handleSettingsPress}
+          className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+        >
+          <MaterialIcons name="settings" size={24} color="#FFFFFF" />
+        </Pressable>
+      </View>
+
       <View className="flex-col justify-center items-center">
         <View className="w-36 h-36 bg-white rounded-full items-center justify-center mb-4 overflow-hidden border-2 border-white">
           {user.profileImage ? (
