@@ -1,13 +1,7 @@
-import { Text, View } from "react-native"
+import ContactData from "@/features/auth/sign-up/components/ContactData";
 
 const ContactDataScreen = () => {
-  return (
-    <View>
-        <Text>
-            ContactData
-        </Text>
-    </View>
-  )
-}
+  return <ContactData />;
+};
 
-export default ContactDataScreen
+export default ContactDataScreen;

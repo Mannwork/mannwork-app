@@ -1,0 +1,106 @@
+import { useState } from "react";
+
+import { ActivityIndicator, Text, View } from "react-native";
+
+import { router } from "expo-router";
+
+import { isClerkAPIResponseError, useUser } from "@clerk/clerk-expo";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+import CustomInput from "@/common/components/CustomInput";
+
+import AuthButton from "@/features/auth/components/AuthButton";
+import { useAuthStore } from "@/features/auth/sign-up/store/auth.store";
+import { clerkErrorValidator } from "@/features/auth/utils/clerkErrorValidator";
+
+import {
+  celPhoneSchema,
+  CelPhoneSchema,
+} from "../validators/celPhone.validator";
+
+const ContactData = () => {
+  const { isLoaded, user } = useUser();
+  const { setData } = useAuthStore();
+
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<CelPhoneSchema>({
+    resolver: zodResolver(celPhoneSchema),
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const sendCode = async (data: CelPhoneSchema) => {
+    setLoading(true);
+
+    if (!isLoaded) return;
+
+    try {
+      const createdPhone = await user?.createPhoneNumber({
+        phoneNumber: `+54${data.phoneNumber}`,
+      });
+
+      await createdPhone?.prepareVerification();
+
+      setData("cel_phone", data.phoneNumber);
+
+      router.push("/(auth)/sign-up/code-validation-modal");
+    } catch (error) {
+      console.log("error", error);
+
+      if (isClerkAPIResponseError(error)) {
+        error.errors.forEach((error) => {
+          const { errorField, displayMessage } = clerkErrorValidator(error);
+          setError(errorField as "phoneNumber", {
+            message: displayMessage,
+          });
+        });
+      } else {
+        setError("root", {
+          message: "Algo salió mal, intentalo de nuevo más tarde",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View className="flex-1 p-8">
+      <Text className="text-3xl font-bold">Información de Contacto</Text>
+      <Text className="text-lg mt-2 text-gray-600">
+        Ingresa tu numero de celular para que podamos verificar tu cuenta.
+      </Text>
+
+      {errors.root && (
+        <Text style={{ color: "crimson" }}>{errors.root.message}</Text>
+      )}
+
+      <View className="mt-8">
+        <CustomInput
+          name="phoneNumber"
+          control={control}
+          placeholder="Ingresa tu numero de celular"
+          keyboardType="phone-pad"
+        />
+      </View>
+
+      <View className="mt-auto">
+        <AuthButton onPress={handleSubmit(sendCode)}>
+          {loading ? (
+            <ActivityIndicator color="#2d7a3e" size="small" />
+          ) : (
+            <Text className="font-semibold">Enviar código</Text>
+          )}
+        </AuthButton>
+      </View>
+    </View>
+  );
+};
+
+export default ContactData;
