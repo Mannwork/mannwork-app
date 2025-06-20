@@ -14,14 +14,14 @@ ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 -- Políticas RLS para categorías (permitir lectura a todos los usuarios autenticados)
 CREATE POLICY "Authenticated users can view categories" ON public.categories
   FOR SELECT 
-  USING (auth.role() = 'authenticated' OR auth.role() = 'anon');
+  USING ((SELECT auth.role()) = 'authenticated' OR (SELECT auth.role()) = 'anon');
 
 -- Política para que el servicio pueda gestionar categorías
 CREATE POLICY "Service role can manage categories" ON public.categories
   FOR ALL
   USING (
-    auth.jwt() ->> 'role' = 'service_role'
-    OR auth.role() = 'service_role'
+    (SELECT auth.jwt() ->> 'role') = 'service_role'
+    OR (SELECT auth.role()) = 'service_role'
   );
 
 -- Índices para performance

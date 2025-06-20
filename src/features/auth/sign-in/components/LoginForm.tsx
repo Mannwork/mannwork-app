@@ -1,35 +1,42 @@
-import { useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { useState } from "react";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
-import { router } from 'expo-router';
+import { router } from "expo-router";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
-import { isClerkAPIResponseError, useSignIn } from '@clerk/clerk-expo';
+import { isClerkAPIResponseError, useSignIn } from "@clerk/clerk-expo";
 
-import CustomInput from '@/common/components/CustomInput';
-import MyKeyboardAvoidingView from '@/common/components/MyKeyboardAvoidingView';
+import CustomInput from "@/common/components/CustomInput";
+import MyKeyboardAvoidingView from "@/common/components/MyKeyboardAvoidingView";
 
-import { clerkErrorValidator } from '../../utils/clerkErrorValidator';
+import AuthButton from "@/features/auth/components/AuthButton";
+import { clerkErrorValidator } from "@/features/auth/utils/clerkErrorValidator";
 
-import AuthButton from '../../components.tsx/AuthButton';
-import { SignInFields, signInCredentialsScheme } from '../validators/signInCredentials.validator';
+import {
+  SignInFields,
+  signInCredentialsScheme,
+} from "../validators/signInCredentials.validator";
 
 const LoginForm = () => {
-  const [loading, setLoading] = useState(false);
-
-  const {control, handleSubmit, setError, formState: { errors }} = useForm<SignInFields>({
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<SignInFields>({
     resolver: zodResolver(signInCredentialsScheme),
   });
 
-  const {signIn, isLoaded, setActive} = useSignIn();
+  const { signIn, isLoaded, setActive } = useSignIn();
+
+  const [loading, setLoading] = useState(!isLoaded);
 
   const onSignIn = async (data: SignInFields) => {
     if (!isLoaded) return;
 
     try {
-
       setLoading(true);
 
       const signInAttempt = await signIn.create({
@@ -38,18 +45,24 @@ const LoginForm = () => {
       });
 
       if (signInAttempt.status === "complete") {
-        setActive({session: signInAttempt.createdSessionId});
-      } else {        
-        setError('root', { message: 'Algo salió mal, intentalo de nuevo más tarde' });
+        setActive({ session: signInAttempt.createdSessionId });
+      } else {
+        setError("root", {
+          message: "Algo salió mal, intentalo de nuevo más tarde",
+        });
       }
     } catch (error) {
       if (isClerkAPIResponseError(error)) {
         error.errors.forEach((error) => {
-          const {errorField, displayMessage} = clerkErrorValidator(error);
-          setError(errorField as "email" | "password" | "root", { message: displayMessage });
-        })
+          const { errorField, displayMessage } = clerkErrorValidator(error);
+          setError(errorField as "email" | "password" | "root", {
+            message: displayMessage,
+          });
+        });
       } else {
-        setError('root', { message: 'Algo salió mal, intentalo de nuevo más tarde' });
+        setError("root", {
+          message: "Algo salió mal, intentalo de nuevo más tarde",
+        });
       }
 
       setLoading(false);
@@ -59,51 +72,58 @@ const LoginForm = () => {
   };
 
   const goToRegister = () => {
-    router.push('/(auth)/sign-up');
-  }
+    router.push("/(auth)/sign-up");
+  };
 
   return (
-    <MyKeyboardAvoidingView className='justify-between p-8'>
+    <MyKeyboardAvoidingView className="justify-between p-8">
       <View>
-        <CustomInput 
+        <CustomInput
           control={control}
-          name='email'
+          name="email"
           placeholder="Ingrese su correo electrónico"
           autoFocus
-          keyboardType='email-address'
-          autoComplete='email'
-          autoCapitalize='none'
+          keyboardType="email-address"
+          autoComplete="email"
+          autoCapitalize="none"
         />
-        <CustomInput 
+        <CustomInput
           control={control}
-          name='password'
+          name="password"
           placeholder="Ingrese su contraseña"
           secureTextEntry
-          autoComplete='password'
-          autoCapitalize='none'
+          autoComplete="password"
+          autoCapitalize="none"
         />
 
         {errors.root && (
-            <Text style={{ color: 'crimson' }}>{errors.root.message}</Text>
+          <Text style={{ color: "crimson" }}>{errors.root.message}</Text>
         )}
 
-        <View className='flex-row justify-between'>
+        <View className="flex-row justify-between">
           <Pressable>
-            <Text className='text-sm text-text-secondary'>¿Olvidaste tu contraseña?</Text>
+            <Text className="text-sm text-text-secondary">
+              ¿Olvidaste tu contraseña?
+            </Text>
           </Pressable>
           <Pressable onPress={goToRegister}>
-            <Text className='text-sm text-text-secondary'>¿No tienes una cuenta? <Text className='font-semibold'>Registrate</Text></Text>
+            <Text className="text-sm text-text-secondary">
+              ¿No tienes una cuenta?{" "}
+              <Text className="font-semibold">Registrate</Text>
+            </Text>
           </Pressable>
-          </View>
+        </View>
       </View>
 
-      <AuthButton
-        onPress={handleSubmit(onSignIn)}
-      >
-        {loading ? <ActivityIndicator color="#2d7a3e" size="small" /> : <Text className='font-semibold'>Iniciar sesión</Text>}
+      <AuthButton onPress={handleSubmit(onSignIn)}>
+        {loading ? (
+          <ActivityIndicator color="#2d7a3e" size="small" />
+        ) : (
+          <Text className="font-semibold">Iniciar sesión</Text>
+        )}
       </AuthButton>
     </MyKeyboardAvoidingView>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;
