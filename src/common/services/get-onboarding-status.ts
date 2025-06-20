@@ -1,8 +1,6 @@
 import { supabase } from "../lib/supabase/supabaseClient";
 
-export const getOnboardingStatus = async (userId: string) => {
-  console.log("userId", userId);
-  
+export const getOnboardingStatus = async (userId: string) => {  
   const { data, error } = await supabase
     .from("users")
     .select("is_onboarding_complete")
@@ -17,7 +15,6 @@ export const getOnboardingStatus = async (userId: string) => {
     throw new Error("Error fetching data: data es falsy.");
     
   }
-  console.log("data", data);
 
   return data?.is_onboarding_complete ?? false;
 };
