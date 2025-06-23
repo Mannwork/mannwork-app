@@ -1,5 +1,5 @@
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import ChatsHeader from "../../../../features/chats/components/ChatsHeader";
 import ChatsList from "../../../../features/chats/components/ChatsList";
@@ -69,12 +69,20 @@ const mockChats = [
 
 const ChatsScreen = () => {
   const router = useRouter();
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
   const [activeTab, setActiveTab] = useState<
     "active" | "pending" | "completed"
   >("active");
 
   // Simular rol de usuario - esto vendría de tu contexto de autenticación
   const userRole: "professional" = "professional";
+
+  // Establecer la pestaña activa basada en el parámetro de URL
+  useEffect(() => {
+    if (tab && ["active", "pending", "completed"].includes(tab)) {
+      setActiveTab(tab as "active" | "pending" | "completed");
+    }
+  }, [tab]);
 
   // Calcular conteos para cada categoría
   const counts = {

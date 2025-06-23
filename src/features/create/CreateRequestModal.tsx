@@ -2,7 +2,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import ConfirmExitModal from "./components/ConfirmExitModal";
 
 interface CreateRequestModalProps {
   category: string;
@@ -20,10 +19,9 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [showExitModal, setShowExitModal] = useState(false);
 
   const handleBack = () => {
-    router.back();
+    router.replace("/(protected)/(mainTabs)/requests");
   };
 
   return (
@@ -35,9 +33,7 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </Pressable>
           <Text className="text-xl font-bold text-white">Nueva solicitud</Text>
-          <Pressable onPress={() => setShowExitModal(true)} className="w-6">
-            <MaterialIcons name="close" size={24} color="white" />
-          </Pressable>
+          <View className="w-6" />
         </View>
       </View>
 
@@ -46,7 +42,7 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
         <View className="items-center py-6">
           <View className="bg-green-mannwork-light rounded-full p-4 mb-3">
             <MaterialIcons
-              name={icon || "category"}
+              name={(icon as any) || "category"}
               size={32}
               color="#2D7A3E"
             />
@@ -140,12 +136,6 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
           </Text>
         </Pressable>
       </ScrollView>
-
-      {/* Exit Confirmation Modal */}
-      <ConfirmExitModal
-        isVisible={showExitModal}
-        onClose={() => setShowExitModal(false)}
-      />
     </View>
   );
 };

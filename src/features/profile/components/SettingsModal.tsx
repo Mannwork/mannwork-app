@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/clerk-react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,11 +23,20 @@ const SettingsModal = ({
   onAboutMannwork,
 }: SettingsModalProps) => {
   const insets = useSafeAreaInsets();
+  const { signOut } = useAuth();
 
   const handleOptionPress = (action?: () => void) => {
     onClose();
     if (action) {
       action();
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
     }
   };
 
@@ -152,7 +162,7 @@ const SettingsModal = ({
               CUENTA
             </Text>
             <Pressable
-              onPress={() => handleOptionPress(onLogout)}
+              onPress={() => handleOptionPress(handleLogout)}
               className="flex-row items-center py-4 px-4 border-b border-gray-200"
             >
               <View className="w-10 h-10 bg-red-100 rounded-full items-center justify-center mr-4">
