@@ -1,31 +1,62 @@
 import Categories from "@/features/home/Categories";
 import Header from "@/features/home/Header";
 import InfoCardSwiper from "@/features/home/InfoCardSwiper";
+import LoadingState from "@/features/home/LoadingState";
 import RecentSearches from "@/features/home/RecentSearches";
 import SearchBarInput from "@/features/home/SearchbarInput";
 import SubcategoryCarrousel from "@/features/home/SubcategoryCarrousel";
-import { useUser } from "@clerk/clerk-expo";
-import { useAuth } from "@clerk/clerk-react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { useUserRole } from "@/features/request";
+import { useState } from "react";
+import { RefreshControl, ScrollView, View } from "react-native";
 
 const HomeScreen = () => {
-  const { user } = useUser();
-  const { signOut } = useAuth();
+  const { data: userRole, isLoading: isLoadingRole } = useUserRole();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Simular recarga de datos
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Aquí podrías recargar datos reales de la API
+      console.log("Refrescando datos de la home...");
+    } catch (error) {
+      console.error("Error al refrescar:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Mostrar loading mientras se carga el rol del usuario
+  if (isLoadingRole || !userRole) {
+    return (
+      <View className="flex-1 bg-gray-50">
+        <Header />
+        <LoadingState />
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-gray-50">
       <Header />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={["#2D7A3E"]}
+            tintColor="#2D7A3E"
+          />
+        }
+      >
         <SearchBarInput />
         <RecentSearches />
         <Categories />
         <InfoCardSwiper />
         <SubcategoryCarrousel />
         <View className="h-8" />
-        <Pressable onPress={() => signOut()}>
-          <Text>Sign out</Text>
-        </Pressable>
-        <Text>{user?.firstName}</Text>
       </ScrollView>
     </View>
   );

@@ -1,6 +1,5 @@
 import CreateRequestModal from "@/features/create/CreateRequestModal";
 import { Stack, useLocalSearchParams } from "expo-router";
-
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -21,6 +20,8 @@ export default function CreateRequestScreen() {
           headerShown: false,
           presentation: "fullScreenModal",
           animation: "slide_from_bottom",
+          gestureEnabled: true,
+          gestureDirection: "vertical",
         }}
       />
       <CreateRequestModal
