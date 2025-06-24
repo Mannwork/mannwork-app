@@ -1,13 +1,23 @@
 import { create } from "zustand";
 
-interface AuthStore {
-    role: "client" | "professional" | null;
+import { User } from "@/common/types/user.interface";
 
+interface AuthStore extends Pick<User, "rol" | "cel_phone" | "ubication_json" | "service_radius" | "name" | "last_name" | "profile_pic">{
     setData: (key: keyof AuthStore, value: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
-    role: null,
+    rol: null,
+    cel_phone: null,
+    ubication_json: null,
+    service_radius: 0,
+    name: "",
+    last_name: "",
+    profile_pic: "",
 
-    setData: (key, value) => set({ [key]: value }),
+    setData: (key, value) => {
+        set({ [key]: value })
+        console.log(get());
+        
+    },
 }));

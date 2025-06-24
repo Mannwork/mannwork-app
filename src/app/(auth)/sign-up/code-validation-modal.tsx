@@ -1,13 +1,7 @@
-import { Text, View } from "react-native"
+import CodeValidation from "@/features/auth/sign-up/components/CodeValidation";
 
 const CodeValidationModal = () => {
-  return (
-    <View>
-        <Text>
-            CodeValidationModal
-        </Text>
-    </View>
-  )
-}
+  return <CodeValidation />;
+};
 
-export default CodeValidationModal
+export default CodeValidationModal;

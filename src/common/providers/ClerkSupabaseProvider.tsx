@@ -5,55 +5,57 @@ import { useAuth } from "@clerk/clerk-expo";
 import { setClerkTokenProvider } from "../lib/clerk/clerkTokenManager";
 
 interface ClerkSupabaseProviderProps {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }
 
 export function ClerkSupabaseProvider({
-  children,
+    children,
 }: ClerkSupabaseProviderProps) {
-  const { getToken, isSignedIn } = useAuth();
+    const { getToken, isSignedIn } = useAuth();
 
-  useEffect(() => {
-    // Configurar el proveedor de tokens de Clerk para Supabase
-    const tokenProvider = async (): Promise<string | null> => {
-      if (!isSignedIn) {
-        return null;
-      }
+    useEffect(() => {
+        console.log("PROVIDER EFFECT RUNNING - isSignedIn:", isSignedIn);
 
-      try {
-        // Usar el token estándar de Clerk sin template personalizado
-        const token = await getToken();
-        return token;
-      } catch (error) {
-        console.error("Error obteniendo token de Clerk:", error);
-        return null;
-      }
-    };
+        // Configurar el proveedor de tokens de Clerk para Supabase
+        const tokenProvider = async (): Promise<string | null> => {
+            if (!isSignedIn) {
+                return null;
+            }
 
-    setClerkTokenProvider(tokenProvider);
-  }, [getToken, isSignedIn]);
+            try {
+                // Usar el token estándar de Clerk sin template personalizado
+                const token = await getToken();
+                return token;
+            } catch (error) {
+                console.error("Error obteniendo token de Clerk:", error);
+                return null;
+            }
+        };
 
-  return <>{children}</>;
+        setClerkTokenProvider(tokenProvider);
+    }, [getToken, isSignedIn]);
+
+    return <>{children}</>;
 }
 
 export function useClerkSupabase() {
-  const { isSignedIn, getToken } = useAuth();
+    const { isSignedIn, getToken } = useAuth();
 
-  const getSupabaseToken = async (): Promise<string | null> => {
-    if (!isSignedIn) {
-      return null;
-    }
+    const getSupabaseToken = async (): Promise<string | null> => {
+        if (!isSignedIn) {
+            return null;
+        }
 
-    try {
-      return await getToken();
-    } catch (error) {
-      console.error("Error obteniendo token para Supabase:", error);
-      return null;
-    }
-  };
+        try {
+            return await getToken();
+        } catch (error) {
+            console.error("Error obteniendo token para Supabase:", error);
+            return null;
+        }
+    };
 
-  return {
-    isSignedIn,
-    getSupabaseToken,
-  };
+    return {
+        isSignedIn,
+        getSupabaseToken,
+    };
 }
