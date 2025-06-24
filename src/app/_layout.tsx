@@ -14,16 +14,16 @@ import "@/common/lib/nativewind/global.css";
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
-  return (
-    <ClerkProvider
-      tokenCache={tokenCache}
-      publishableKey={envs.clerkPublishableKey}
-    >
-      <ClerkSupabaseProvider>
-        <QueryClientProvider client={queryClient}>
-          <MySlot />
-        </QueryClientProvider>
-      </ClerkSupabaseProvider>
-    </ClerkProvider>
-  );
+    return (
+        <ClerkProvider
+            tokenCache={tokenCache}
+            publishableKey={envs.clerkPublishableKey}
+        >
+            <ClerkSupabaseProvider>
+                <QueryClientProvider client={queryClient}>
+                    <MySlot />
+                </QueryClientProvider>
+            </ClerkSupabaseProvider>
+        </ClerkProvider>
+    );
 }

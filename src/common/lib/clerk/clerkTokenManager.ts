@@ -1,3 +1,4 @@
+
 // Variable global para almacenar la función de obtener token de Clerk
 let getClerkToken: (() => Promise<string | null>) | null = null;
 
