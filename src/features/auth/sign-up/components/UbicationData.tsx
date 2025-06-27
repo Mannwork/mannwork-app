@@ -1,24 +1,24 @@
 import CustomInput from "@/common/components/CustomInput";
 import MyView from "@/common/components/MyView";
+import { envs } from "@/common/config/envs";
 import { Ubication } from "@/common/types/ubication.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
-import { Button, StyleSheet, Text } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import GooglePlacesTextInput from "react-native-google-places-textinput";
+import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { z } from "zod";
+import AuthButton from "../../components/AuthButton";
 
 const ubicationSchema = z.object({
-    province: z.string().min(1, "La provincia es requerida"),
-    city: z.string().min(1, "La ciudad es requerida"),
-    street: z.string().min(1, "La calle es requerida"),
-    type: z.enum(["house", "apartment", "other"]),
-    floor: z.string().nullable().optional(),
-    apartmentNumber: z.string().nullable().optional(),
-    postalCode: z.string().min(1, "El código postal es requerido"),
+    address: z.string().min(1, "La dirección es requerida"),
     latitude: z.number(),
     longitude: z.number(),
+    type: z.enum(["house", "apartment"]),
+    floor: z.string().nullable().optional(),
+    apartmentNumber: z.string().nullable().optional(),
     serviceRange: z.coerce.number().min(1, "El rango es requerido").optional(),
 });
 
@@ -30,7 +30,7 @@ interface UbicationDataProps {
 }
 
 const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
-    const { control, handleSubmit, setValue, getValues } =
+    const { control, handleSubmit, setValue, watch } =
         useForm<UbicationFormData>({
             resolver: zodResolver(ubicationSchema),
             defaultValues: {
@@ -45,86 +45,160 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
         longitude: number;
     } | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [inputKey, setInputKey] = useState(Date.now().toString());
+    const [region, setRegion] = useState<Region>({
+        latitude: -34.6037, // Buenos Aires
+        longitude: -58.3816,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+    });
 
     const serviceRange = useWatch({ control, name: "serviceRange" });
     const latitude = useWatch({ control, name: "latitude" });
     const longitude = useWatch({ control, name: "longitude" });
+    const addressType = watch("type");
 
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== "granted") {
                 setErrorMsg("Permission to access location was denied");
-                // Set a default location (e.g., center of a city)
-                const defaultLocation = {
-                    latitude: -34.6037,
-                    longitude: -58.3816,
-                };
-                setLocation(defaultLocation);
-                setValue("latitude", defaultLocation.latitude);
-                setValue("longitude", defaultLocation.longitude);
+                setLocation({
+                    latitude: region.latitude,
+                    longitude: region.longitude,
+                });
                 return;
             }
 
             let currentLocation = await Location.getCurrentPositionAsync({});
-            setLocation(currentLocation.coords);
-            setValue("latitude", currentLocation.coords.latitude);
-            setValue("longitude", currentLocation.coords.longitude);
-            // Automatically fetch address for current location
-            handleReverseGeocode(currentLocation.coords);
+            const { latitude, longitude } = currentLocation.coords;
+            setLocation({ latitude, longitude });
+            setRegion((prev) => ({ ...prev, latitude, longitude }));
         })();
-    }, [setValue]);
-
-    const handleReverseGeocode = async (coords: {
-        latitude: number;
-        longitude: number;
-    }) => {
-        const address = await Location.reverseGeocodeAsync(coords);
-        if (address.length > 0) {
-            const { city, region, street, postalCode } = address[0];
-            setValue("city", city ?? "");
-            setValue("province", region ?? "");
-            setValue("street", street ?? "");
-            setValue("postalCode", postalCode ?? "");
-        }
-    };
+    }, []);
 
     const handleMapPress = async (event: any) => {
         const { latitude, longitude } = event.nativeEvent.coordinate;
         const newCoords = { latitude, longitude };
         setLocation(newCoords);
+        setRegion((prev) => ({ ...prev, latitude, longitude }));
         setValue("latitude", latitude);
         setValue("longitude", longitude);
-        handleReverseGeocode(newCoords);
+
+        try {
+            const addressResponse = await Location.reverseGeocodeAsync(
+                newCoords
+            );
+            if (addressResponse && addressResponse.length > 0) {
+                const ad = addressResponse[0];
+                const streetPart = ad.streetNumber
+                    ? `${ad.street} ${ad.streetNumber}`
+                    : ad.street;
+                const formattedAddress = [
+                    streetPart,
+                    ad.city,
+                    ad.region,
+                    ad.country,
+                ]
+                    .filter(Boolean)
+                    .join(", ");
+                setValue("address", formattedAddress, { shouldValidate: true });
+                setTimeout(() => setInputKey(Date.now().toString()), 0);
+            }
+        } catch (error) {
+            console.error("Reverse geocoding failed", error);
+            const newAddress = `${latitude.toFixed(5)}, ${longitude.toFixed(
+                5
+            )}`;
+            setValue("address", newAddress, {
+                shouldValidate: true,
+            });
+            setTimeout(() => setInputKey(Date.now().toString()), 0);
+        }
     };
 
     return (
-        <MyView>
+        <MyView className="flex-1 p-6">
             <Text>Ingresa tu ubicación</Text>
 
-            <Text>Provincia</Text>
-            <CustomInput
+            <Controller
                 control={control}
-                name="province"
-                placeholder="Buenos Aires"
+                name="address"
+                render={({ field: { onChange, value } }) => (
+                    <GooglePlacesTextInput
+                        key={inputKey}
+                        apiKey={envs.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY}
+                        onPlaceSelect={(place) => {
+                            if (place.details?.location) {
+                                const { latitude, longitude } =
+                                    place.details.location;
+                                const newCoords = { latitude, longitude };
+                                setLocation(newCoords);
+                                setRegion((prev) => ({
+                                    ...prev,
+                                    latitude,
+                                    longitude,
+                                }));
+                                setValue("latitude", latitude);
+                                setValue("longitude", longitude);
+                                const newAddress =
+                                    place.details.formattedAddress;
+                                onChange(newAddress);
+                                setInputKey(Date.now().toString());
+                            }
+                        }}
+                        placeHolderText="Busca tu dirección"
+                        fetchDetails={true}
+                        onTextChange={onChange}
+                        value={value}
+                    />
+                )}
             />
 
-            <Text>Ciudad</Text>
-            <CustomInput control={control} name="city" placeholder="La Plata" />
+            {role === "client" && (
+                <>
+                    <Text>Tipo de domicilio</Text>
+                    <View style={styles.addressTypeContainer}>
+                        <Pressable
+                            style={[
+                                styles.addressTypeButton,
+                                addressType === "house" &&
+                                    styles.addressTypeButtonSelected,
+                            ]}
+                            onPress={() => setValue("type", "house")}
+                        >
+                            <Text>Casa</Text>
+                        </Pressable>
+                        <Pressable
+                            style={[
+                                styles.addressTypeButton,
+                                addressType === "apartment" &&
+                                    styles.addressTypeButtonSelected,
+                            ]}
+                            onPress={() => setValue("type", "apartment")}
+                        >
+                            <Text>Departamento</Text>
+                        </Pressable>
+                    </View>
 
-            <Text>Calle y número</Text>
-            <CustomInput
-                control={control}
-                name="street"
-                placeholder="Calle Falsa 123"
-            />
-
-            <Text>Código Postal</Text>
-            <CustomInput
-                control={control}
-                name="postalCode"
-                placeholder="B1900"
-            />
+                    {addressType === "apartment" && (
+                        <>
+                            <Text>Piso</Text>
+                            <CustomInput
+                                control={control}
+                                name="floor"
+                                placeholder="5"
+                            />
+                            <Text>Departamento</Text>
+                            <CustomInput
+                                control={control}
+                                name="apartmentNumber"
+                                placeholder="B"
+                            />
+                        </>
+                    )}
+                </>
+            )}
 
             {role === "professional" && (
                 <>
@@ -138,18 +212,13 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                 </>
             )}
 
-            <Text>O selecciona en el mapa</Text>
-
             {location && (
                 <MapView
                     style={styles.map}
-                    initialRegion={{
-                        latitude: location.latitude,
-                        longitude: location.longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
-                    }}
+                    region={region}
+                    onRegionChangeComplete={setRegion}
                     onPress={handleMapPress}
+                    zoomControlEnabled={true}
                 >
                     <Marker
                         coordinate={location}
@@ -171,16 +240,39 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
             )}
             {errorMsg && <Text>{errorMsg}</Text>}
 
-            <Button title="Continuar" onPress={handleSubmit(onSubmit as any)} />
+            <AuthButton
+                onPress={handleSubmit(onSubmit as any)}
+                className="bg-green-mannwork"
+            >
+                <Text className="font-semibold text-background-white">
+                    Siguiente
+                </Text>
+            </AuthButton>
         </MyView>
     );
 };
 
 const styles = StyleSheet.create({
     map: {
+        flex: 1,
         width: "100%",
-        height: 300,
-        marginVertical: 20,
+        marginBottom: 10,
+    },
+    addressTypeContainer: {
+        flexDirection: "row",
+        marginVertical: 10,
+    },
+    addressTypeButton: {
+        flex: 1,
+        padding: 10,
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 5,
+        marginHorizontal: 5,
+    },
+    addressTypeButtonSelected: {
+        backgroundColor: "#e0e0e0",
     },
 });
 

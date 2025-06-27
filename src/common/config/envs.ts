@@ -1,29 +1,10 @@
-const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+import { z } from "zod";
 
-if (!clerkPublishableKey) {
-  throw new Error(
-    "Clerk Publishable Key is not defined. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env file."
-  );
-}
+const envSchema = z.object({
+  EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
+  EXPO_PUBLIC_GOOGLE_PLACES_API_KEY: z.string(),
+  EXPO_PUBLIC_SUPABASE_URL: z.string().url(),
+  EXPO_PUBLIC_SUPABASE_ANON_KEY: z.string(),
+});
 
-if (!supabaseUrl) {
-  throw new Error(
-    "Supabase URL is not defined. Please set EXPO_PUBLIC_SUPABASE_URL in your .env file."
-  );
-}
-
-if (!supabaseAnonKey) {
-  throw new Error(
-    "Supabase anonymous key is not defined. Please set EXPO_PUBLIC_SUPABASE_ANON_KEY in your .env file."
-  );
-}
-
-const envs = {
-  clerkPublishableKey,
-  supabaseUrl,
-  supabaseAnonKey,
-};
-
-export default envs;
+export const envs = envSchema.parse(process.env);
