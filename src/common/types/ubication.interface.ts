@@ -8,4 +8,5 @@ export interface Ubication {
     postalCode?: string;
     latitude: number;
     longitude: number;
+    serviceRange?: number;
 }

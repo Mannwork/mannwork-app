@@ -4,14 +4,15 @@ import { envs } from "@/common/config/envs";
 import { Ubication } from "@/common/types/ubication.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Location from "expo-location";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import GooglePlacesTextInput from "react-native-google-places-textinput";
-import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { z } from "zod";
 import AuthButton from "../../components/AuthButton";
 import { useAuthStore } from "../store/auth.store";
+import UserUbicationMap from "./UserUbicationMap";
 
 const ubicationSchema = z.object({
     address: z.string().min(1, "La dirección es requerida"),
@@ -47,26 +48,15 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
             },
         });
 
-    const [location, setLocation] = useState<{
-        latitude: number;
-        longitude: number;
-    } | null>(null);
-    const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [inputKey, setInputKey] = useState(Date.now().toString());
-    const [region, setRegion] = useState<Region>({
-        latitude: -34.6037, // Buenos Aires
-        longitude: -58.3816,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-    });
 
     const serviceRange = useWatch({ control, name: "serviceRange" });
     const latitude = useWatch({ control, name: "latitude" });
     const longitude = useWatch({ control, name: "longitude" });
     const addressType = watch("type");
 
-    useEffect(() => {
-        (async () => {
+    useFocusEffect(
+        useCallback(() => {
             if (ubication_json) {
                 setValue("address", ubication_json.street);
                 setValue("street", ubication_json.street);
@@ -75,48 +65,22 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                 setValue("postalCode", ubication_json.postalCode || "");
                 setValue("latitude", ubication_json.latitude);
                 setValue("longitude", ubication_json.longitude);
-                setLocation({
-                    latitude: ubication_json.latitude,
-                    longitude: ubication_json.longitude,
-                });
-                setRegion((prev) => ({
-                    ...prev,
-                    latitude: ubication_json.latitude,
-                    longitude: ubication_json.longitude,
-                }));
-
-                return;
+                if (role === "professional" && ubication_json.serviceRange) {
+                    setValue("serviceRange", ubication_json.serviceRange);
+                }
             }
+        }, [ubication_json, setValue, role])
+    );
 
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                setErrorMsg("Permission to access location was denied");
-                setLocation({
-                    latitude: region.latitude,
-                    longitude: region.longitude,
-                });
-                return;
-            }
-
-            let currentLocation = await Location.getCurrentPositionAsync({});
-            const { latitude, longitude } = currentLocation.coords;
-            setLocation({ latitude, longitude });
-            setRegion((prev) => ({ ...prev, latitude, longitude }));
-        })();
-    }, [ubication_json, setValue]);
-
-    const handleMapPress = async (event: any) => {
-        const { latitude, longitude } = event.nativeEvent.coordinate;
-        const newCoords = { latitude, longitude };
-        setLocation(newCoords);
-        setRegion((prev) => ({ ...prev, latitude, longitude }));
-        setValue("latitude", latitude);
-        setValue("longitude", longitude);
+    const handleLocationChange = async (coords: {
+        latitude: number;
+        longitude: number;
+    }) => {
+        setValue("latitude", coords.latitude);
+        setValue("longitude", coords.longitude);
 
         try {
-            const addressResponse = await Location.reverseGeocodeAsync(
-                newCoords
-            );
+            const addressResponse = await Location.reverseGeocodeAsync(coords);
             if (addressResponse && addressResponse.length > 0) {
                 const ad = addressResponse[0];
                 const streetPart = ad.streetNumber
@@ -139,9 +103,9 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
             }
         } catch (error) {
             console.error("Reverse geocoding failed", error);
-            const newAddress = `${latitude.toFixed(5)}, ${longitude.toFixed(
+            const newAddress = `${coords.latitude.toFixed(
                 5
-            )}`;
+            )}, ${coords.longitude.toFixed(5)}`;
             setValue("address", newAddress, {
                 shouldValidate: true,
             });
@@ -164,20 +128,15 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                             if (place.details?.location) {
                                 const { latitude, longitude } =
                                     place.details.location;
-                                const newCoords = { latitude, longitude };
-                                setLocation(newCoords);
-                                setRegion((prev) => ({
-                                    ...prev,
-                                    latitude,
-                                    longitude,
-                                }));
-                                setValue("latitude", latitude);
-                                setValue("longitude", longitude);
+                                handleLocationChange({ latitude, longitude });
+
+                                // This logic is now in handleLocationChange, but we still need to update the input text.
                                 try {
                                     const addressResponse =
-                                        await Location.reverseGeocodeAsync(
-                                            newCoords
-                                        );
+                                        await Location.reverseGeocodeAsync({
+                                            latitude,
+                                            longitude,
+                                        });
                                     if (
                                         addressResponse &&
                                         addressResponse.length > 0
@@ -194,37 +153,16 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                                         ]
                                             .filter(Boolean)
                                             .join(", ");
-                                        onChange(formattedAddress, {
-                                            shouldValidate: true,
-                                        });
-                                        setValue(
-                                            "street",
-                                            streetPart as string
-                                        );
-                                        setValue("city", ad.city as string);
-                                        setValue(
-                                            "province",
-                                            ad.region as string
-                                        );
-                                        setValue(
-                                            "postalCode",
-                                            ad.postalCode as string
-                                        );
-                                        setTimeout(
-                                            () =>
-                                                setInputKey(
-                                                    Date.now().toString()
-                                                ),
-                                            0
-                                        );
+                                        onChange(formattedAddress);
                                     }
                                 } catch (error) {
                                     console.error(
                                         "Reverse geocoding failed",
                                         error
                                     );
+                                } finally {
+                                    setInputKey(Date.now().toString());
                                 }
-                                setInputKey(Date.now().toString());
                             }
                         }}
                         placeHolderText="Busca tu dirección"
@@ -292,43 +230,15 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                 </>
             )}
 
-            {location && (
-                <MapView
-                    style={styles.map}
-                    region={
-                        ubication_json
-                            ? {
-                                  latitude: ubication_json.latitude,
-                                  longitude: ubication_json.longitude,
-                                  latitudeDelta: 0.0922,
-                                  longitudeDelta: 0.0421,
-                              }
-                            : region
-                    }
-                    onRegionChangeComplete={setRegion}
-                    onPress={handleMapPress}
-                    zoomControlEnabled={true}
-                >
-                    <Marker
-                        coordinate={location}
-                        draggable
-                        onDragEnd={handleMapPress}
-                    />
-                    {role === "professional" &&
-                        serviceRange &&
-                        latitude &&
-                        longitude && (
-                            <Circle
-                                center={{ latitude, longitude }}
-                                radius={serviceRange * 1000} // radius in meters
-                                strokeColor="rgba(0, 150, 255, 0.5)"
-                                fillColor="rgba(0, 150, 255, 0.2)"
-                            />
-                        )}
-                </MapView>
-            )}
-
-            {errorMsg && <Text>{errorMsg}</Text>}
+            <View style={styles.mapContainer}>
+                <UserUbicationMap
+                    role={role}
+                    onLocationChange={handleLocationChange}
+                    serviceRange={serviceRange}
+                    latitude={latitude}
+                    longitude={longitude}
+                />
+            </View>
 
             <AuthButton
                 onPress={handleSubmit(onSubmit as any)}
@@ -344,6 +254,11 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
 
 const styles = StyleSheet.create({
     map: {
+        flex: 1,
+        width: "100%",
+        marginBottom: 10,
+    },
+    mapContainer: {
         flex: 1,
         width: "100%",
         marginBottom: 10,
