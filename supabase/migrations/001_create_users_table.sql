@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   id text PRIMARY KEY,                    -- ID de Clerk
   name text NOT NULL,
   last_name text NOT NULL,
+  description text,
   rol text CHECK (rol IN ('professional', 'client')) NOT NULL,
   email text NOT NULL,
   cel_phone text,
