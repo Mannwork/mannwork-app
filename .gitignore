@@ -39,8 +39,10 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Android
+/android
+
 app-example
 
 .trae/
 
-/android

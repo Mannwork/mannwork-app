@@ -2,13 +2,15 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 
 interface QuoteButtonProps {
-  onPress: () => void;
+  onRequestQuote: () => void;
+  onViewQuote?: () => void;
   userRole: "client" | "professional";
   hasQuote?: boolean;
 }
 
 const QuoteButton = ({
-  onPress,
+  onRequestQuote,
+  onViewQuote,
   userRole,
   hasQuote = false,
 }: QuoteButtonProps) => {
@@ -24,10 +26,18 @@ const QuoteButton = ({
     return hasQuote ? "bg-blue-500" : "bg-green-mannwork";
   };
 
+  const handlePress = () => {
+    if (hasQuote && onViewQuote) {
+      onViewQuote();
+    } else {
+      onRequestQuote();
+    }
+  };
+
   return (
     <View className="bg-white border-t border-gray-200 px-4 py-3">
       <Pressable
-        onPress={onPress}
+        onPress={handlePress}
         className={`${getButtonColor()} rounded-lg py-3 px-4 flex-row items-center justify-center`}
       >
         <MaterialIcons

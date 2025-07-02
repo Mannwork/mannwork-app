@@ -1,19 +1,37 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image, Text, View } from "react-native";
+import QuoteCard from "./QuoteCard";
+import QuoteRequestCard from "./QuoteRequestCard";
 
 interface MessageItemProps {
   message: {
     id: string;
-    text: string;
+    text?: string;
     timestamp: string;
     isFromMe: boolean;
-    type: "text" | "image" | "file";
+    type: "text" | "image" | "file" | "quote_request" | "quote";
     imageUrl?: string;
     fileName?: string;
+    // Para quote_request
+    status?: "pending" | "responded";
+    // Para quote
+    quote?: {
+      amount: number;
+      description: string;
+      professionalName: string;
+      professionalAvatar?: string;
+    };
+    quoteStatus?: "pending" | "paid";
   };
+  onQuoteRequest?: () => void;
+  onPayQuote?: () => void;
 }
 
-const MessageItem = ({ message }: MessageItemProps) => {
+const MessageItem = ({
+  message,
+  onQuoteRequest,
+  onPayQuote,
+}: MessageItemProps) => {
   const formatTime = (timestamp: string) => {
     // Aquí podrías implementar lógica para formatear la hora
     return timestamp;
@@ -42,6 +60,27 @@ const MessageItem = ({ message }: MessageItemProps) => {
           </View>
         );
 
+      case "quote_request":
+        return (
+          <QuoteRequestCard
+            onQuote={onQuoteRequest || (() => {})}
+            isFromMe={message.isFromMe}
+            status={message.status || "pending"}
+            timestamp={message.timestamp}
+          />
+        );
+
+      case "quote":
+        return (
+          <QuoteCard
+            quote={message.quote!}
+            isFromMe={message.isFromMe}
+            onPay={onPayQuote}
+            status={message.quoteStatus || "pending"}
+            timestamp={message.timestamp}
+          />
+        );
+
       default:
         return (
           <Text
@@ -54,6 +93,11 @@ const MessageItem = ({ message }: MessageItemProps) => {
         );
     }
   };
+
+  // Para mensajes normales, mantener el bubble. Para cards, no usar bubble extra.
+  if (message.type === "quote_request" || message.type === "quote") {
+    return <View className="px-4 py-2">{renderMessageContent()}</View>;
+  }
 
   return (
     <View
