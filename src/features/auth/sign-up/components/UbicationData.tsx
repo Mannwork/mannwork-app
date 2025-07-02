@@ -11,9 +11,14 @@ import GooglePlacesTextInput from "react-native-google-places-textinput";
 import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { z } from "zod";
 import AuthButton from "../../components/AuthButton";
+import { useAuthStore } from "../store/auth.store";
 
 const ubicationSchema = z.object({
     address: z.string().min(1, "La dirección es requerida"),
+    street: z.string().min(1, "La calle es requerida"),
+    city: z.string().min(1, "La ciudad es requerida"),
+    province: z.string().min(1, "La provincia es requerida"),
+    postalCode: z.string().min(1, "El código postal es requerido"),
     latitude: z.number(),
     longitude: z.number(),
     type: z.enum(["house", "apartment"]),
@@ -30,6 +35,8 @@ interface UbicationDataProps {
 }
 
 const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
+    const { ubication_json } = useAuthStore();
+
     const { control, handleSubmit, setValue, watch } =
         useForm<UbicationFormData>({
             resolver: zodResolver(ubicationSchema),
@@ -60,6 +67,27 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
 
     useEffect(() => {
         (async () => {
+            if (ubication_json) {
+                setValue("address", ubication_json.street);
+                setValue("street", ubication_json.street);
+                setValue("city", ubication_json.city);
+                setValue("province", ubication_json.province);
+                setValue("postalCode", ubication_json.postalCode || "");
+                setValue("latitude", ubication_json.latitude);
+                setValue("longitude", ubication_json.longitude);
+                setLocation({
+                    latitude: ubication_json.latitude,
+                    longitude: ubication_json.longitude,
+                });
+                setRegion((prev) => ({
+                    ...prev,
+                    latitude: ubication_json.latitude,
+                    longitude: ubication_json.longitude,
+                }));
+
+                return;
+            }
+
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== "granted") {
                 setErrorMsg("Permission to access location was denied");
@@ -75,7 +103,7 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
             setLocation({ latitude, longitude });
             setRegion((prev) => ({ ...prev, latitude, longitude }));
         })();
-    }, []);
+    }, [ubication_json, setValue]);
 
     const handleMapPress = async (event: any) => {
         const { latitude, longitude } = event.nativeEvent.coordinate;
@@ -103,6 +131,10 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                     .filter(Boolean)
                     .join(", ");
                 setValue("address", formattedAddress, { shouldValidate: true });
+                setValue("street", streetPart as string);
+                setValue("city", ad.city as string);
+                setValue("province", ad.region as string);
+                setValue("postalCode", ad.postalCode as string);
                 setTimeout(() => setInputKey(Date.now().toString()), 0);
             }
         } catch (error) {
@@ -128,7 +160,7 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                     <GooglePlacesTextInput
                         key={inputKey}
                         apiKey={envs.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY}
-                        onPlaceSelect={(place) => {
+                        onPlaceSelect={async (place) => {
                             if (place.details?.location) {
                                 const { latitude, longitude } =
                                     place.details.location;
@@ -141,9 +173,57 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                                 }));
                                 setValue("latitude", latitude);
                                 setValue("longitude", longitude);
-                                const newAddress =
-                                    place.details.formattedAddress;
-                                onChange(newAddress);
+                                try {
+                                    const addressResponse =
+                                        await Location.reverseGeocodeAsync(
+                                            newCoords
+                                        );
+                                    if (
+                                        addressResponse &&
+                                        addressResponse.length > 0
+                                    ) {
+                                        const ad = addressResponse[0];
+                                        const streetPart = ad.streetNumber
+                                            ? `${ad.street} ${ad.streetNumber}`
+                                            : ad.street;
+                                        const formattedAddress = [
+                                            streetPart,
+                                            ad.city,
+                                            ad.region,
+                                            ad.country,
+                                        ]
+                                            .filter(Boolean)
+                                            .join(", ");
+                                        onChange(formattedAddress, {
+                                            shouldValidate: true,
+                                        });
+                                        setValue(
+                                            "street",
+                                            streetPart as string
+                                        );
+                                        setValue("city", ad.city as string);
+                                        setValue(
+                                            "province",
+                                            ad.region as string
+                                        );
+                                        setValue(
+                                            "postalCode",
+                                            ad.postalCode as string
+                                        );
+                                        setTimeout(
+                                            () =>
+                                                setInputKey(
+                                                    Date.now().toString()
+                                                ),
+                                            0
+                                        );
+                                    }
+                                } catch (error) {
+                                    console.error(
+                                        "Reverse geocoding failed",
+                                        error
+                                    );
+                                }
                                 setInputKey(Date.now().toString());
                             }
                         }}
@@ -215,7 +295,16 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
             {location && (
                 <MapView
                     style={styles.map}
-                    region={region}
+                    region={
+                        ubication_json
+                            ? {
+                                  latitude: ubication_json.latitude,
+                                  longitude: ubication_json.longitude,
+                                  latitudeDelta: 0.0922,
+                                  longitudeDelta: 0.0421,
+                              }
+                            : region
+                    }
                     onRegionChangeComplete={setRegion}
                     onPress={handleMapPress}
                     zoomControlEnabled={true}
@@ -238,6 +327,7 @@ const UbicationData = ({ role, onSubmit }: UbicationDataProps) => {
                         )}
                 </MapView>
             )}
+
             {errorMsg && <Text>{errorMsg}</Text>}
 
             <AuthButton
