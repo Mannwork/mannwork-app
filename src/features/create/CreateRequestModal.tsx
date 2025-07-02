@@ -39,6 +39,69 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
   const { showActionSheetWithOptions } = useActionSheet();
   const [isImagePickerPending, setIsImagePickerPending] = useState(false);
 
+  // Estados para validaciones
+  const [errors, setErrors] = useState<{
+    title?: string;
+    description?: string;
+    location?: string;
+  }>({});
+
+  const TITLE_MAX_LENGTH = 60;
+  const DESCRIPTION_MAX_LENGTH = 500;
+
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+
+    // Validar título
+    if (!title.trim()) {
+      newErrors.title = "El título es obligatorio";
+    } else if (title.length > TITLE_MAX_LENGTH) {
+      newErrors.title = `El título no puede tener más de ${TITLE_MAX_LENGTH} caracteres`;
+    }
+
+    // Validar descripción
+    if (!description.trim()) {
+      newErrors.description = "La descripción es obligatoria";
+    } else if (description.length > DESCRIPTION_MAX_LENGTH) {
+      newErrors.description = `La descripción no puede tener más de ${DESCRIPTION_MAX_LENGTH} caracteres`;
+    }
+
+    // Validar ubicación
+    if (!locationData?.address) {
+      newErrors.location = "La ubicación es obligatoria";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateForm()) {
+      router.push({
+        pathname: "/(protected)/(mainTabs)/requests/select-professionals",
+        params: {
+          category: category || "",
+          subcategory: subcategory || "",
+          title,
+          description,
+          location,
+          locationData: locationData ? JSON.stringify(locationData) : "",
+          images: images.length > 0 ? JSON.stringify(images) : "",
+        },
+      });
+    }
+  };
+
+  const isFormValid = () => {
+    return (
+      title.trim().length > 0 &&
+      title.length <= TITLE_MAX_LENGTH &&
+      description.trim().length > 0 &&
+      description.length <= DESCRIPTION_MAX_LENGTH &&
+      locationData?.address
+    );
+  };
+
   const handleBack = () => {
     router.replace("/(protected)/(mainTabs)/requests");
   };
@@ -158,26 +221,58 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
         {/* Título */}
         <Text className="text-base font-bold text-gray-800 mb-2">Título</Text>
         <TextInput
-          className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 mb-4"
+          className={`bg-gray-50 rounded-xl px-4 py-3 text-base border ${
+            errors.title ? "border-red-500" : "border-gray-200"
+          } mb-1`}
           placeholder="Dale un nombre a tu solicitud"
           placeholderTextColor="#BDBDBD"
           value={title}
-          onChangeText={setTitle}
+          onChangeText={(text) => {
+            setTitle(text);
+            if (errors.title) {
+              setErrors((prev) => ({ ...prev, title: undefined }));
+            }
+          }}
+          maxLength={TITLE_MAX_LENGTH}
         />
+        <View className="flex-row justify-between items-center mb-4">
+          {errors.title && (
+            <Text className="text-xs text-red-500">{errors.title}</Text>
+          )}
+          <Text className="text-xs text-gray-400">
+            {title.length}/{TITLE_MAX_LENGTH} caracteres
+          </Text>
+        </View>
 
         {/* Descripción */}
         <Text className="text-base font-bold text-gray-800 mb-2">
           ¿Qué necesitás?
         </Text>
         <TextInput
-          className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 mb-4 min-h-[100px]"
+          className={`bg-gray-50 rounded-xl px-4 py-3 text-base border ${
+            errors.description ? "border-red-500" : "border-gray-200"
+          } mb-1 min-h-[100px]`}
           placeholder="Contanos en detalle qué necesitás"
           placeholderTextColor="#BDBDBD"
           multiline
           textAlignVertical="top"
           value={description}
-          onChangeText={setDescription}
+          onChangeText={(text) => {
+            setDescription(text);
+            if (errors.description) {
+              setErrors((prev) => ({ ...prev, description: undefined }));
+            }
+          }}
+          maxLength={DESCRIPTION_MAX_LENGTH}
         />
+        <View className="flex-row justify-between items-center mb-4">
+          {errors.description && (
+            <Text className="text-xs text-red-500">{errors.description}</Text>
+          )}
+          <Text className="text-xs text-gray-400">
+            {description.length}/{DESCRIPTION_MAX_LENGTH} caracteres
+          </Text>
+        </View>
 
         {/* Ubicación */}
         <Text className="text-base font-bold text-gray-800 mb-2 flex-row items-center">
@@ -189,9 +284,16 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
           compartimos tu información con nadie.
         </Text>
         <Pressable
-          className="border border-green-mannwork rounded-xl py-3 items-center mb-6"
+          className={`border rounded-xl py-3 items-center mb-1 ${
+            errors.location ? "border-red-500" : "border-green-mannwork"
+          }`}
           onPress={() => {
-            if (!isImagePickerPending) setShowLocationModal(true);
+            if (!isImagePickerPending) {
+              setShowLocationModal(true);
+              if (errors.location) {
+                setErrors((prev) => ({ ...prev, location: undefined }));
+              }
+            }
           }}
         >
           <Text className="text-green-mannwork font-bold">
@@ -200,6 +302,9 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
               : "Agregar ubicación del trabajo"}
           </Text>
         </Pressable>
+        {errors.location && (
+          <Text className="text-xs text-red-500 mb-4">{errors.location}</Text>
+        )}
         {showLocationModal && (
           <LocationPickerModal
             visible={showLocationModal}
@@ -276,12 +381,17 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
 
         {/* Botón Siguiente */}
         <Pressable
-          className="bg-green-mannwork rounded-xl py-4"
-          onPress={() => {
-            /* TODO: Implementar siguiente paso */
-          }}
+          className={`rounded-xl py-4 ${
+            isFormValid() ? "bg-green-mannwork" : "bg-gray-300"
+          }`}
+          onPress={handleNext}
+          disabled={!isFormValid()}
         >
-          <Text className="text-white text-center font-bold text-lg">
+          <Text
+            className={`text-center font-bold text-lg ${
+              isFormValid() ? "text-white" : "text-gray-500"
+            }`}
+          >
             Siguiente
           </Text>
         </Pressable>

@@ -4,3 +4,5 @@ export { default as ProfileInfo } from './components/ProfileInfo';
 export { default as ProfileMap } from './components/ProfileMap';
 export { default as ProfileReviews } from './components/ProfileReviews';
 
+export { useCurrentUser } from './hooks/useCurrentUser';
+

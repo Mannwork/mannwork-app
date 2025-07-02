@@ -5,6 +5,7 @@ export interface User {
     id: string;
     name: string;
     last_name: string;
+    description: string | null;
     rol: "client" | "professional" | null;
     email: string;
     cel_phone: string | null;

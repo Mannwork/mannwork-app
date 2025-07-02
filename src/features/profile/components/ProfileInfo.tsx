@@ -11,7 +11,9 @@ const ProfileInfo = ({ description }: ProfileInfoProps) => {
         <Text className="text-xl font-bold text-green-mannwork mb-2">
           Descripción
         </Text>
-        <Text className="text-md text-gray-600 leading-7">{description}</Text>
+        <Text className="text-md text-gray-600 leading-7 text-center">
+          {description}
+        </Text>
       </View>
     </View>
   );
