@@ -17,7 +17,12 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.dillmanncode.mannwork"
+      "package": "com.dillmanncode.mannwork",
+      "config": {
+                "googleMaps": {
+                    "apiKey": "AIzaSyCSq-wIJqaMFT2ZBV_Oz8IplUrE29mtfXU"
+                }
+            }
     },
     "web": {
       "bundler": "metro",
