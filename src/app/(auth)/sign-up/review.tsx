@@ -1,13 +1,7 @@
-import { Text, View } from "react-native"
+import ReviewData from "@/features/auth/sign-up/components/ReviewData";
 
 const ReviewScreen = () => {
-  return (
-    <View>
-        <Text>
-            ReviewScreen
-        </Text>
-    </View>
-  )
-}
+    return <ReviewData />;
+};
 
-export default ReviewScreen
+export default ReviewScreen;
