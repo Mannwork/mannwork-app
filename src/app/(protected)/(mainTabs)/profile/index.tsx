@@ -4,27 +4,15 @@ import {
   ProfileInfo,
   ProfileMap,
   ProfileReviews,
+  useCurrentUser,
 } from "@/features/profile";
 import SectionDivider from "@/features/profile/components/SectionDivider";
-import { ScrollView, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
 const ProfileScreen = () => {
-  const mockUser = {
-    firstName: "Lautaro",
-    lastName: "Kaufmann",
-    profileImage:
-      "https://lh3.googleusercontent.com/a/ACg8ocLBmFkmrG8wGLtAKm7K-DrK7QGEF5qe94XSfgoSraQFSg6P3Z64nw=s288-c-no",
-    rating: 4.5,
-    reviewCount: 23,
-    role: "professional" as const,
-  };
+  const { data: user, isLoading, error } = useCurrentUser();
 
-  const mockProfileInfo = {
-    description:
-      "Profesional con más de 10 años de experiencia en plomería y electricidad. Especializado en instalaciones residenciales y comerciales. Trabajo con garantía y materiales de primera calidad.",
-    coverageRadius: 15,
-  };
-
+  // Datos mock para actividades (esto se puede expandir más adelante)
   const mockActivities = [
     {
       id: "1",
@@ -46,6 +34,7 @@ const ProfileScreen = () => {
     },
   ];
 
+  // Datos mock para reviews (esto se puede expandir más adelante)
   const mockRatingDistribution = {
     5: 12,
     4: 8,
@@ -102,27 +91,82 @@ const ProfileScreen = () => {
     console.log("Ver mapa");
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator size="large" color="#2D7A3E" />
+        <Text className="text-gray-600 mt-4">Cargando perfil...</Text>
+      </View>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <View className="flex-1 bg-white justify-center items-center px-4">
+        <Text className="text-red-500 text-center text-lg mb-2">
+          Error al cargar el perfil
+        </Text>
+        <Text className="text-gray-600 text-center">
+          No se pudieron cargar los datos del usuario
+        </Text>
+      </View>
+    );
+  }
+
+  // Si no hay usuario
+  if (!user) {
+    return (
+      <View className="flex-1 bg-white justify-center items-center px-4">
+        <Text className="text-gray-600 text-center text-lg">
+          No se encontró información del usuario
+        </Text>
+      </View>
+    );
+  }
+
+  // Preparar datos del usuario para los componentes
+  const userData = {
+    firstName: user.name,
+    lastName: user.last_name,
+    profileImage: user.profile_pic || undefined,
+    rating: user.calification || 0,
+    reviewCount: 0, // Esto se puede obtener de una tabla de reviews más adelante
+    role: user.rol as "professional" | "client",
+  };
+
+  const profileInfo = {
+    description: user.description || "Este usuario no tiene descripción aún.",
+    coverageRadius: user.service_radius || 15,
+  };
+
   return (
     <View className="flex-1 bg-white">
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ProfileBanner user={mockUser} onRequestQuote={handleRequestQuote} />
+        <ProfileBanner user={userData} onRequestQuote={handleRequestQuote} />
         <SectionDivider />
-        <ProfileInfo description={mockProfileInfo.description} />
+        <ProfileInfo description={profileInfo.description} />
         <SectionDivider />
-        <ProfileMap
-          coverageRadius={mockProfileInfo.coverageRadius}
-          onPress={handleMapPress}
-        />
-        <SectionDivider />
-        <ProfileActivities
-          activities={mockActivities}
-          userRole={mockUser.role}
-        />
-        <SectionDivider />
+        {user.rol === "professional" && (
+          <>
+            <ProfileMap
+              coverageRadius={profileInfo.coverageRadius}
+              onPress={handleMapPress}
+            />
+            <SectionDivider />
+            <ProfileActivities
+              activities={mockActivities}
+              userRole={userData.role}
+            />
+            <SectionDivider />
+          </>
+        )}
+
         <ProfileReviews
-          userName={`${mockUser.firstName} ${mockUser.lastName}`}
-          averageRating={mockUser.rating}
-          totalReviews={mockUser.reviewCount}
+          userName={`${userData.firstName} ${userData.lastName}`}
+          averageRating={userData.rating}
+          totalReviews={userData.reviewCount}
           ratingDistribution={mockRatingDistribution}
           reviews={mockReviews}
           onViewMoreReviews={handleViewMoreReviews}

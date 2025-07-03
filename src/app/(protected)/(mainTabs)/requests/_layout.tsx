@@ -23,6 +23,14 @@ export default function RequestsLayout() {
             animation: "slide_from_right",
           }}
         />
+        <Stack.Screen
+          name="select-professionals"
+          options={{
+            headerShown: false,
+            presentation: "card",
+            animation: "slide_from_right",
+          }}
+        />
       </Stack>
     </ActionSheetProvider>
   );
