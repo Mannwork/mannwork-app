@@ -3,7 +3,7 @@ import { tokenCache } from "@clerk/clerk-expo/token-cache";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import envs from "@/common/config/envs";
+import { envs } from "@/common/config/envs";
 
 import { ClerkSupabaseProvider } from "@/common/providers/ClerkSupabaseProvider";
 
@@ -17,7 +17,7 @@ export default function RootLayout() {
     return (
         <ClerkProvider
             tokenCache={tokenCache}
-            publishableKey={envs.clerkPublishableKey}
+            publishableKey={envs.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
         >
             <ClerkSupabaseProvider>
                 <QueryClientProvider client={queryClient}>

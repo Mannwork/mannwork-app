@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
+import { isClerkAPIResponseError, useAuth, useSignUp } from "@clerk/clerk-expo";
 
 import CustomInput from "@/common/components/CustomInput";
 import MyKeyboardAvoidingView from "@/common/components/MyKeyboardAvoidingView";
@@ -15,110 +15,120 @@ import AuthButton from "@/features/auth/components/AuthButton";
 import { clerkErrorValidator } from "@/features/auth/utils/clerkErrorValidator";
 
 import {
-  signUpCredentialsScheme,
-  SignUpFields,
+    signUpCredentialsScheme,
+    SignUpFields,
 } from "@/features/auth/sign-up/validators/signUpCredentials.validator";
 
 const SignUpForm = () => {
-  const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    setError,
-    formState: { errors },
-  } = useForm<SignUpFields>({
-    resolver: zodResolver(signUpCredentialsScheme),
-  });
+    const {
+        control,
+        handleSubmit,
+        setError,
+        formState: { errors },
+    } = useForm<SignUpFields>({
+        resolver: zodResolver(signUpCredentialsScheme),
+    });
 
-  const { signUp, isLoaded } = useSignUp();
+    const { signUp, isLoaded, setActive } = useSignUp();
+    const { isSignedIn, signOut } = useAuth();
 
-  const onSignUp = async (data: SignUpFields) => {
-    if (!isLoaded) return;
+    const onSignUp = async (data: SignUpFields) => {
+        if (!isLoaded) return;
 
-    try {
-      setLoading(true);
+        try {
+            setLoading(true);
 
-      await signUp.create({
-        emailAddress: data.email,
-        password: data.password,
-      });
+            if (isSignedIn) {
+                await signOut();
+            }
 
-      router.push("/(auth)/sign-up/rol-select");
-    } catch (error) {
-      if (isClerkAPIResponseError(error)) {
-        error.errors.forEach((error) => {
-          const { errorField, displayMessage } = clerkErrorValidator(error);
-          setError(errorField as "email" | "password" | "root", {
-            message: displayMessage,
-          });
-        });
-      } else {
-        setError("root", {
-          message: "Algo salió mal, intentalo de nuevo más tarde",
-        });
-      }
+            await signUp.create({
+                emailAddress: data.email,
+                password: data.password,
+            });
 
-      setLoading(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+            if (signUp.createdSessionId) {
+                await setActive({ session: signUp.createdSessionId });
+            }
+        } catch (error) {
+            if (isClerkAPIResponseError(error)) {
+                error.errors.forEach((error) => {
+                    const { errorField, displayMessage } =
+                        clerkErrorValidator(error);
+                    setError(errorField as "email" | "password" | "root", {
+                        message: displayMessage,
+                    });
+                });
+            } else {
+                setError("root", {
+                    message: "Algo salió mal, intentalo de nuevo más tarde",
+                });
+            }
 
-  const goToLogin = () => {
-    router.push("/(auth)/sign-in");
-  };
+            setLoading(false);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  return (
-    <MyKeyboardAvoidingView className="justify-between p-8">
-      <View>
-        <CustomInput
-          control={control}
-          name="email"
-          placeholder="Ingrese su correo electrónico"
-          autoFocus
-          keyboardType="email-address"
-          autoComplete="email"
-          autoCapitalize="none"
-        />
-        <CustomInput
-          control={control}
-          name="password"
-          placeholder="Ingrese su contraseña"
-          secureTextEntry
-          autoComplete="password"
-          autoCapitalize="none"
-        />
-        <CustomInput
-          control={control}
-          name="repeat-password"
-          placeholder="Ingrese su contraseña nuevamente"
-          secureTextEntry
-          autoComplete="password"
-          autoCapitalize="none"
-        />
+    const goToLogin = () => {
+        router.push("/(auth)/sign-in");
+    };
 
-        {errors.root && (
-          <Text style={{ color: "crimson" }}>{errors.root.message}</Text>
-        )}
+    return (
+        <MyKeyboardAvoidingView className="justify-between p-8">
+            <View>
+                <CustomInput
+                    control={control}
+                    name="email"
+                    placeholder="Ingrese su correo electrónico"
+                    autoFocus
+                    keyboardType="email-address"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                />
+                <CustomInput
+                    control={control}
+                    name="password"
+                    placeholder="Ingrese su contraseña"
+                    secureTextEntry
+                    autoComplete="password"
+                    autoCapitalize="none"
+                />
+                <CustomInput
+                    control={control}
+                    name="repeat-password"
+                    placeholder="Ingrese su contraseña nuevamente"
+                    secureTextEntry
+                    autoComplete="password"
+                    autoCapitalize="none"
+                />
 
-        <Pressable onPress={goToLogin}>
-          <Text className="text-sm text-text-secondary">
-            ¿Ya tienes una cuenta?{" "}
-            <Text className="font-semibold">Inicia sesión</Text>
-          </Text>
-        </Pressable>
-      </View>
+                {errors.root && (
+                    <Text style={{ color: "crimson" }}>
+                        {errors.root.message}
+                    </Text>
+                )}
 
-      <AuthButton onPress={handleSubmit(onSignUp)}>
-        {loading ? (
-          <ActivityIndicator color="#2d7a3e" size="small" />
-        ) : (
-          <Text className="font-semibold">Registrarse</Text>
-        )}
-      </AuthButton>
-    </MyKeyboardAvoidingView>
-  );
+                <Pressable onPress={goToLogin}>
+                    <Text className="text-sm text-text-secondary">
+                        ¿Ya tienes una cuenta?{" "}
+                        <Text className="font-semibold">Inicia sesión</Text>
+                    </Text>
+                </Pressable>
+            </View>
+
+            <AuthButton onPress={handleSubmit(onSignUp)}>
+                {loading ? (
+                    <ActivityIndicator color="#2d7a3e" size="small" />
+                ) : (
+                    <Text className="font-semibold">Registrarse</Text>
+                )}
+            </AuthButton>
+        </MyKeyboardAvoidingView>
+    );
 };
 
 export default SignUpForm;

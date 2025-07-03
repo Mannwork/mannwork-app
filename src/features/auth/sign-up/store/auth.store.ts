@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 import { User } from "@/common/types/user.interface";
 
-interface AuthStore extends Pick<User, "rol" | "cel_phone" | "ubication_json" | "service_radius" | "name" | "last_name" | "profile_pic">{
+export interface AuthStore extends Pick<User, "rol" | "cel_phone" | "ubication_json" | "service_radius" | "name" | "last_name" | "profile_pic">{
     setData: (key: keyof AuthStore, value: string) => void;
 }
 
