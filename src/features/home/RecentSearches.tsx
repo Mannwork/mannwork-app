@@ -10,7 +10,7 @@ const RecentSearches = () => {
 
   const handleSearchPress = (category: string, subcategory: string) => {
     router.push({
-      pathname: "/(protected)/(mainTabs)/requests/create",
+      pathname: "/(protected)/(mainTabs)/home/create",
       params: { category, subcategory },
     });
   };

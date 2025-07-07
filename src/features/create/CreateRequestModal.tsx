@@ -76,9 +76,11 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
   };
 
   const handleNext = () => {
+    console.log("Intentando ir hacia adelante...");
     if (validateForm()) {
-      router.push({
-        pathname: "/(protected)/(mainTabs)/requests/select-professionals",
+      console.log("Formulario válido, navegando...");
+      router.replace({
+        pathname: "/(protected)/(mainTabs)/home/select-professionals",
         params: {
           category: category || "",
           subcategory: subcategory || "",
@@ -89,6 +91,8 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
           images: images.length > 0 ? JSON.stringify(images) : "",
         },
       });
+    } else {
+      console.log("Formulario inválido");
     }
   };
 
@@ -103,7 +107,8 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
   };
 
   const handleBack = () => {
-    router.replace("/(protected)/(mainTabs)/requests");
+    console.log("Intentando ir hacia atrás...");
+    router.push("/(protected)/(mainTabs)/home");
   };
 
   const handleAddPhoto = async () => {

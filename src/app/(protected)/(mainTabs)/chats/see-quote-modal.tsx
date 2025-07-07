@@ -26,7 +26,10 @@ const SeeQuoteModal = () => {
   };
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+    <View
+      className="flex-1 bg-green-mannwork"
+      style={{ paddingTop: insets.top }}
+    >
       <Stack.Screen
         options={{
           headerShown: false,

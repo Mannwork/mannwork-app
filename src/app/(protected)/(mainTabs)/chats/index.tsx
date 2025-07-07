@@ -1,3 +1,4 @@
+import { useUserRole } from "@/features/request/hooks/useUserRole";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -68,14 +69,12 @@ const mockChats = [
 ];
 
 const ChatsScreen = () => {
+  const { data: userRole, isLoading } = useUserRole();
   const router = useRouter();
   const { tab } = useLocalSearchParams<{ tab?: string }>();
   const [activeTab, setActiveTab] = useState<
     "active" | "pending" | "completed"
   >("active");
-
-  // Simular rol de usuario - esto vendría de tu contexto de autenticación
-  const userRole: "professional" = "professional";
 
   // Establecer la pestaña activa basada en el parámetro de URL
   useEffect(() => {
@@ -83,6 +82,8 @@ const ChatsScreen = () => {
       setActiveTab(tab as "active" | "pending" | "completed");
     }
   }, [tab]);
+
+  if (isLoading || !userRole) return null;
 
   // Calcular conteos para cada categoría
   const counts = {

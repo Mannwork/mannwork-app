@@ -29,7 +29,7 @@ export default function SelectProfessionalCard({
   onSelect?: () => void;
 }) {
   return (
-    <View className="bg-white rounded-2xl mb-5 shadow-md overflow-hidden">
+    <View className="bg-white rounded-2xl mb-5 shadow-lg border-2 border-gray-100 overflow-hidden">
       {/* Cabecera verde con logo de fondo */}
       <View className="bg-green-mannwork h-[80px] w-full relative items-center justify-center">
         <Image
@@ -57,7 +57,7 @@ export default function SelectProfessionalCard({
           className="flex flex-col items-center absolute right-6 top-16 -translate-y-1/2"
           onPress={onSelect}
         >
-          <View className="bg-white rounded-full w-12 h-12 shadow items-center justify-center">
+          <View className="bg-white rounded-full w-12 h-12 shadow-lg border-2 border-gray-100 items-center justify-center">
             <FontAwesome
               name="check-circle"
               size={32}
