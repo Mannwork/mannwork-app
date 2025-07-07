@@ -113,27 +113,31 @@ export default function SelectProfessionalsScreen() {
 
   const handleSend = async () => {
     if (selectedIds.length === 0 || loading) return;
+    if (!user?.id || !formData.category) return;
     const success = await createRequest({
       name: formData.title,
       description: formData.description,
       location: formData.locationData,
       photos: formData.images,
-      client: user?.id,
+      client: user.id,
       professionals: selectedIds,
       category: formData.category,
       subCategory: formData.subcategory,
     });
     if (success) {
-      router.push("/(protected)/(mainTabs)/requests/request-sent");
+      router.push("/(protected)/(mainTabs)/home/request-sent");
     }
   };
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white">
       {/* Header */}
-      <View className="bg-green-mannwork px-4 py-4">
+      <View
+        style={{ paddingTop: insets.top }}
+        className="bg-green-mannwork px-4 py-4"
+      >
         <View className="flex-row items-center justify-between">
-          <Pressable onPress={() => navigation.goBack()} className="w-6">
+          <Pressable onPress={() => router.back()} className="w-6">
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </Pressable>
           <Text className="text-xl font-bold text-white">
@@ -147,8 +151,8 @@ export default function SelectProfessionalsScreen() {
           <SelectProfessionalCard
             key={prof.id}
             professional={prof}
-            selected={selectedIds.includes(prof.id)}
-            onSelect={() => handleSelect(prof.id)}
+            selected={selectedIds.includes(prof.id.toString())}
+            onSelect={() => handleSelect(prof.id.toString())}
           />
         ))}
       </ScrollView>

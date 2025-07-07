@@ -42,6 +42,9 @@ yarn-error.*
 # Android
 /android
 
+# iOS
+/ios
+
 app-example
 
 .trae/

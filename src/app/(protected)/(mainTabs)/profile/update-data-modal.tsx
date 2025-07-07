@@ -1,13 +1,12 @@
-import { Text, View } from 'react-native'
+import EditUserModal from "@/features/profile/components/EditUserModal";
+import { router } from "expo-router";
 
 const UpdateDataModal = () => {
-  return (
-    <View>
-        <Text>
-            UpdateDataModal
-        </Text>
-    </View>
-  )
-}
+  const handleClose = () => {
+    router.back();
+  };
 
-export default UpdateDataModal
+  return <EditUserModal visible={true} onClose={handleClose} />;
+};
+
+export default UpdateDataModal;

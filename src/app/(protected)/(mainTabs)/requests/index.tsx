@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import type { Request } from "@/features/request";
@@ -13,8 +13,17 @@ import {
 } from "@/features/request";
 
 const RequestsScreen = () => {
-  const [activeTab, setActiveTab] = useState("received");
+  const [activeTab, setActiveTab] = useState<string>("received");
   const { data: userRole, isLoading: isLoadingRole } = useUserRole();
+
+  // Cambiar la tab inicial según el rol
+  useEffect(() => {
+    if (userRole === "client") {
+      setActiveTab("sent");
+    } else if (userRole === "professional") {
+      setActiveTab("received");
+    }
+  }, [userRole]);
 
   // Simular datos de solicitudes basados en el rol y tab activo
   const requests = userRole
@@ -49,7 +58,15 @@ const RequestsScreen = () => {
   };
 
   const handleCreateRequest = () => {
-    router.replace("/(protected)/(mainTabs)/requests/create");
+    if (
+      userRole === "client" &&
+      activeTab === "sent" &&
+      requests.length === 0
+    ) {
+      router.push("/(protected)/(mainTabs)/home/search-modal");
+    } else {
+      router.push("/(protected)/(mainTabs)/home/create");
+    }
   };
 
   const handleBrowseRequests = () => {
@@ -74,13 +91,13 @@ const RequestsScreen = () => {
     <View className="flex-1 bg-gray-50">
       <RequestsHeader onSearch={handleSearch} onCreate={handleCreate} />
       <RequestsTabs
-        userRole={"professional"}
+        userRole={userRole}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
       <RequestsList
         requests={requests}
-        userRole={"professional"}
+        userRole={userRole}
         activeTab={activeTab}
         onRefresh={handleRefresh}
         onRequestPress={handleRequestPress}
