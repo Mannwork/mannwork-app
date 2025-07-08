@@ -49,12 +49,10 @@ const SubcategoriesModal = ({ category }: SubcategoriesModalProps) => {
     const icon = categoryIcons[category.name];
     addSearch(category.name, subcategory);
     router.back();
-    setTimeout(() => {
-      router.push({
-        pathname: "/(protected)/(mainTabs)/requests/create",
-        params: { category: category.name, subcategory, icon },
-      });
-    }, 100);
+    router.push({
+      pathname: "/(protected)/(mainTabs)/home/create",
+      params: { category: category.name, subcategory, icon },
+    });
   };
 
   const handleClose = () => {

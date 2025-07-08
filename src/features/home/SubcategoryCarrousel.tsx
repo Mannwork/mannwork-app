@@ -47,7 +47,7 @@ const SubcategoryCarrousel = () => {
         const icon = categoryIcons[category];
         addSearch(category, subcategory);
         router.push({
-            pathname: "/(protected)/(mainTabs)/requests/create",
+            pathname: "/(protected)/(mainTabs)/home/create",
             params: { category, subcategory, icon },
         });
     };
@@ -77,8 +77,8 @@ const SubcategoryCarrousel = () => {
                                 <View className="bg-white rounded-full p-2 mr-3">
                                     <MaterialIcons
                                         name={
-                                            categoryIcons[category.name] ||
-                                            "category"
+                                            (categoryIcons[category.name] ||
+                                                "category") as any
                                         }
                                         size={28}
                                         color="#2D7A3E"

@@ -1,5 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -30,6 +31,10 @@ const SettingsModal = ({
     if (action) {
       action();
     }
+  };
+
+  const handleEditProfile = () => {
+    router.push("/(protected)/(mainTabs)/profile/update-data-modal");
   };
 
   const handleLogout = async () => {
@@ -90,7 +95,7 @@ const SettingsModal = ({
               "edit",
               "Editar perfil",
               "Modificar información personal",
-              onEditProfile
+              handleEditProfile
             )}
             {renderSettingsOption(
               "notifications",

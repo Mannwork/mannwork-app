@@ -25,7 +25,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     <View
       style={{
         width: "100%",
-        maxWidth: 400,
         borderRadius: 0,
         overflow: "hidden",
         backgroundColor: "#fff",

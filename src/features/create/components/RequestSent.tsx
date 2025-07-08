@@ -15,7 +15,7 @@ export default function RequestSent() {
     >
       <Pressable
         className="absolute right-6 top-6 z-10"
-        onPress={() => router.replace("/(protected)/(mainTabs)/requests")}
+        onPress={() => router.back()}
       >
         <MaterialIcons name="close" size={32} color="#2d7a3e" />
       </Pressable>

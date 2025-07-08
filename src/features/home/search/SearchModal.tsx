@@ -36,7 +36,7 @@ const SearchModalComponent = () => {
         router.back();
         setTimeout(() => {
             router.push({
-                pathname: "/(protected)/(mainTabs)/requests/create",
+                pathname: "/(protected)/(mainTabs)/home/create",
                 params: { category, subcategory, icon },
             });
         }, 100);
@@ -140,8 +140,8 @@ const SearchModalComponent = () => {
                                         <View className="bg-green-mannwork-light rounded-full p-2 mr-4">
                                             <MaterialIcons
                                                 name={
-                                                    categoryIcons[item.name] ||
-                                                    "category"
+                                                    (categoryIcons[item.name] ||
+                                                        "category") as any
                                                 }
                                                 size={24}
                                                 color="#2D7A3E"
