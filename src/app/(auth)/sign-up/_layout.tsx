@@ -17,7 +17,8 @@ const SignUpLayout = () => {
             }}
         >
             <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="rol-select" />
+            <Stack.Screen name="rol-select" options={{ headerShown: false }} />
+            <Stack.Screen name="select-category" />
             <Stack.Screen name="contact-data" />
             <Stack.Screen name="ubication-data" />
             <Stack.Screen name="personal-data" />
