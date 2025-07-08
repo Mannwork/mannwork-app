@@ -7,8 +7,6 @@ export interface User {
     last_name: string;
     description: string | null;
     rol: "client" | "professional" | null;
-    categories: string[];
-    selected_subcategories: string[];
     email: string;
     cel_phone: string | null;
     ubication_json: Ubication | null;

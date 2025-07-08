@@ -24,23 +24,29 @@ export const postCompleteUserData = async ({
             profile_pic,
             ubication_json,
             service_radius,
-            selected_subcategories,
             is_onboarding_complete: true,
         })
         .eq("id", userId)
         .select()
         .single();
 
+    let index = 0;
+
     for await (const category_id of categories) {
-        const {error: intermediateTableError} = await supabase.from("usuario_categorias").upsert({
-            categoria_id: category_id,
-            usuario_id: userId
-        })
+        const {error: intermediateTableError} = await supabase.from("user_professional_services").insert(
+            selected_subcategories[index].map(subcategory =>({
+                user_id: userId,
+                category_id: category_id,
+                subcategory_id: subcategory
+            }))
+        );
 
         if (intermediateTableError) {
             console.log(intermediateTableError);
             throw new Error("Error insertar los datos relacionados a la categoria: " + intermediateTableError.message);
         }
+
+        index++;
     }
 
     if (error) {
