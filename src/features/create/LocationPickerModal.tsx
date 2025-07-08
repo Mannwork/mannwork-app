@@ -1,9 +1,5 @@
-import { envs } from "@/common/config/envs";
-import { MaterialIcons } from "@expo/vector-icons";
-import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import {
-    Dimensions,
     FlatList,
     Modal,
     Pressable,
@@ -11,6 +7,10 @@ import {
     TextInput,
     View,
 } from "react-native";
+
+import { envs } from "@/common/config/envs";
+import { MaterialIcons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 
 interface LocationPickerModalProps {
@@ -27,8 +27,6 @@ interface PlacePrediction {
     place_id: string;
     description: string;
 }
-
-const { width, height } = Dimensions.get("window");
 
 const LocationPickerModal = ({
     visible,

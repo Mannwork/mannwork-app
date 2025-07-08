@@ -47,6 +47,8 @@ const ReviewData = () => {
         profile_pic,
         ubication_json,
         service_radius,
+        categories,
+        selected_subcategories,
     } = useAuthStore();
 
     const { mutate: completeUserData, isPending: isLoadingCompleteData } =
@@ -62,6 +64,8 @@ const ReviewData = () => {
                     profile_pic,
                     ubication_json,
                     service_radius,
+                    categories,
+                    selected_subcategories,
                 });
             },
             onSuccess: () => {
