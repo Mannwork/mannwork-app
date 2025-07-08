@@ -1,3 +1,4 @@
+import { useSubcategories } from "@/common/hooks/useSubcategories";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { FlatList, Pressable, Text, View } from "react-native";
@@ -44,6 +45,7 @@ interface SubcategoriesModalProps {
 
 const SubcategoriesModal = ({ category }: SubcategoriesModalProps) => {
   const addSearch = useSearchStore((state) => state.addSearch);
+  const { data: subcategories, isLoading } = useSubcategories(category.id);
 
   const handleSubcategoryPress = (subcategory: string) => {
     const icon = categoryIcons[category.name];
@@ -83,20 +85,22 @@ const SubcategoriesModal = ({ category }: SubcategoriesModalProps) => {
         </View>
 
         <FlatList
-          data={category.sub_categories}
+          data={subcategories || []}
           contentContainerStyle={{ paddingBottom: 16 }}
           renderItem={({ item: subcategory }) => (
             <Pressable
-              onPress={() => handleSubcategoryPress(subcategory)}
+              onPress={() => handleSubcategoryPress(subcategory.name)}
               className="flex-row items-center py-6 px-4 border-b border-gray-100"
             >
               <Text className="text-lg font-bold text-green-mannwork flex-1">
-                {subcategory}
+                {subcategory.name}
               </Text>
               <MaterialIcons name="chevron-right" size={24} color="#2D7A3E" />
             </Pressable>
           )}
-          keyExtractor={(item, index) => `${category.id}-${item}-${index}`}
+          keyExtractor={(item, index) =>
+            `${category.id}-${item.id || item.name}-${index}`
+          }
         />
       </View>
     </View>
