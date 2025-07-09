@@ -1,18 +1,23 @@
 import { useEffect } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 
 import MyView from "@/common/components/MyView";
 import { useUserDataSupabase } from "@/common/hooks/useUserDataSupabase";
 
+import CustomInput from "@/common/components/CustomInput";
+import useSupabaseStorage from "@/common/hooks/useSupabaseStorage";
 import { useAuth } from "@clerk/clerk-expo";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { useForm } from "react-hook-form";
 import AuthButton from "../../components/AuthButton";
 import { postCompleteUserData } from "../service/post-complete-data";
 import { useAuthStore } from "../store/auth.store";
+import { type NamesFields, namesScheme } from "../validators/names.validator";
 
 const InfoRow = ({
     icon,
@@ -51,6 +56,21 @@ const ReviewData = () => {
         selected_subcategories,
     } = useAuthStore();
 
+    const { handleUploadImage, imgUri } = useSupabaseStorage();
+
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<NamesFields>({
+        resolver: zodResolver(namesScheme),
+    });
+
+    const registerNames = (data: NamesFields) => {
+        setData("name", data.name);
+        setData("last_name", data.last_name);
+    };
+
     const { mutate: completeUserData, isPending: isLoadingCompleteData } =
         useMutation({
             mutationFn: () => {
@@ -87,6 +107,11 @@ const ReviewData = () => {
         }
     }, [user, isLoading, setData]);
 
+    const handleAddPhoto = async () => {
+        await handleUploadImage(userId as string);
+        // setData("profile_pic", imgUri);
+    };
+
     const fullAddress = ubication_json
         ? `${ubication_json.street}, ${ubication_json.city}, ${ubication_json.province}`
         : "No especificada";
@@ -105,44 +130,97 @@ const ReviewData = () => {
     return (
         <MyView className="p-6">
             <View className="items-center mb-8">
-                <Image
-                    source={{ uri: profile_pic }}
-                    placeholder={{ blurhash: "L6Pj0^i_.AyE_3t7t7R**0o#DgR4" }}
-                    contentFit="cover"
-                    transition={300}
-                    onError={(error) =>
-                        console.log("Error al cargar la imagen:", error)
-                    }
-                    style={{
-                        height: 128,
-                        width: 128,
-                        borderRadius: 100,
-                        marginBottom: 16,
-                        borderWidth: 4,
-                        borderColor: "#2D7A3E",
-                    }}
-                />
+                <View>
+                    <Image
+                        source={{ uri: profile_pic }}
+                        placeholder={{
+                            blurhash: "L6Pj0^i_.AyE_3t7t7R**0o#DgR4",
+                        }}
+                        contentFit="cover"
+                        transition={300}
+                        onError={(error) =>
+                            console.log("Error al cargar la imagen:", error)
+                        }
+                        style={{
+                            height: 128,
+                            width: 128,
+                            borderRadius: 100,
+                            marginBottom: 16,
+                            borderWidth: 4,
+                            borderColor: "#2D7A3E",
+                        }}
+                    />
+                    <Pressable onPress={handleAddPhoto}>
+                        <MaterialIcons
+                            name="camera-alt"
+                            size={24}
+                            color="#2D7A3E"
+                            className="absolute bottom-4 right-2 border border-green-mannwork rounded-full p-1 bg-white"
+                        />
+                    </Pressable>
+                </View>
                 <Text className="text-2xl font-bold text-gray-800">
                     {name} {last_name}
                 </Text>
                 <Text className="text-md text-green-mannwork font-semibold capitalize">
-                    {rol}
+                    {rol === "client" ? "Cliente" : "Profesional"}
                 </Text>
             </View>
 
-            <InfoRow
-                icon="user"
-                label="Nombre completo"
-                value={`${name} ${last_name}`}
-            />
+            {name && last_name ? (
+                <InfoRow
+                    icon="user"
+                    label="Nombre completo"
+                    value={`${name} ${last_name}`}
+                />
+            ) : (
+                <View className="mb-8">
+                    <CustomInput
+                        control={control}
+                        name="name"
+                        placeholder="Ingrese su nombre"
+                        autoFocus
+                        autoComplete="name"
+                        autoCapitalize="words"
+                    />
+                    {errors.name && (
+                        <Text style={{ color: "crimson" }}>
+                            {errors.name.message}
+                        </Text>
+                    )}
+                    <CustomInput
+                        control={control}
+                        name="last_name"
+                        placeholder="Ingrese su apellido"
+                        autoFocus
+                        autoComplete="additional-name"
+                        autoCapitalize="words"
+                    />
+                    {errors.last_name && (
+                        <Text style={{ color: "crimson" }}>
+                            {errors.last_name.message}
+                        </Text>
+                    )}
+                    <AuthButton
+                        onPress={handleSubmit(registerNames)}
+                        className="bg-green-mannwork"
+                    >
+                        <Text className="font-semibold text-background-white">
+                            Guardar
+                        </Text>
+                    </AuthButton>
+                </View>
+            )}
             <InfoRow icon="phone" label="Teléfono Celular" value={cel_phone} />
             <InfoRow icon="briefcase" label="Rol" value={rol} />
             <InfoRow icon="map-pin" label="Ubicación" value={fullAddress} />
-            <InfoRow
-                icon="compass"
-                label="Radio de servicio (km)"
-                value={`${service_radius} km`}
-            />
+            {service_radius && (
+                <InfoRow
+                    icon="compass"
+                    label="Radio de servicio (km)"
+                    value={`${service_radius} km`}
+                />
+            )}
 
             <View className="mt-auto">
                 <AuthButton
