@@ -24,6 +24,12 @@ export interface User {
     last_connection: Date | null;
     created_at: Date;
     updated_at: Date;
+    professions?: {
+        category_id: number;
+        subcategory_id: string;
+        category_name: string;
+        subcategory_name: string;
+    }[];
 }
 
 interface IdentificationPics {
