@@ -7,7 +7,12 @@ interface UpdateProfileData {
   last_name: string;
   profile_pic?: string;
   description?: string;
-  professions?: string[]; // Solo para profesionales
+  professions?: {
+    category_id: number;
+    subcategory_id: string;
+    category_name: string;
+    subcategory_name: string;
+  }[]; // Solo para profesionales
 }
 
 export const useUpdateProfile = () => {
@@ -25,9 +30,27 @@ export const useUpdateProfile = () => {
         description: data.description,
       };
 
-      // Si hay profesiones, agregarlas al update (solo para profesionales)
+      // Si hay profesiones, actualiza la tabla intermedia user_professional_services
       if (data.professions) {
-        updateData.professions = data.professions;
+        // Elimina las profesiones actuales del usuario
+        await supabase
+          .from('user_professional_services')
+          .delete()
+          .eq('user_id', userId);
+
+        // Inserta las nuevas profesiones
+        for (const profession of data.professions) {
+          // profession puede ser un string (nombre) o un objeto, depende de tu flujo
+          // Aquí asumo que es un objeto { category_id, subcategory_id }
+          // Si solo tienes el nombre, deberías mapearlo a los IDs antes de guardar
+          await supabase
+            .from('user_professional_services')
+            .insert({
+              user_id: userId,
+              category_id: profession.category_id,
+              subcategory_id: profession.subcategory_id,
+            });
+        }
       }
 
       const { data: result, error } = await supabase

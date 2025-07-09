@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,6 +14,7 @@ import {
 } from "react-native";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
+import { useProfessionsStore } from "../store/professions.store";
 
 interface EditUserModalProps {
   visible: boolean;
@@ -27,9 +29,24 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [description, setDescription] = useState(user?.description || "");
   const [profilePic, setProfilePic] = useState(user?.profile_pic || "");
-  const [professions, setProfessions] = useState<string[]>(
-    user?.professions || []
+
+  // Store global para profesiones
+  const professions = useProfessionsStore((state) => state.professions);
+  const setProfessions = useProfessionsStore((state) => state.setProfessions);
+  const resetProfessions = useProfessionsStore(
+    (state) => state.resetProfessions
   );
+
+  // Inicializa el store con las profesiones del usuario al abrir el modal
+  useEffect(() => {
+    if (visible && user?.professions) {
+      setProfessions(user.professions);
+    }
+    // No reseteo el store aquí para no perder los cambios hechos en el modal de oficios
+    // if (!visible) {
+    //   resetProfessions();
+    // }
+  }, [visible, user?.professions]);
 
   const isProfessional = user?.rol === "professional";
 
@@ -80,29 +97,6 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setProfilePic(result.assets[0].uri);
     }
-  };
-
-  const handleAddProfession = () => {
-    Alert.prompt(
-      "Agregar profesión",
-      "Ingresa una nueva profesión:",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Agregar",
-          onPress: (profession) => {
-            if (profession && profession.trim()) {
-              setProfessions([...professions, profession.trim()]);
-            }
-          },
-        },
-      ],
-      "plain-text"
-    );
-  };
-
-  const handleRemoveProfession = (index: number) => {
-    setProfessions(professions.filter((_, i) => i !== index));
   };
 
   if (isLoading) {
@@ -192,41 +186,21 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
         {/* Profesiones (solo para profesionales) */}
         {isProfessional && (
           <View className="mb-4">
-            <View className="flex-row items-center justify-between mb-2">
-              <Text className="text-base font-bold text-gray-800">
-                Profesiones
+            <Text className="text-base font-bold text-gray-800 mb-3">
+              Profesiones
+            </Text>
+            <Pressable
+              onPress={() =>
+                router.push(
+                  "/(protected)/(mainTabs)/profile/modal-professions-edit"
+                )
+              }
+              className="bg-green-mannwork py-3 px-4 rounded-xl"
+            >
+              <Text className="text-white text-base font-semibold text-center">
+                Editar oficios
               </Text>
-              <Pressable
-                onPress={handleAddProfession}
-                className="bg-green-mannwork px-3 py-1 rounded-lg"
-              >
-                <Text className="text-white text-sm font-semibold">
-                  Agregar
-                </Text>
-              </Pressable>
-            </View>
-
-            {professions.length > 0 ? (
-              <View className="flex-row flex-wrap">
-                {professions.map((profession, index) => (
-                  <View
-                    key={index}
-                    className="bg-green-mannwork-light rounded-full px-3 py-2 mr-2 mb-2 flex-row items-center"
-                  >
-                    <Text className="text-green-mannwork font-medium mr-2">
-                      {profession}
-                    </Text>
-                    <Pressable onPress={() => handleRemoveProfession(index)}>
-                      <MaterialIcons name="close" size={16} color="#2D7A3E" />
-                    </Pressable>
-                  </View>
-                ))}
-              </View>
-            ) : (
-              <Text className="text-gray-500 text-sm">
-                No has agregado profesiones aún
-              </Text>
-            )}
+            </Pressable>
           </View>
         )}
 

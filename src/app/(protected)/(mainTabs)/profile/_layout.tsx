@@ -9,6 +9,10 @@ const ProfileLayout = () => {
         name="update-data-modal"
         options={{ presentation: "modal" }}
       />
+      <Stack.Screen
+        name="modal-professions-edit"
+        options={{ presentation: "modal" }}
+      />
     </Stack>
   );
 };

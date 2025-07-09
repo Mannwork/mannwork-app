@@ -12,28 +12,6 @@ import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 const ProfileScreen = () => {
   const { data: user, isLoading, error } = useCurrentUser();
 
-  // Datos mock para actividades (esto se puede expandir más adelante)
-  const mockActivities = [
-    {
-      id: "1",
-      name: "Plomería",
-      icon: "build",
-      subcategories: ["Filtraciones", "Cañerías", "Instalaciones"],
-    },
-    {
-      id: "2",
-      name: "Electricidad",
-      icon: "build",
-      subcategories: ["Instalaciones", "Reparaciones", "Mantenimiento"],
-    },
-    {
-      id: "3",
-      name: "Gas",
-      icon: "build",
-      subcategories: ["Instalaciones", "Reparaciones", "Mantenimiento"],
-    },
-  ];
-
   // Datos mock para reviews (esto se puede expandir más adelante)
   const mockRatingDistribution = {
     5: 12,
@@ -156,7 +134,7 @@ const ProfileScreen = () => {
             />
             <SectionDivider />
             <ProfileActivities
-              activities={mockActivities}
+              professions={user.professions || []}
               userRole={userData.role}
             />
             <SectionDivider />
