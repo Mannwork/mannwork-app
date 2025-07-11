@@ -11,14 +11,24 @@ export const useCurrentUser = () => {
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
-      const { data, error } = await supabase
+      // Trae los datos básicos del usuario
+      const { data: user, error } = await supabase
         .from("users")
         .select("*")
         .eq("id", userId)
         .single();
 
       if (error) throw error;
-      return data as User;
+
+      // Trae las profesiones del usuario
+      const { data: professionsData } = await supabase
+        .from("user_professional_services")
+        .select("category_id, subcategory_id")
+        .eq("user_id", userId);
+
+      user.professions = professionsData || [];
+
+      return user as User;
     },
     enabled: !!userId,
   });

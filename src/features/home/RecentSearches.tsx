@@ -1,8 +1,11 @@
 // Copia local de categoryIcons para asegurar coincidencia exacta
+import { useCategories } from "@/common/hooks/useCategories";
 import { useSearchStore } from "@/features/home/stores/searchStore";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
+
 const categoryIcons: Record<string, string> = {
   Carpintero: "carpenter",
   Plomero: "plumbing",
@@ -35,6 +38,33 @@ const categoryIcons: Record<string, string> = {
 
 const RecentSearches = () => {
   const { recentSearches, removeSearch } = useSearchStore();
+  const { data: categories } = useCategories();
+  const [subcategoriesMap, setSubcategoriesMap] = useState<
+    Record<number, any[]>
+  >({});
+
+  // Cargar subcategorías para todas las categorías
+  useEffect(() => {
+    if (!categories) return;
+
+    const fetchSubcategories = async () => {
+      const results: Record<number, any[]> = {};
+      try {
+        for (const category of categories) {
+          const { getSubcategoriesByCategory } = await import(
+            "@/common/hooks/useSubcategories"
+          );
+          const data = await getSubcategoriesByCategory(category.id);
+          results[category.id] = data || [];
+        }
+        setSubcategoriesMap(results);
+      } catch (e) {
+        console.error("Error cargando subcategorías:", e);
+      }
+    };
+
+    fetchSubcategories();
+  }, [categories]);
 
   if (recentSearches.length === 0) return null;
 
@@ -46,16 +76,35 @@ const RecentSearches = () => {
       .replace(/[\u0300-\u036f]/g, "") // quita tildes
       .replace(/[^a-z0-9]/g, ""); // deja solo letras y números
 
-  const handleSearchPress = (category: string, subcategory: string) => {
+  const handleSearchPress = async (category: string, subcategory: string) => {
     const normalizedCategory = normalize(category);
     const iconKey = Object.keys(categoryIcons).find(
       (key) => normalize(key) === normalizedCategory
     );
     const icon = iconKey ? categoryIcons[iconKey] : undefined;
-    console.log({ category, iconKey, icon, categoryIcons });
+
+    // Buscar la categoría por nombre
+    const foundCategory = categories?.find((cat) => cat.name === category);
+    if (!foundCategory) return;
+
+    // Buscar la subcategoría por nombre
+    const categorySubcategories = subcategoriesMap[foundCategory.id] || [];
+    const foundSubcategory = categorySubcategories.find(
+      (sub) => sub.name === subcategory
+    );
+    if (!foundSubcategory) return;
+
     router.push({
       pathname: "/(protected)/(mainTabs)/home/create",
-      params: { category, subcategory, icon },
+      params: {
+        category,
+        subcategory,
+        categoryId: foundCategory.id.toString(),
+        subcategoryId: foundSubcategory.id,
+        categoryName: category,
+        subcategoryName: subcategory,
+        icon,
+      },
     });
   };
 

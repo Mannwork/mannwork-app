@@ -4,11 +4,11 @@ import { View } from "react-native";
 
 import type { Request } from "@/features/request";
 import {
-  getMockRequestsByTab,
   LoadingState,
   RequestsHeader,
   RequestsList,
   RequestsTabs,
+  useUserRequests,
   useUserRole,
 } from "@/features/request";
 
@@ -25,10 +25,16 @@ const RequestsScreen = () => {
     }
   }, [userRole]);
 
-  // Simular datos de solicitudes basados en el rol y tab activo
-  const requests = userRole
-    ? getMockRequestsByTab("professional", activeTab)
-    : [];
+  // Obtener solicitudes según el rol y tab activa
+  const getStatusFromTab = (tab: string) => {
+    if (tab === "completed") return "completed";
+    return undefined; // Para "sent" y "received" trae todas las no completadas
+  };
+
+  const { data: requests, isLoading: isLoadingRequests } = useUserRequests({
+    userRole: userRole || "client",
+    status: getStatusFromTab(activeTab),
+  });
 
   const handleSearch = () => {
     // TODO: Implementar búsqueda de solicitudes
@@ -61,7 +67,7 @@ const RequestsScreen = () => {
     if (
       userRole === "client" &&
       activeTab === "sent" &&
-      requests.length === 0
+      (!requests || requests.length === 0)
     ) {
       router.push("/(protected)/(mainTabs)/home/search-modal");
     } else {
@@ -69,16 +75,8 @@ const RequestsScreen = () => {
     }
   };
 
-  const handleBrowseRequests = () => {
-    // Si estamos en la pestaña completadas como profesional, ir a chats activos
-    if (activeTab === "completed") {
-      router.push("/(protected)/(mainTabs)/chats?tab=active");
-    } else {
-      router.push("/(protected)/(mainTabs)/home");
-    }
-  };
-
-  if (isLoadingRole || !userRole) {
+  // Loading state
+  if (isLoadingRole || isLoadingRequests) {
     return (
       <View className="flex-1 bg-gray-50">
         <RequestsHeader onSearch={handleSearch} onCreate={handleCreate} />
@@ -91,18 +89,19 @@ const RequestsScreen = () => {
     <View className="flex-1 bg-gray-50">
       <RequestsHeader onSearch={handleSearch} onCreate={handleCreate} />
       <RequestsTabs
-        userRole={userRole}
+        userRole={userRole || "client"}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
       <RequestsList
-        requests={requests}
-        userRole={userRole}
+        requests={requests || []}
+        userRole={userRole || "client"}
         activeTab={activeTab}
-        onRefresh={handleRefresh}
         onRequestPress={handleRequestPress}
         onCreateRequest={handleCreateRequest}
-        onBrowseRequests={handleBrowseRequests}
+        onBrowseRequests={handleCreate}
+        onRefresh={handleRefresh}
+        isLoading={isLoadingRequests}
       />
     </View>
   );

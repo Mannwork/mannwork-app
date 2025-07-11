@@ -35,6 +35,19 @@ const categoryIcons: Record<string, string> = {
   Eventos: "celebration",
 };
 
+const SkeletonCard = () => (
+  <View
+    className="flex-row items-center bg-gray-200/60 rounded-2xl px-6 mr-4 w-48 h-20 animate-pulse"
+    style={{ opacity: 0.7 }}
+  >
+    <View
+      className="bg-white rounded-full p-2 mr-3"
+      style={{ width: 36, height: 36 }}
+    />
+    <View className="bg-gray-300 rounded w-24 h-4" />
+  </View>
+);
+
 const SubcategoryCarrousel = () => {
   const { data: categories } = useCategories();
   const addSearch = useSearchStore((state) => state.addSearch);
@@ -70,56 +83,89 @@ const SubcategoryCarrousel = () => {
   if (!categories) return null;
   const limitedCategories = categories.slice(0, 5);
 
-  const handleSubcategoryPress = (category: string, subcategory: string) => {
+  // Verifica si las subcategorías están cargando
+  const loading =
+    Object.keys(subcategoriesMap).length < limitedCategories.length ||
+    limitedCategories.some((cat) => !subcategoriesMap[cat.id]);
+
+  const handleSubcategoryPress = (
+    category: string,
+    subcategory: string,
+    categoryId: number,
+    subcategoryId: string
+  ) => {
     const icon = categoryIcons[category];
     addSearch(category, subcategory);
     router.push({
       pathname: "/(protected)/(mainTabs)/home/create",
-      params: { category, subcategory, icon },
+      params: {
+        category,
+        subcategory,
+        categoryId: categoryId.toString(),
+        subcategoryId,
+        categoryName: category,
+        subcategoryName: subcategory,
+        icon,
+      },
     });
   };
 
   return (
     <View className="mt-4">
-      {limitedCategories.map((category) => {
+      {limitedCategories.map((category, idx) => {
         const subcategories = subcategoriesMap[category.id] || [];
         return (
           <View key={category.id} className="mb-6">
             <Text className="mx-4 mb-2 text-base font-bold text-gray-800">
               {category.name}
             </Text>
-            <FlatList
-              data={subcategories}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingLeft: 16 }}
-              renderItem={({ item: subcategory }) => (
-                <Pressable
-                  onPress={() =>
-                    handleSubcategoryPress(category.name, subcategory.name)
-                  }
-                  className="flex-row items-center bg-green-mannwork-light rounded-2xl px-6 mr-4 w-48 h-20"
-                >
-                  <View className="bg-white rounded-full p-2 mr-3">
-                    <MaterialIcons
-                      name={(categoryIcons[category.name] || "category") as any}
-                      size={28}
-                      color="#2D7A3E"
-                    />
-                  </View>
-                  <Text
-                    className="text-xs text-green-mannwork font-bold flex-1 text-center"
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
+            {loading ? (
+              <View style={{ flexDirection: "row", paddingLeft: 16 }}>
+                {[...Array(3)].map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </View>
+            ) : (
+              <FlatList
+                data={subcategories}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingLeft: 16 }}
+                renderItem={({ item: subcategory }) => (
+                  <Pressable
+                    onPress={() =>
+                      handleSubcategoryPress(
+                        category.name,
+                        subcategory.name,
+                        category.id,
+                        subcategory.id
+                      )
+                    }
+                    className="flex-row items-center bg-green-mannwork-light rounded-2xl px-6 mr-4 w-48 h-20"
                   >
-                    {subcategory.name}
-                  </Text>
-                </Pressable>
-              )}
-              keyExtractor={(item, index) =>
-                `${category.id}-${item.id || item.name}-${index}`
-              }
-            />
+                    <View className="bg-white rounded-full p-2 mr-3">
+                      <MaterialIcons
+                        name={
+                          (categoryIcons[category.name] || "category") as any
+                        }
+                        size={28}
+                        color="#2D7A3E"
+                      />
+                    </View>
+                    <Text
+                      className="text-xs text-green-mannwork font-bold flex-1 text-center"
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                    >
+                      {subcategory.name}
+                    </Text>
+                  </Pressable>
+                )}
+                keyExtractor={(item, index) =>
+                  `${category.id}-${item.id || item.name}-${index}`
+                }
+              />
+            )}
           </View>
         );
       })}

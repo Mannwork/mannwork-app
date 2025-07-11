@@ -7,32 +7,12 @@ import {
   useCurrentUser,
 } from "@/features/profile";
 import SectionDivider from "@/features/profile/components/SectionDivider";
+import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
 const ProfileScreen = () => {
   const { data: user, isLoading, error } = useCurrentUser();
-
-  // Datos mock para actividades (esto se puede expandir más adelante)
-  const mockActivities = [
-    {
-      id: "1",
-      name: "Plomería",
-      icon: "build",
-      subcategories: ["Filtraciones", "Cañerías", "Instalaciones"],
-    },
-    {
-      id: "2",
-      name: "Electricidad",
-      icon: "build",
-      subcategories: ["Instalaciones", "Reparaciones", "Mantenimiento"],
-    },
-    {
-      id: "3",
-      name: "Gas",
-      icon: "build",
-      subcategories: ["Instalaciones", "Reparaciones", "Mantenimiento"],
-    },
-  ];
+  const [showMapModal, setShowMapModal] = useState(false);
 
   // Datos mock para reviews (esto se puede expandir más adelante)
   const mockRatingDistribution = {
@@ -144,24 +124,31 @@ const ProfileScreen = () => {
   return (
     <View className="flex-1 bg-white">
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ProfileBanner user={userData} onRequestQuote={handleRequestQuote} />
+        <ProfileBanner
+          user={userData}
+          onRequestQuote={handleRequestQuote}
+          isOwnProfile={true}
+        />
         <SectionDivider />
         <ProfileInfo description={profileInfo.description} />
         <SectionDivider />
-        {user.rol === "professional" && (
-          <>
-            <ProfileMap
-              coverageRadius={profileInfo.coverageRadius}
-              onPress={handleMapPress}
-            />
-            <SectionDivider />
-            <ProfileActivities
-              activities={mockActivities}
-              userRole={userData.role}
-            />
-            <SectionDivider />
-          </>
-        )}
+        {user.rol === "professional" &&
+          user.ubication_json?.latitude != null &&
+          user.ubication_json?.longitude != null && (
+            <>
+              <ProfileMap
+                coverageRadius={profileInfo.coverageRadius}
+                latitude={user.ubication_json.latitude}
+                longitude={user.ubication_json.longitude}
+              />
+              <SectionDivider />
+              <ProfileActivities
+                professions={user.professions || []}
+                userRole={userData.role}
+              />
+              <SectionDivider />
+            </>
+          )}
 
         <ProfileReviews
           userName={`${userData.firstName} ${userData.lastName}`}

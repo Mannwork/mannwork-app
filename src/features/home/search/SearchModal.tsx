@@ -56,12 +56,22 @@ const SearchModalComponent = () => {
   // Búsqueda real usando subcategorías de la base
   const filteredResults = useMemo(() => {
     if (!allSubcategories.length || !categories) return [];
-    const results: { category: string; subcategory: string }[] = [];
+    const results: {
+      category: string;
+      subcategory: string;
+      categoryId: number;
+      subcategoryId: string;
+    }[] = [];
     // 1. Coincidencias de categoría: mostrar todas sus subcategorías
     allSubcategories.forEach((cat) => {
       if (cat.categoryName.toLowerCase().includes(normalized)) {
         cat.subcategories.forEach((sub) => {
-          results.push({ category: cat.categoryName, subcategory: sub.name });
+          results.push({
+            category: cat.categoryName,
+            subcategory: sub.name,
+            categoryId: cat.categoryId,
+            subcategoryId: sub.id,
+          });
         });
       }
     });
@@ -69,7 +79,12 @@ const SearchModalComponent = () => {
     allSubcategories.forEach((cat) => {
       cat.subcategories.forEach((sub) => {
         if (sub.name.toLowerCase().includes(normalized)) {
-          results.push({ category: cat.categoryName, subcategory: sub.name });
+          results.push({
+            category: cat.categoryName,
+            subcategory: sub.name,
+            categoryId: cat.categoryId,
+            subcategoryId: sub.id,
+          });
         }
       });
     });
@@ -84,7 +99,12 @@ const SearchModalComponent = () => {
     return unique;
   }, [searching, allSubcategories, normalized]);
 
-  const handleResultPress = (category: string, subcategory: string) => {
+  const handleResultPress = (
+    category: string,
+    subcategory: string,
+    categoryId: number,
+    subcategoryId: string
+  ) => {
     const icon = categoryIcons[category];
     addSearch(category, subcategory);
     setSearchQuery(subcategory); // Mostrar la subcategoría seleccionada en la searchbar
@@ -94,7 +114,13 @@ const SearchModalComponent = () => {
     setTimeout(() => {
       router.push({
         pathname: "/(protected)/(mainTabs)/home/create",
-        params: { category, subcategory, icon },
+        params: {
+          category,
+          subcategory,
+          categoryId: categoryId.toString(),
+          subcategoryId,
+          icon,
+        },
       });
     }, 100);
   };
@@ -156,7 +182,12 @@ const SearchModalComponent = () => {
               renderItem={({ item }) => (
                 <Pressable
                   onPress={() =>
-                    handleResultPress(item.category, item.subcategory)
+                    handleResultPress(
+                      item.category,
+                      item.subcategory,
+                      item.categoryId,
+                      item.subcategoryId
+                    )
                   }
                   className="flex-row items-center py-4 px-4 border-b border-gray-100"
                 >
