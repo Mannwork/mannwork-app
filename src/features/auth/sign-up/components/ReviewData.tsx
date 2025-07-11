@@ -56,7 +56,11 @@ const ReviewData = () => {
         selected_subcategories,
     } = useAuthStore();
 
-    const { handleUploadImage, imgUri } = useSupabaseStorage();
+    const {
+        handleUploadImage,
+        imgUri,
+        isLoading: isLoadingUploadImage,
+    } = useSupabaseStorage();
 
     const {
         control,
@@ -108,8 +112,9 @@ const ReviewData = () => {
     }, [user, isLoading, setData]);
 
     const handleAddPhoto = async () => {
-        await handleUploadImage(userId as string);
-        // setData("profile_pic", imgUri);
+        await handleUploadImage(userId as string).then(() =>
+            setData("profile_pic", imgUri)
+        );
     };
 
     const fullAddress = ubication_json
@@ -131,25 +136,40 @@ const ReviewData = () => {
         <MyView className="p-6">
             <View className="items-center mb-8">
                 <View>
-                    <Image
-                        source={{ uri: profile_pic }}
-                        placeholder={{
-                            blurhash: "L6Pj0^i_.AyE_3t7t7R**0o#DgR4",
-                        }}
-                        contentFit="cover"
-                        transition={300}
-                        onError={(error) =>
-                            console.log("Error al cargar la imagen:", error)
-                        }
-                        style={{
-                            height: 128,
-                            width: 128,
-                            borderRadius: 100,
-                            marginBottom: 16,
-                            borderWidth: 4,
-                            borderColor: "#2D7A3E",
-                        }}
-                    />
+                    {isLoadingUploadImage ? (
+                        <ActivityIndicator
+                            size="large"
+                            color="#2D7A3E"
+                            style={{
+                                height: 128,
+                                width: 128,
+                                borderRadius: 100,
+                                marginBottom: 16,
+                                borderWidth: 4,
+                                borderColor: "#2D7A3E",
+                            }}
+                        />
+                    ) : (
+                        <Image
+                            source={{ uri: profile_pic }}
+                            placeholder={{
+                                blurhash: "L6Pj0^i_.AyE_3t7t7R**0o#DgR4",
+                            }}
+                            contentFit="cover"
+                            transition={300}
+                            onError={(error) =>
+                                console.log("Error al cargar la imagen:", error)
+                            }
+                            style={{
+                                height: 128,
+                                width: 128,
+                                borderRadius: 100,
+                                marginBottom: 16,
+                                borderWidth: 4,
+                                borderColor: "#2D7A3E",
+                            }}
+                        />
+                    )}
                     <Pressable onPress={handleAddPhoto}>
                         <MaterialIcons
                             name="camera-alt"

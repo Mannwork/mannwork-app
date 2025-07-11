@@ -1,12 +1,13 @@
+import { useState } from "react";
 import { Alert } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
 
-import { useState } from "react";
 import { postImageToSupabase } from "../services/post-images";
 
 const useSupabaseStorage = () => {
     const [imgUri, setImgUri] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleUploadImage = async (userId: string) => {
         const { status } =
@@ -45,21 +46,30 @@ const useSupabaseStorage = () => {
             }
 
             const fileName = `${userId}-${Date.now()}.${fileExtension}`; // Nombre único para el archivo
-            const storagePath = `profile_pics/${fileName}`; // Ruta dentro de tu bucket
+            const storagePath = `${userId}/${fileName}`; // Ruta dentro de tu bucket
 
-            const imgUri = await postImageToSupabase(
-                imageUri,
-                storagePath,
-                fileExtension
-            );
+            try {
+                setIsLoading(true);
 
-            setImgUri(imgUri as string);
+                const imgUri = await postImageToSupabase(
+                    imageUri,
+                    storagePath,
+                    fileExtension
+                );
+
+                setImgUri(imgUri as string);
+            } catch (error) {
+                console.log("Error al subir la imagen:", error);
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
     return {
         handleUploadImage,
         imgUri,
+        isLoading,
     };
 };
 

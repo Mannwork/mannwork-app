@@ -1,10 +1,14 @@
-const { getDefaultConfig } = require('expo/metro-config');
-const { withNativeWind } = require('nativewind/metro');
+const { getDefaultConfig } = require("expo/metro-config");
+const { withNativeWind } = require("nativewind/metro");
 
-/** @type {import('expo/metro-config').MetroConfig} */
 let config = getDefaultConfig(__dirname);
 
-config = withNativeWind(config, { input: './src/common/lib/nativewind/global.css' });
+config.resolver.assetExts = config.resolver.assetExts.filter(ext => ext !== "svg");
+config.resolver.sourceExts = [...config.resolver.sourceExts, "svg"];
+
+config = withNativeWind(config, {
+    input: "./src/common/lib/nativewind/global.css",
+});
 
 config.resolver.unstable_enablePackageExports = false;
 
