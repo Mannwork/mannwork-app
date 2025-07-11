@@ -1,8 +1,10 @@
-create table if not exists request_professionals (
-  request_id uuid references requests(id) on delete cascade,
-  professional_id text references users(id) on delete cascade,
-  assigned_at timestamp with time zone default timezone('utc', now()),
-  primary key (request_id, professional_id)
+-- Tabla intermedia para vincular profesionales y solicitudes
+CREATE TABLE IF NOT EXISTS request_professionals (
+  id BIGSERIAL PRIMARY KEY,
+  request_id UUID REFERENCES requests(id) ON DELETE CASCADE,
+  professional_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Índices para consultas rápidas

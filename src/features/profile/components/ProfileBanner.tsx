@@ -13,9 +13,14 @@ interface ProfileBannerProps {
     role: "professional" | "client";
   };
   onRequestQuote?: () => void;
+  isOwnProfile?: boolean;
 }
 
-const ProfileBanner = ({ user, onRequestQuote }: ProfileBannerProps) => {
+const ProfileBanner = ({
+  user,
+  onRequestQuote,
+  isOwnProfile = false,
+}: ProfileBannerProps) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -77,7 +82,7 @@ const ProfileBanner = ({ user, onRequestQuote }: ProfileBannerProps) => {
             </Text>
           </View>
 
-          {user.role === "professional" && onRequestQuote && (
+          {user.role === "professional" && onRequestQuote && !isOwnProfile && (
             <Pressable
               onPress={onRequestQuote}
               className="bg-white rounded-lg px-6 py-3"

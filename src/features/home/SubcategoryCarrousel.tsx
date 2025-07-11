@@ -88,12 +88,25 @@ const SubcategoryCarrousel = () => {
     Object.keys(subcategoriesMap).length < limitedCategories.length ||
     limitedCategories.some((cat) => !subcategoriesMap[cat.id]);
 
-  const handleSubcategoryPress = (category: string, subcategory: string) => {
+  const handleSubcategoryPress = (
+    category: string,
+    subcategory: string,
+    categoryId: number,
+    subcategoryId: string
+  ) => {
     const icon = categoryIcons[category];
     addSearch(category, subcategory);
     router.push({
       pathname: "/(protected)/(mainTabs)/home/create",
-      params: { category, subcategory, icon },
+      params: {
+        category,
+        subcategory,
+        categoryId: categoryId.toString(),
+        subcategoryId,
+        categoryName: category,
+        subcategoryName: subcategory,
+        icon,
+      },
     });
   };
 
@@ -121,7 +134,12 @@ const SubcategoryCarrousel = () => {
                 renderItem={({ item: subcategory }) => (
                   <Pressable
                     onPress={() =>
-                      handleSubcategoryPress(category.name, subcategory.name)
+                      handleSubcategoryPress(
+                        category.name,
+                        subcategory.name,
+                        category.id,
+                        subcategory.id
+                      )
                     }
                     className="flex-row items-center bg-green-mannwork-light rounded-2xl px-6 mr-4 w-48 h-20"
                   >

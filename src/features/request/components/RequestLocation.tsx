@@ -14,7 +14,7 @@ const RequestLocation = ({ location }: RequestLocationProps) => {
     <View className="flex-row items-center mt-2">
       <MaterialIcons name="location-on" size={16} color="#6B7280" />
       <Text className="text-sm text-gray-600 ml-1 flex-1">
-        {location.address}, {location.city}, {location.province}
+        {location.address}
       </Text>
     </View>
   );

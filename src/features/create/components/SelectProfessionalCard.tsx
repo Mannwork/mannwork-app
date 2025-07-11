@@ -23,11 +23,22 @@ export default function SelectProfessionalCard({
   professional,
   selected = false,
   onSelect = () => {},
+  categoryName,
+  subcategoryName,
 }: {
   professional: any;
   selected?: boolean;
   onSelect?: () => void;
+  categoryName?: string;
+  subcategoryName?: string;
 }) {
+  // Separar nombre y apellido si vienen juntos
+  const fullName = professional.name || "";
+  const nameParts = fullName.split(" ");
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+  const lastInitial = lastName.charAt(0) || "";
+
   return (
     <View className="bg-white rounded-2xl mb-5 shadow-lg border-2 border-gray-100 overflow-hidden">
       {/* Cabecera verde con logo de fondo */}
@@ -83,13 +94,15 @@ export default function SelectProfessionalCard({
         <View className="flex-row items-center">
           <MaterialIcons name="person" size={18} color="#2d7a3e" />
           <Text className="font-bold text-sm ml-2 text-left">
-            {professional.name} {professional.lastInitial}.
+            {firstName} {lastInitial}.
           </Text>
         </View>
         <View className="flex-row items-center">
           <MaterialIcons name="build" size={18} color="#2d7a3e" />
           <Text className="text-green-mannwork font-semibold text-sm ml-2 text-left">
-            {professional.category}
+            {categoryName && subcategoryName
+              ? `${categoryName} • ${subcategoryName}`
+              : professional.category}
           </Text>
         </View>
         <View className="flex-row items-center">

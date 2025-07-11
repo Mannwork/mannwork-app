@@ -29,6 +29,9 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [description, setDescription] = useState(user?.description || "");
   const [profilePic, setProfilePic] = useState(user?.profile_pic || "");
+  const [serviceRadius, setServiceRadius] = useState(
+    user?.service_radius || 15
+  );
 
   // Store global para profesiones
   const professions = useProfessionsStore((state) => state.professions);
@@ -61,6 +64,7 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
       last_name: lastName.trim(),
       profile_pic: profilePic,
       description: description.trim(),
+      service_radius: isProfessional ? Number(serviceRadius) : undefined,
     };
 
     if (isProfessional) {
@@ -159,6 +163,7 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
           placeholder="Tu nombre"
           value={name}
           onChangeText={setName}
+          style={{ lineHeight: 0 }}
         />
 
         {/* Apellido */}
@@ -168,6 +173,7 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
           placeholder="Tu apellido"
           value={lastName}
           onChangeText={setLastName}
+          style={{ lineHeight: 0 }}
         />
 
         {/* Descripción */}
@@ -181,11 +187,26 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
           onChangeText={setDescription}
           multiline
           textAlignVertical="top"
+          style={{ lineHeight: 22 }}
         />
 
         {/* Profesiones (solo para profesionales) */}
         {isProfessional && (
           <View className="mb-4">
+            {/* Radio de cobertura */}
+            <Text className="text-base font-bold text-gray-800 mb-2">
+              Radio de cobertura (km)
+            </Text>
+            <TextInput
+              className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 mb-4"
+              placeholder="Ej: 15"
+              value={String(serviceRadius)}
+              onChangeText={(text) =>
+                setServiceRadius(Number(text.replace(/[^0-9]/g, "")))
+              }
+              keyboardType="numeric"
+              style={{ lineHeight: 0 }}
+            />
             <Text className="text-base font-bold text-gray-800 mb-3">
               Profesiones
             </Text>
