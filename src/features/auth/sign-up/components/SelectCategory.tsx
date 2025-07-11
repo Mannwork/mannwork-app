@@ -10,6 +10,7 @@ import {
 
 import { MaterialIcons } from "@expo/vector-icons";
 
+import MyView from "@/common/components/MyView";
 import { useCategories } from "@/common/hooks/useCategories";
 import { useSubcategories } from "@/common/hooks/useSubcategories";
 import { categoryIcons } from "@/common/types/categories.interface";
@@ -208,7 +209,7 @@ export const SelectCategory = () => {
     };
 
     return (
-        <View className="flex-1 bg-white">
+        <MyView className="flex-1 bg-background-white">
             <View className="bg-green-mannwork px-4 py-4">
                 <View className="flex-row items-center justify-between mb-2">
                     <View className="w-6" />
@@ -271,6 +272,6 @@ export const SelectCategory = () => {
                     Siguiente
                 </Text>
             </AuthButton>
-        </View>
+        </MyView>
     );
 };
