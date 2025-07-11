@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { categoryIcons } from "@/common/types/categories.interface";
 import { Request } from "./RequestCard";
 import RequestStatusBadge from "./RequestStatusBadge";
 
@@ -50,6 +51,11 @@ const RequestDetailModal = ({
   };
 
   const users = getUsersDisplay();
+
+  // Obtener el icono de la categoría
+  const getCategoryIcon = (categoryName: string) => {
+    return categoryIcons[categoryName] || "category";
+  };
 
   const getPaymentStatus = () => {
     // Mock payment status - esto vendría de la API
@@ -102,14 +108,28 @@ const RequestDetailModal = ({
             id: "start_work",
             label: "Iniciar trabajo",
             color: "bg-green-mannwork",
-            onPress: () => onUpdateStatus?.("in_progress"),
+            onPress: () => {
+              console.log("Iniciar trabajo presionado");
+              if (onUpdateStatus) {
+                onUpdateStatus("in_progress");
+              } else {
+                console.log("onUpdateStatus no está definido");
+              }
+            },
           });
         }
         actions.push({
           id: "cancel",
           label: "Cancelar solicitud",
           color: "bg-red-500",
-          onPress: () => onUpdateStatus?.("cancelled"),
+          onPress: () => {
+            console.log("Cancelar solicitud presionado");
+            if (onUpdateStatus) {
+              onUpdateStatus("cancelled");
+            } else {
+              console.log("onUpdateStatus no está definido");
+            }
+          },
         });
       } else {
         // Clientes solo pueden cancelar
@@ -117,7 +137,14 @@ const RequestDetailModal = ({
           id: "cancel",
           label: "Cancelar solicitud",
           color: "bg-red-500",
-          onPress: () => onUpdateStatus?.("cancelled"),
+          onPress: () => {
+            console.log("Cancelar solicitud presionado (cliente)");
+            if (onUpdateStatus) {
+              onUpdateStatus("cancelled");
+            } else {
+              console.log("onUpdateStatus no está definido");
+            }
+          },
         });
       }
     }
@@ -126,6 +153,8 @@ const RequestDetailModal = ({
   };
 
   const availableActions = getAvailableActions();
+  console.log("Available actions:", availableActions);
+  console.log("onUpdateStatus function:", onUpdateStatus);
 
   return (
     <View className="flex-1 bg-white">
@@ -183,7 +212,11 @@ const RequestDetailModal = ({
 
           {/* Categoría */}
           <View className="flex-row items-center mb-4">
-            <MaterialIcons name="category" size={20} color="#6B7280" />
+            <MaterialIcons
+              name={getCategoryIcon(request.category) as any}
+              size={20}
+              color="#6B7280"
+            />
             <Text className="text-gray-600 ml-2 text-base">
               {request.category} • {request.subcategory}
             </Text>
@@ -193,8 +226,7 @@ const RequestDetailModal = ({
           <View className="flex-row items-start mb-4">
             <MaterialIcons name="location-on" size={20} color="#6B7280" />
             <Text className="text-gray-600 ml-2 text-base flex-1">
-              {request.location.address}, {request.location.city},{" "}
-              {request.location.province}
+              {request.location.address}
             </Text>
           </View>
 
@@ -254,7 +286,7 @@ const RequestDetailModal = ({
                   </View>
                   <View className="ml-3">
                     <Text className="text-gray-900 font-semibold text-base">
-                      {user.name} {user.lastName}
+                      {user.name} {user.lastName.charAt(0)}.
                     </Text>
                     <Text className="text-gray-600 text-sm">
                       {user.role === "professional" ? "Profesional" : "Cliente"}
@@ -262,7 +294,7 @@ const RequestDetailModal = ({
                   </View>
                 </View>
 
-                {onContact && (
+                {onContact && currentUserRole === "client" && (
                   <Pressable
                     onPress={() => onContact(user.id)}
                     className="bg-green-mannwork px-4 py-2 rounded-lg"
@@ -287,9 +319,9 @@ const RequestDetailModal = ({
                 <Pressable
                   key={action.id}
                   onPress={action.onPress}
-                  className={`${action.color} p-3 rounded-lg items-center`}
+                  className={`${action.color} p-4 rounded-lg items-center justify-center`}
                 >
-                  <Text className="text-white font-semibold">
+                  <Text className="text-white font-semibold text-base">
                     {action.label}
                   </Text>
                 </Pressable>

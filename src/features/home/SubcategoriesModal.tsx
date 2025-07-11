@@ -47,13 +47,21 @@ const SubcategoriesModal = ({ category }: SubcategoriesModalProps) => {
   const addSearch = useSearchStore((state) => state.addSearch);
   const { data: subcategories, isLoading } = useSubcategories(category.id);
 
-  const handleSubcategoryPress = (subcategory: string) => {
+  const handleSubcategoryPress = (subcategory: any) => {
     const icon = categoryIcons[category.name];
-    addSearch(category.name, subcategory);
+    addSearch(category.name, subcategory.name);
     router.back();
     router.push({
       pathname: "/(protected)/(mainTabs)/home/create",
-      params: { category: category.name, subcategory, icon },
+      params: {
+        category: category.name,
+        subcategory: subcategory.name,
+        categoryId: category.id.toString(),
+        subcategoryId: subcategory.id,
+        categoryName: category.name,
+        subcategoryName: subcategory.name,
+        icon,
+      },
     });
   };
 
@@ -89,7 +97,7 @@ const SubcategoriesModal = ({ category }: SubcategoriesModalProps) => {
           contentContainerStyle={{ paddingBottom: 16 }}
           renderItem={({ item: subcategory }) => (
             <Pressable
-              onPress={() => handleSubcategoryPress(subcategory.name)}
+              onPress={() => handleSubcategoryPress(subcategory)}
               className="flex-row items-center py-6 px-4 border-b border-gray-100"
             >
               <Text className="text-lg font-bold text-green-mannwork flex-1">

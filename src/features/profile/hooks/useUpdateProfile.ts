@@ -13,6 +13,7 @@ interface UpdateProfileData {
     category_name: string;
     subcategory_name: string;
   }[]; // Solo para profesionales
+  service_radius?: number;
 }
 
 export const useUpdateProfile = () => {
@@ -28,6 +29,7 @@ export const useUpdateProfile = () => {
         last_name: data.last_name,
         profile_pic: data.profile_pic,
         description: data.description,
+        ...(data.service_radius !== undefined && { service_radius: data.service_radius }),
       };
 
       // Si hay profesiones, actualiza la tabla intermedia user_professional_services

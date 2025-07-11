@@ -56,7 +56,8 @@ const ProfileActivities = ({
           <View
             key={categoryId + "-" + idx}
             className={`${
-              Object.keys(grouped).length === 3 && idx === 2
+              Object.keys(grouped).length === 1 ||
+              (Object.keys(grouped).length === 3 && idx === 2)
                 ? "w-full"
                 : "w-[48%]"
             } bg-green-mannwork-light rounded-lg p-4 mb-3 items-center`}

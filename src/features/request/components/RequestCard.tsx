@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 
+import { categoryIcons } from "@/common/types/categories.interface";
 import RequestImages from "./RequestImages";
 import RequestLocation from "./RequestLocation";
 import RequestStatusBadge from "./RequestStatusBadge";
@@ -81,6 +82,11 @@ const RequestCard = ({
 
   const usersDisplay = getUsersDisplay();
 
+  // Obtener el icono de la categoría
+  const getCategoryIcon = (categoryName: string) => {
+    return categoryIcons[categoryName] || "category";
+  };
+
   return (
     <Pressable
       onPress={() => onPress?.(request)}
@@ -98,7 +104,11 @@ const RequestCard = ({
       </Text>
 
       <View className="flex-row items-center mb-2">
-        <MaterialIcons name="category" size={16} color="#6B7280" />
+        <MaterialIcons
+          name={getCategoryIcon(request.category) as any}
+          size={16}
+          color="#6B7280"
+        />
         <Text className="text-sm text-gray-600 ml-1">
           {request.category} • {request.subcategory}
         </Text>

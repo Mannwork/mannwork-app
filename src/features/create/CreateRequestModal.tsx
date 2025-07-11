@@ -1,4 +1,3 @@
-import { useActionSheet } from "@expo/react-native-action-sheet";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
@@ -16,6 +15,8 @@ import LocationPickerModal from "./LocationPickerModal";
 interface CreateRequestModalProps {
   category: string;
   subcategory: string;
+  categoryId?: string;
+  subcategoryId?: string;
   icon?: string;
 }
 
@@ -24,6 +25,8 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
   const params = useLocalSearchParams();
   const category = props.category || params.category;
   const subcategory = props.subcategory || params.subcategory;
+  const categoryId = props.categoryId || params.categoryId;
+  const subcategoryId = props.subcategoryId || params.subcategoryId;
   const icon = props.icon || params.icon;
 
   const [title, setTitle] = useState("");
@@ -36,8 +39,6 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
     address?: string;
   } | null>(null);
   const [images, setImages] = useState<string[]>([]);
-  const { showActionSheetWithOptions } = useActionSheet();
-  const [isImagePickerPending, setIsImagePickerPending] = useState(false);
 
   // Estados para validaciones
   const [errors, setErrors] = useState<{
@@ -76,23 +77,41 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
   };
 
   const handleNext = () => {
-    console.log("Intentando ir hacia adelante...");
+    console.log("🔍 CreateRequestModal - Intentando ir hacia adelante...");
+    console.log("🔍 CreateRequestModal - Parámetros disponibles:", {
+      category,
+      subcategory,
+      categoryId,
+      subcategoryId,
+      icon,
+    });
+
     if (validateForm()) {
-      console.log("Formulario válido, navegando...");
+      console.log("🔍 CreateRequestModal - Formulario válido, navegando...");
+      const navigationParams = {
+        category: category || "",
+        subcategory: subcategory || "",
+        categoryId: categoryId || "",
+        subcategoryId: subcategoryId || "",
+        categoryName: category || "",
+        subcategoryName: subcategory || "",
+        title,
+        description,
+        location,
+        locationData: locationData ? JSON.stringify(locationData) : "",
+        images: images.length > 0 ? JSON.stringify(images) : "",
+      };
+      console.log(
+        "🔍 CreateRequestModal - Parámetros de navegación:",
+        navigationParams
+      );
+
       router.replace({
         pathname: "/(protected)/(mainTabs)/home/select-professionals",
-        params: {
-          category: category || "",
-          subcategory: subcategory || "",
-          title,
-          description,
-          location,
-          locationData: locationData ? JSON.stringify(locationData) : "",
-          images: images.length > 0 ? JSON.stringify(images) : "",
-        },
+        params: navigationParams,
       });
     } else {
-      console.log("Formulario inválido");
+      console.log("🔍 CreateRequestModal - Formulario inválido");
     }
   };
 
@@ -112,83 +131,15 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
   };
 
   const handleAddPhoto = async () => {
-    if (showLocationModal) {
-      setShowLocationModal(false);
-      setIsImagePickerPending(true);
-      setTimeout(() => {
-        setIsImagePickerPending(false);
-        showActionSheetWithOptions(
-          {
-            options: ["Tomar foto", "Elegir de la galería", "Cancelar"],
-            cancelButtonIndex: 2,
-          },
-          async (selectedIndex: number | undefined) => {
-            if (selectedIndex === 0) {
-              // Tomar foto
-              const result = await ImagePicker.launchCameraAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsMultipleSelection: false,
-                quality: 0.7,
-              });
-              if (
-                !result.canceled &&
-                result.assets &&
-                result.assets.length > 0
-              ) {
-                setImages((prev) => [...prev, result.assets[0].uri]);
-              }
-            } else if (selectedIndex === 1) {
-              // Elegir de la galería
-              const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsMultipleSelection: true,
-                quality: 0.7,
-              });
-              if (
-                !result.canceled &&
-                result.assets &&
-                result.assets.length > 0
-              ) {
-                setImages((prev) => [
-                  ...prev,
-                  ...result.assets.map((a) => a.uri),
-                ]);
-              }
-            }
-          }
-        );
-      }, 200);
-      return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImages((prev) => [...prev, ...result.assets.map((a) => a.uri)]);
     }
-    showActionSheetWithOptions(
-      {
-        options: ["Tomar foto", "Elegir de la galería", "Cancelar"],
-        cancelButtonIndex: 2,
-      },
-      async (selectedIndex: number | undefined) => {
-        if (selectedIndex === 0) {
-          // Tomar foto
-          const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsMultipleSelection: false,
-            quality: 0.7,
-          });
-          if (!result.canceled && result.assets && result.assets.length > 0) {
-            setImages((prev) => [...prev, result.assets[0].uri]);
-          }
-        } else if (selectedIndex === 1) {
-          // Elegir de la galería
-          const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsMultipleSelection: true,
-            quality: 0.7,
-          });
-          if (!result.canceled && result.assets && result.assets.length > 0) {
-            setImages((prev) => [...prev, ...result.assets.map((a) => a.uri)]);
-          }
-        }
-      }
-    );
   };
 
   return (
@@ -239,6 +190,7 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
             }
           }}
           maxLength={TITLE_MAX_LENGTH}
+          style={{ lineHeight: 0 }}
         />
         <View className="flex-row justify-between items-center mb-4">
           {errors.title && (
@@ -293,11 +245,9 @@ const CreateRequestModal = (props: CreateRequestModalProps) => {
             errors.location ? "border-red-500" : "border-green-mannwork"
           }`}
           onPress={() => {
-            if (!isImagePickerPending) {
-              setShowLocationModal(true);
-              if (errors.location) {
-                setErrors((prev) => ({ ...prev, location: undefined }));
-              }
+            setShowLocationModal(true);
+            if (errors.location) {
+              setErrors((prev) => ({ ...prev, location: undefined }));
             }
           }}
         >
