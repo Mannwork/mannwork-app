@@ -3,10 +3,11 @@ import { Alert } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
 
-import { postImageToSupabase } from "../services/post-images";
+import { postImageToSupabase } from "../services/post-image";
+import { postImagesToSupabase } from "../services/post-images";
 
-const useSupabaseStorage = () => {
-    const [imgUri, setImgUri] = useState("");
+const useSupabaseStorage = (bucket: string) => {
+    const [imagesUri, setImagesUri] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const handleUploadImage = async (userId: string) => {
@@ -31,7 +32,6 @@ const useSupabaseStorage = () => {
         if (!result.canceled && result.assets && result.assets.length > 0) {
             const imageUri = result.assets[0].uri;
 
-            // --- Paso 1: Obtener el archivo como Blob ---
             let fileExtension = imageUri.split(".").pop();
             if (
                 fileExtension &&
@@ -41,23 +41,23 @@ const useSupabaseStorage = () => {
             ) {
                 fileExtension = fileExtension.toLowerCase();
             } else {
-                // Si la extensión no es reconocida, podrías forzarla o manejar el error
-                fileExtension = "jpeg"; // Default a jpeg si no se puede determinar
+                fileExtension = "jpeg";
             }
 
-            const fileName = `${userId}-${Date.now()}.${fileExtension}`; // Nombre único para el archivo
-            const storagePath = `${userId}/${fileName}`; // Ruta dentro de tu bucket
+            const fileName = `${userId}-${Date.now()}.${fileExtension}`;
+            const storagePath = `${userId}/${fileName}`;
 
             try {
                 setIsLoading(true);
 
-                const imgUri = await postImageToSupabase(
+                const newImgUri = await postImageToSupabase(
                     imageUri,
                     storagePath,
-                    fileExtension
+                    fileExtension,
+                    bucket
                 );
 
-                setImgUri(imgUri as string);
+                return newImgUri;
             } catch (error) {
                 console.log("Error al subir la imagen:", error);
             } finally {
@@ -66,9 +66,34 @@ const useSupabaseStorage = () => {
         }
     };
 
+    const handleUploadImages = async (
+        clientId: string,
+        imagesUris: string[]
+    ) => {
+        const storagePathPrefix = clientId;
+
+        try {
+            setIsLoading(true);
+
+            const uploadedImageUrls = await postImagesToSupabase(
+                imagesUris,
+                storagePathPrefix,
+                bucket
+            );
+
+            setImagesUri(uploadedImageUrls);
+        } catch (error) {
+            console.log("Error al subir las imágenes:", error);
+            Alert.alert("Error", "Ocurrió un problema al subir las imágenes.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return {
         handleUploadImage,
-        imgUri,
+        handleUploadImages,
+        imagesUri,
         isLoading,
     };
 };

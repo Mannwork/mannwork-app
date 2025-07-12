@@ -56,11 +56,8 @@ const ReviewData = () => {
         selected_subcategories,
     } = useAuthStore();
 
-    const {
-        handleUploadImage,
-        imgUri,
-        isLoading: isLoadingUploadImage,
-    } = useSupabaseStorage();
+    const { handleUploadImage, isLoading: isLoadingUploadImage } =
+        useSupabaseStorage("profile-pics");
 
     const {
         control,
@@ -112,9 +109,11 @@ const ReviewData = () => {
     }, [user, isLoading, setData]);
 
     const handleAddPhoto = async () => {
-        await handleUploadImage(userId as string).then(() =>
-            setData("profile_pic", imgUri)
-        );
+        const newImageUri = await handleUploadImage(userId as string);
+
+        if (newImageUri) {
+            setData("profile_pic", newImageUri);
+        }
     };
 
     const fullAddress = ubication_json

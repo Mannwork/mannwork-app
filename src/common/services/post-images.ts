@@ -2,52 +2,57 @@ import { Alert } from "react-native";
 import ReactNativeBlobUtil from 'react-native-blob-util'; // Importa RNFetchBlob
 import { supabase } from "../lib/supabase/supabaseClient";
 
-export const postImageToSupabase = async (
-    imageUri: string,
-    storagePath: string,
-    fileExtension: string
-) => {
+export const postImagesToSupabase = async (
+    imageUris: string[],
+    storagePathPrefix: string,
+    bucket: string
+): Promise<string[]> => {
     try {
-        const base64 = await ReactNativeBlobUtil.fs.readFile(imageUri, 'base64');
+        const uploadPromises = imageUris.map(async (imageUri, index) => {
+            const fileExtension = imageUri.split('.').pop()?.toLowerCase() || 'jpg';
+            const storagePath = `${storagePathPrefix}/${Date.now()}_${index}.${fileExtension}`;
 
-        const byteCharacters = atob(base64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
+            const base64 = await ReactNativeBlobUtil.fs.readFile(imageUri, 'base64');
 
-        // Determinar el tipo MIME correcto
-        const mimeType = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
+            const byteCharacters = atob(base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
 
-        // Subir la imagen usando Uint8Array
-        const { error } = await supabase.storage
-            .from('profile-pics') // Asegúrate de que 'images' es tu bucket correcto
-            .upload(storagePath, byteArray, { // Pasa el Uint8Array
-                cacheControl: '3600',
-                upsert: false,
-                contentType: mimeType,
-            });
+            const mimeType = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
 
-        if (error) {
-            console.error("Error al subir la imagen:", error);
-            Alert.alert("Error", "No se pudo subir la imagen: " + error.message);
-            return "";
-        }
+            const { error: uploadError } = await supabase.storage
+                .from(bucket)
+                .upload(storagePath, byteArray, {
+                    cacheControl: '3600',
+                    upsert: false,
+                    contentType: mimeType,
+                });
 
-        const { data: publicUrlData } = supabase.storage
-            .from('profile-pics') // Asegúrate de que 'images' es tu bucket correcto
-            .getPublicUrl(storagePath);
+            if (uploadError) {
+                console.error(`Error al subir la imagen ${imageUri}:`, uploadError);
+                throw new Error(`No se pudo subir la imagen: ${uploadError.message}`);
+            }
 
-        if (publicUrlData && publicUrlData.publicUrl) {
-            return publicUrlData.publicUrl;
-        } else {
-            Alert.alert("Error", "No se pudo obtener la URL pública de la imagen.");
-            return "";
-        }
-    } catch (uploadError: any) {
-        console.error("Error en el proceso de subida:", uploadError);
-        Alert.alert("Error Interno", "Ocurrió un problema al procesar la imagen: " + uploadError.message);
-        return "";
+            const { data: publicUrlData } = supabase.storage
+                .from(bucket)
+                .getPublicUrl(storagePath);
+
+            if (publicUrlData && publicUrlData.publicUrl) {
+                return publicUrlData.publicUrl;
+            } else {
+                throw new Error(`No se pudo obtener la URL pública para la imagen ${imageUri}.`);
+            }
+        });
+
+        const publicUrls = await Promise.all(uploadPromises);
+        
+        return publicUrls;
+    } catch (error: any) {
+        console.error("Error en el proceso de subida de imágenes:", error);
+        Alert.alert("Error", `Ocurrió un problema al subir las imágenes: ${error.message}`);
+        return [];
     }
 };
