@@ -1,5 +1,6 @@
+import useSupabaseStorage from "@/common/hooks/useSupabaseStorage";
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -33,23 +34,20 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
         user?.service_radius || 15
     );
 
+    const { userId } = useAuth();
+
+    const { handleUploadImage, isLoading: isLoadingUploadImage } = useSupabaseStorage("profile-pics");
+
     // Store global para profesiones
     const professions = useProfessionsStore((state) => state.professions);
     const setProfessions = useProfessionsStore((state) => state.setProfessions);
-    const resetProfessions = useProfessionsStore(
-        (state) => state.resetProfessions
-    );
 
     // Inicializa el store con las profesiones del usuario al abrir el modal
     useEffect(() => {
         if (visible && user?.professions) {
             setProfessions(user.professions);
         }
-        // No reseteo el store aquí para no perder los cambios hechos en el modal de oficios
-        // if (!visible) {
-        //   resetProfessions();
-        // }
-    }, [visible, user?.professions]);
+    }, [visible, user?.professions, setProfessions]);
 
     const isProfessional = user?.rol === "professional";
 
@@ -84,23 +82,9 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
     };
 
     const handleAddPhoto = async () => {
-        const { status } =
-            await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-        if (status !== "granted") {
-            Alert.alert("Permisos", "Necesitamos acceso a tu galería");
-            return;
-        }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ["images"],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.7,
-        });
-
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-            setProfilePic(result.assets[0].uri);
+        const newImageUri = await handleUploadImage(userId as string);
+        if (newImageUri) {
+            setProfilePic(newImageUri);
         }
     };
 
@@ -147,8 +131,18 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
             >
                 {/* Foto de perfil */}
                 <View className="items-center py-6">
-                    <Pressable onPress={handleAddPhoto} className="relative">
-                        {profilePic ? (
+                    <Pressable
+                        onPress={handleAddPhoto}
+                        className="relative disabled:opacity-50"
+                        disabled={isLoadingUploadImage}
+                    >
+                        {isLoadingUploadImage ? (
+                            <ActivityIndicator
+                                size="small"
+                                color="#2D7A3E"
+                                className="w-24 h-24 rounded-full"
+                            />
+                        ) : profilePic ? (
                             <Image
                                 source={{ uri: profilePic }}
                                 className="w-24 h-24 rounded-full"
