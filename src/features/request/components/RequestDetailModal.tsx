@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,6 +14,8 @@ interface RequestDetailModalProps {
   onClose: () => void;
   onContact?: (userId: string) => void;
   onUpdateStatus?: (status: Request["status"]) => void;
+  onProfessionalPress?: (userId: string) => void; // Nueva prop
+  activeTab?: string; // Nueva prop para distinguir entre enviada y recibida
 }
 
 const RequestDetailModal = ({
@@ -22,8 +25,16 @@ const RequestDetailModal = ({
   onClose,
   onContact,
   onUpdateStatus,
+  onProfessionalPress, // Nueva prop
+  activeTab, // Nueva prop
 }: RequestDetailModalProps) => {
   const insets = useSafeAreaInsets();
+  const { userId } = useAuth();
+
+  // Determinar si es una solicitud enviada por profesional (no soy destinatario)
+  const isProSent =
+    currentUserRole === "professional" &&
+    !request.users.some((u) => u.role === "professional" && u.id === userId);
 
   if (!isVisible) return null;
 
@@ -45,6 +56,15 @@ const RequestDetailModal = ({
       );
       return professionals;
     } else {
+      console.log(request.users, "users");
+
+      if (isProSent) {
+        // Profesional viendo su propia solicitud enviada: mostrar solo destinatarios
+        return request.users.filter((user) => user.role === "professional");
+      }
+      console.log(isProSent, "es pro");
+
+      // Profesional destinatario: mostrar al cliente
       const client = request.users.find((user) => user.role === "client");
       return client ? [client] : [];
     }
@@ -271,44 +291,54 @@ const RequestDetailModal = ({
         {/* Usuarios involucrados */}
         <View className="px-4 py-4">
           <Text className="text-lg font-semibold text-gray-900 mb-4">
-            {currentUserRole === "client" ? "Profesionales" : "Cliente"}
+            {currentUserRole === "client"
+              ? "Profesionales"
+              : isProSent
+              ? "Profesionales"
+              : "Cliente"}
           </Text>
 
-          {users.map((user, index) => (
-            <View key={user.id} className="bg-gray-50 p-4 rounded-lg mb-3">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-12 h-12 bg-green-mannwork rounded-full items-center justify-center">
-                    <Text className="text-white font-bold text-lg">
-                      {user.name.charAt(0)}
-                      {user.lastName.charAt(0)}
-                    </Text>
-                  </View>
-                  <View className="ml-3">
-                    <Text className="text-gray-900 font-semibold text-base">
-                      {user.name} {user.lastName.charAt(0)}.
-                    </Text>
-                    <Text className="text-gray-600 text-sm">
-                      {user.role === "professional" ? "Profesional" : "Cliente"}
-                    </Text>
+          {users.map((user, index) => {
+            // Permitir navegar al perfil de cualquier usuario menos a mí mismo
+            const isMyself = userId === user.id;
+            const isPressable = !isMyself && !!onProfessionalPress;
+            const CardWrapper = isPressable ? Pressable : View;
+            const cardProps = isPressable
+              ? {
+                  onPress: () =>
+                    onProfessionalPress && onProfessionalPress(user.id),
+                  className: "bg-gray-50 p-4 rounded-lg mb-3",
+                }
+              : { className: "bg-gray-50 p-4 rounded-lg mb-3" };
+            return (
+              <CardWrapper key={user.id} {...cardProps}>
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <View className="w-12 h-12 bg-green-mannwork rounded-full items-center justify-center">
+                      <Text className="text-white font-bold text-lg">
+                        {user.name.charAt(0)}
+                        {user.lastName.charAt(0)}
+                      </Text>
+                    </View>
+                    <View className="ml-3">
+                      <Text className="text-gray-900 font-semibold text-base">
+                        {user.name} {user.lastName.charAt(0)}.
+                      </Text>
+                      <Text className="text-gray-600 text-sm">
+                        {user.role === "professional"
+                          ? "Profesional"
+                          : "Cliente"}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-
-                {onContact && currentUserRole === "client" && (
-                  <Pressable
-                    onPress={() => onContact(user.id)}
-                    className="bg-green-mannwork px-4 py-2 rounded-lg"
-                  >
-                    <Text className="text-white font-medium">Contactar</Text>
-                  </Pressable>
-                )}
-              </View>
-            </View>
-          ))}
+              </CardWrapper>
+            );
+          })}
         </View>
 
         {/* Acciones */}
-        {availableActions.length > 0 && (
+        {!isProSent && availableActions.length > 0 && (
           <View className="px-4 py-4 bg-gray-50">
             <Text className="text-lg font-semibold text-gray-900 mb-4">
               Acciones

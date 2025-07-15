@@ -170,12 +170,24 @@ export const useUserRequests = ({ userRole, status }: UseUserRequestsOptions) =>
               name: request.users?.name || "",
               lastName: request.users?.last_name || "",
             },
-            users: request.users ? [{
-              id: request.users.id,
-              name: request.users.name,
-              lastName: request.users.last_name,
-              role: "client" as const,
-            }] : [],
+            // Si la solicitud fue enviada por el profesional, users debe ser el/los destinatario/s profesional/es
+            users: item.requests?.request_professionals
+              ? item.requests.request_professionals.map((rp: any) => ({
+                  id: rp.professional_id,
+                  name: rp.users?.name || "",
+                  lastName: rp.users?.last_name || "",
+                  role: "professional" as const,
+                }))
+              : request.users
+              ? [
+                  {
+                    id: request.users.id,
+                    name: request.users.name,
+                    lastName: request.users.last_name,
+                    role: "client" as const,
+                  },
+                ]
+              : [],
           };
         }
       }).filter((item) => item.id !== "") || [];

@@ -1,6 +1,7 @@
 // Copia local de categoryIcons para asegurar coincidencia exacta
 import { useCategories } from "@/common/hooks/useCategories";
 import { useSearchStore } from "@/features/home/stores/searchStore";
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -37,11 +38,20 @@ const categoryIcons: Record<string, string> = {
 };
 
 const RecentSearches = () => {
-  const { recentSearches, removeSearch } = useSearchStore();
+  const { userId } = useAuth();
+  const { recentSearches, removeSearch, loadUserSearches, isLoading } =
+    useSearchStore();
   const { data: categories } = useCategories();
   const [subcategoriesMap, setSubcategoriesMap] = useState<
     Record<number, any[]>
   >({});
+
+  // Cargar búsquedas del usuario cuando el componente se monta
+  useEffect(() => {
+    if (userId) {
+      loadUserSearches(userId);
+    }
+  }, [userId, loadUserSearches]);
 
   // Cargar subcategorías para todas las categorías
   useEffect(() => {
@@ -66,7 +76,7 @@ const RecentSearches = () => {
     fetchSubcategories();
   }, [categories]);
 
-  if (recentSearches.length === 0) return null;
+  if (!userId || recentSearches.length === 0) return null;
 
   // Función para normalizar strings (solo letras y números, sin tildes, minúsculas)
   const normalize = (str: string) =>
@@ -81,26 +91,14 @@ const RecentSearches = () => {
     const iconKey = Object.keys(categoryIcons).find(
       (key) => normalize(key) === normalizedCategory
     );
-    const icon = iconKey ? categoryIcons[iconKey] : undefined;
+    const icon = iconKey ? categoryIcons[iconKey] : "category";
 
-    // Buscar la categoría por nombre
-    const foundCategory = categories?.find((cat) => cat.name === category);
-    if (!foundCategory) return;
-
-    // Buscar la subcategoría por nombre
-    const categorySubcategories = subcategoriesMap[foundCategory.id] || [];
-    const foundSubcategory = categorySubcategories.find(
-      (sub) => sub.name === subcategory
-    );
-    if (!foundSubcategory) return;
-
+    // Navegar directamente al modal de creación con los datos que tenemos
     router.push({
       pathname: "/(protected)/(mainTabs)/home/create",
       params: {
         category,
         subcategory,
-        categoryId: foundCategory.id.toString(),
-        subcategoryId: foundSubcategory.id,
         categoryName: category,
         subcategoryName: subcategory,
         icon,
@@ -108,12 +106,18 @@ const RecentSearches = () => {
     });
   };
 
+  const handleRemoveSearch = async (searchId: string) => {
+    if (searchId) {
+      await removeSearch(searchId);
+    }
+  };
+
   return (
     <View className="mx-4 mt-3">
       <View className="flex-col gap-y-2 space-y-3">
-        {recentSearches.map((search, idx) => (
+        {recentSearches.map((search) => (
           <Pressable
-            key={search.timestamp}
+            key={search.id}
             onPress={() =>
               handleSearchPress(search.category, search.subcategory)
             }
@@ -127,7 +131,10 @@ const RecentSearches = () => {
                 {search.subcategory}
               </Text>
             </View>
-            <Pressable onPress={() => removeSearch(idx)}>
+            <Pressable
+              onPress={() => handleRemoveSearch(search.id!)}
+              disabled={isLoading}
+            >
               <MaterialIcons name="close" size={22} color="#888" />
             </Pressable>
           </Pressable>

@@ -223,7 +223,6 @@ const LocationPickerModal = ({
               alignItems: "center",
               justifyContent: "space-between",
               padding: 16,
-              paddingTop: insets.top + 16,
               borderBottomWidth: 1,
             }}
           >

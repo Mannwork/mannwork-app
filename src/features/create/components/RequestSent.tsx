@@ -1,17 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 export default function RequestSent() {
   const router = useRouter();
 
   const handleClose = () => {
     router.replace("/(protected)/(mainTabs)/home");
-  };
-
-  const handleViewRequests = () => {
-    router.replace("/(protected)/(mainTabs)/requests");
   };
 
   return (
@@ -26,7 +22,7 @@ export default function RequestSent() {
       </View>
 
       {/* Contenido principal */}
-      <View className="flex-1 px-6 py-8">
+      <View className="flex-1 ">
         <LinearGradient
           colors={["#f0fdf4", "#dcfce7", "#bbf7d0"]}
           className="flex-1 rounded-3xl p-8 items-center justify-center"
@@ -85,16 +81,6 @@ export default function RequestSent() {
               </View>
             </View>
           </View>
-
-          {/* Botón principal */}
-          <TouchableOpacity
-            className="bg-green-mannwork rounded-2xl py-4 px-8 shadow-lg w-full"
-            onPress={handleViewRequests}
-          >
-            <Text className="text-white font-bold text-center text-lg">
-              Ver mis solicitudes
-            </Text>
-          </TouchableOpacity>
         </LinearGradient>
       </View>
     </View>

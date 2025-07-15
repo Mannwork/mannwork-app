@@ -1,6 +1,7 @@
 import { getSubcategoriesByCategory } from "@/common/hooks/useSubcategories";
 import { categoryIcons } from "@/common/types/categories.interface";
 import { useSearchStore } from "@/features/home/stores/searchStore";
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
@@ -15,6 +16,7 @@ import {
 import { useCategories } from "../../../common/hooks/useCategories";
 
 const SearchModalComponent = () => {
+  const { userId } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const { data: categories } = useCategories();
@@ -99,14 +101,16 @@ const SearchModalComponent = () => {
     return unique;
   }, [searching, allSubcategories, normalized]);
 
-  const handleResultPress = (
+  const handleResultPress = async (
     category: string,
     subcategory: string,
     categoryId: number,
     subcategoryId: string
   ) => {
     const icon = categoryIcons[category];
-    addSearch(category, subcategory);
+    if (userId) {
+      await addSearch(category, subcategory, userId);
+    }
     setSearchQuery(subcategory); // Mostrar la subcategoría seleccionada en la searchbar
     setSelectedCategory(null); // Volver a modo global
     // Opcional: puedes navegar aquí si lo deseas, si no, deja solo la UX de búsqueda

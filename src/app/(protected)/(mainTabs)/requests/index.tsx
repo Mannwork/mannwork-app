@@ -31,8 +31,18 @@ const RequestsScreen = () => {
     return undefined; // Para "sent" y "received" trae todas las no completadas
   };
 
-  const { data: requests, isLoading: isLoadingRequests } = useUserRequests({
-    userRole: userRole || "client",
+  // Lógica para solicitudes enviadas por profesionales
+  let requestsQueryRole = userRole;
+  if (userRole === "professional" && activeTab === "sent") {
+    requestsQueryRole = "client";
+  }
+
+  const {
+    data: requests,
+    isLoading: isLoadingRequests,
+    refetch,
+  } = useUserRequests({
+    userRole: requestsQueryRole || "client",
     status: getStatusFromTab(activeTab),
   });
 
@@ -58,9 +68,13 @@ const RequestsScreen = () => {
     });
   };
 
-  const handleRefresh = () => {
-    // TODO: Implementar refresh de datos
-    console.log("Refrescar datos");
+  const handleRefresh = async () => {
+    try {
+      await refetch();
+      console.log("Datos refrescados exitosamente");
+    } catch (error) {
+      console.error("Error al refrescar datos:", error);
+    }
   };
 
   const handleCreateRequest = () => {

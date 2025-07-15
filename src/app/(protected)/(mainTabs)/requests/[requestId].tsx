@@ -176,6 +176,14 @@ const RequestDetailScreen = () => {
     }
   };
 
+  // Nueva función para navegar al perfil del profesional
+  const handleProfessionalPress = (userId: string) => {
+    router.push({
+      pathname: "/(protected)/users/[userId]",
+      params: { userId },
+    });
+  };
+
   if (isLoadingRole || isLoading) {
     return (
       <View className="flex-1 bg-gray-50 items-center justify-center">
@@ -200,6 +208,7 @@ const RequestDetailScreen = () => {
       onClose={handleClose}
       onContact={handleContact}
       onUpdateStatus={handleUpdateStatus}
+      onProfessionalPress={handleProfessionalPress}
     />
   );
 };

@@ -37,12 +37,22 @@ const SettingsModal = ({
     router.push("/(protected)/(mainTabs)/profile/update-data-modal");
   };
 
+  const handleNotifications = () => {
+    router.push({
+      pathname: "/(protected)/(mainTabs)/profile/notifications-modal",
+    });
+  };
+
   const handleLogout = async () => {
     try {
       await signOut();
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
+  };
+
+  const handlePrivacy = () => {
+    router.push({ pathname: "/(protected)/(mainTabs)/profile/privacy-modal" });
   };
 
   const renderSettingsOption = (
@@ -100,12 +110,14 @@ const SettingsModal = ({
             {renderSettingsOption(
               "notifications",
               "Notificaciones",
-              "Configurar alertas y notificaciones"
+              "Configurar alertas y notificaciones",
+              handleNotifications
             )}
             {renderSettingsOption(
               "security",
               "Privacidad y seguridad",
-              "Configurar privacidad de la cuenta"
+              "Configurar privacidad de la cuenta",
+              handlePrivacy
             )}
           </View>
 

@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ScrollView, Text, View } from "react-native";
 import SelectProfessionalCard from "./SelectProfessionalCard";
@@ -31,7 +32,13 @@ export default function ProfessionalsList({
   categoryName,
   subcategoryName,
 }: ProfessionalsListProps) {
-  if (professionals.length === 0) {
+  const { userId } = useAuth();
+  // Filtrar al usuario logueado
+  const filteredProfessionals = professionals.filter(
+    (prof) => prof.id !== userId
+  );
+
+  if (filteredProfessionals.length === 0) {
     return (
       <View className="flex-1 justify-center items-center py-20">
         <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
@@ -47,7 +54,7 @@ export default function ProfessionalsList({
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-      {professionals.map((prof) => (
+      {filteredProfessionals.map((prof) => (
         <SelectProfessionalCard
           key={prof.id}
           professional={prof}

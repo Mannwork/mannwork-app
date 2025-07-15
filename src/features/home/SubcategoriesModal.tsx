@@ -1,4 +1,5 @@
 import { useSubcategories } from "@/common/hooks/useSubcategories";
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { FlatList, Pressable, Text, View } from "react-native";
@@ -44,12 +45,15 @@ interface SubcategoriesModalProps {
 }
 
 const SubcategoriesModal = ({ category }: SubcategoriesModalProps) => {
+  const { userId } = useAuth();
   const addSearch = useSearchStore((state) => state.addSearch);
   const { data: subcategories, isLoading } = useSubcategories(category.id);
 
-  const handleSubcategoryPress = (subcategory: any) => {
+  const handleSubcategoryPress = async (subcategory: any) => {
     const icon = categoryIcons[category.name];
-    addSearch(category.name, subcategory.name);
+    if (userId) {
+      await addSearch(category.name, subcategory.name, userId);
+    }
     router.back();
     router.push({
       pathname: "/(protected)/(mainTabs)/home/create",

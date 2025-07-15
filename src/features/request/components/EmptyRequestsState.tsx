@@ -15,10 +15,15 @@ const EmptyRequestsState = ({
   onBrowseRequests,
 }: EmptyRequestsStateProps) => {
   const getTitle = () => {
-    if (userRole === "client") {
+    if (
+      userRole === "client" ||
+      (userRole === "professional" && activeTab === "sent")
+    ) {
       return activeTab === "sent"
         ? "No tienes solicitudes enviadas"
-        : "No tienes solicitudes completadas";
+        : activeTab === "completed"
+        ? "No tienes solicitudes completadas"
+        : "No tienes solicitudes recibidas";
     } else {
       return activeTab === "received"
         ? "No tienes solicitudes recibidas"
