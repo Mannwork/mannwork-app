@@ -48,14 +48,19 @@ const ProfileBanner = ({
       className="bg-green-mannwork px-4 py-8"
       style={{ paddingTop: insets.top + 20 }}
     >
-      <View className="absolute top-0 right-4" style={{ top: insets.top + 20 }}>
-        <Pressable
-          onPress={handleSettingsPress}
-          className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+      {isOwnProfile && (
+        <View
+          className="absolute top-0 right-4"
+          style={{ top: insets.top + 20 }}
         >
-          <MaterialIcons name="settings" size={24} color="#FFFFFF" />
-        </Pressable>
-      </View>
+          <Pressable
+            onPress={handleSettingsPress}
+            className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+          >
+            <MaterialIcons name="settings" size={24} color="#FFFFFF" />
+          </Pressable>
+        </View>
+      )}
 
       <View className="flex-col justify-center items-center">
         <View className="w-36 h-36 bg-white rounded-full items-center justify-center mb-4 overflow-hidden border-2 border-white">
@@ -72,7 +77,8 @@ const ProfileBanner = ({
 
         <View className="items-center">
           <Text className="text-white text-xl font-bold mb-2 text-center">
-            {user.firstName} {user.lastName}
+            {user.firstName}{" "}
+            {isOwnProfile ? user.lastName : user.lastName.charAt(0) + "."}
           </Text>
 
           <View className="flex-row items-center mb-4">

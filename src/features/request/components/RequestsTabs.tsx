@@ -14,13 +14,14 @@ const RequestsTabs = ({
   const getTabs = () => {
     if (userRole === "client") {
       return [
-        { id: "sent", label: "Solicitudes enviadas" },
-        { id: "completed", label: "Solicitudes completadas" },
+        { id: "sent", label: "Enviadas" },
+        { id: "completed", label: "Completadas" },
       ];
     } else {
       return [
-        { id: "received", label: "Solicitudes recibidas" },
-        { id: "completed", label: "Solicitudes completadas" },
+        { id: "sent", label: "Enviadas" },
+        { id: "received", label: "Recibidas" },
+        { id: "completed", label: "Completadas" },
       ];
     }
   };

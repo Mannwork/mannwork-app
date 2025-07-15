@@ -1,4 +1,5 @@
 import { User } from "@/common/types/user.interface";
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import { Image, Text, View } from "react-native";
@@ -19,6 +20,7 @@ export default function ProfessionalsMap({
   onProfessionalSelect,
   onClose,
 }: ProfessionalsMapProps) {
+  const { userId } = useAuth();
   const mapRef = useRef<MapView>(null);
   const [region, setRegion] = useState({
     latitude: clientLocation?.latitude || 0,
@@ -48,6 +50,9 @@ export default function ProfessionalsMap({
     return selectedProfessionals.includes(professionalId);
   };
 
+  // Filtrar al usuario logueado
+  const filteredProfessionals = professionals.filter((p) => p.id !== userId);
+
   return (
     <View className="flex-1">
       <MapView
@@ -74,14 +79,16 @@ export default function ProfessionalsMap({
         )}
 
         {/* Marcadores de profesionales */}
-        {professionals.map((professional) => (
+        {filteredProfessionals.map((professional) => (
           <Marker
             key={professional.id}
             coordinate={{
               latitude: professional.ubication_json?.latitude || 0,
               longitude: professional.ubication_json?.longitude || 0,
             }}
-            title={`${professional.name} ${professional.last_name}`}
+            title={`${professional.name} ${
+              professional.last_name?.charAt(0) || ""
+            }`}
             description={
               professional.professions
                 ?.map((p) => p.subcategory_name)
@@ -99,7 +106,7 @@ export default function ProfessionalsMap({
               {professional.profile_pic ? (
                 <Image
                   source={{ uri: professional.profile_pic }}
-                  className="w-8 h-8 rounded-full"
+                  className="w-10 h-10 rounded-full"
                   resizeMode="cover"
                 />
               ) : (
@@ -126,8 +133,10 @@ export default function ProfessionalsMap({
           </Text>
           <Text className="text-gray-600">
             {professionals
-              .filter((p) => selectedProfessionals.includes(p.id))
-              .map((p) => `${p.name} ${p.last_name}`)
+              .filter(
+                (p) => selectedProfessionals.includes(p.id) && p.id !== userId
+              )
+              .map((p) => `${p.name} ${p.last_name?.charAt(0) || ""}`)
               .join(", ")}
           </Text>
         </View>
