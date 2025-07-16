@@ -5,10 +5,16 @@ interface InfoCardProps {
   title: string;
   description: string;
   onClose?: () => void;
+  onPress?: () => void;
 }
 
-const InfoCard = ({ title, description, onClose }: InfoCardProps) => (
-  <View className="mx-4 mt-6 bg-green-mannwork-light border-l-4 border-green-mannwork rounded-lg p-4 flex-row items-start relative">
+const InfoCard = ({ title, description, onClose, onPress }: InfoCardProps) => (
+  <Pressable
+    disabled={!onPress}
+    onPress={onPress}
+    className="mx-4 mt-6 bg-green-mannwork-light border-l-4 border-green-mannwork rounded-lg p-4 flex-row items-start relative"
+    style={{ opacity: onPress ? 0.95 : 1 }}
+  >
     <View className="bg-green-mannwork rounded-full w-8 h-8 items-center justify-center mr-3 mt-1">
       <MaterialIcons name="error-outline" size={24} color="#fff" />
     </View>
@@ -27,7 +33,7 @@ const InfoCard = ({ title, description, onClose }: InfoCardProps) => (
         <MaterialIcons name="close" size={20} color="#888" />
       </Pressable>
     )}
-  </View>
+  </Pressable>
 );
 
 export default InfoCard;

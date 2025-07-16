@@ -1,3 +1,4 @@
+import { categoryIcons } from "@/common/types/categories.interface";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
@@ -38,6 +39,10 @@ export default function SelectProfessionalCard({
   const firstName = nameParts[0] || "";
   const lastName = nameParts.slice(1).join(" ") || "";
   const lastInitial = lastName.charAt(0) || "";
+
+  // Obtener el icono correcto de la categoría
+  const categoryLabel = categoryName || professional.category;
+  const categoryIcon = categoryIcons[categoryLabel] || "category";
 
   return (
     <View className="bg-white rounded-2xl mb-5 shadow-lg border-2 border-gray-100 overflow-hidden">
@@ -98,7 +103,7 @@ export default function SelectProfessionalCard({
           </Text>
         </View>
         <View className="flex-row items-center">
-          <MaterialIcons name="build" size={18} color="#2d7a3e" />
+          <MaterialIcons name={categoryIcon as any} size={18} color="#2d7a3e" />
           <Text className="text-green-mannwork font-semibold text-sm ml-2 text-left">
             {categoryName && subcategoryName
               ? `${categoryName} • ${subcategoryName}`

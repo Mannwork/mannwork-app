@@ -9,6 +9,15 @@ const HomeLayout = () => {
         options={{ presentation: "fullScreenModal" }}
       />
       <Stack.Screen
+        name="membership"
+        options={{
+          headerShown: true,
+          title: "Membresía",
+          headerStyle: { backgroundColor: "#2D7A3E" },
+          headerTintColor: "#fff",
+        }}
+      />
+      <Stack.Screen
         name="create"
         options={{
           presentation: "card",

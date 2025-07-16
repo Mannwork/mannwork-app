@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import InfoCard from "./InfoCard";
 
@@ -20,9 +21,18 @@ const infoCards = [
 
 const InfoCardSwiper = () => {
   const [visibleCards, setVisibleCards] = useState(infoCards);
+  const router = useRouter();
 
   const dismissCard = () => {
     setVisibleCards((cards) => cards.slice(1));
+  };
+
+  const handleCardPress = () => {
+    if (visibleCards[0].type === "membresia") {
+      router.push("/(protected)/(mainTabs)/home/membership");
+    } else {
+      dismissCard();
+    }
   };
 
   if (!visibleCards[0]) return null;
@@ -32,6 +42,7 @@ const InfoCardSwiper = () => {
       title={visibleCards[0].title}
       description={visibleCards[0].description}
       onClose={dismissCard}
+      onPress={handleCardPress}
     />
   );
 };

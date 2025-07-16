@@ -2,7 +2,13 @@ import { useSubcategories } from "@/common/hooks/useSubcategories";
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { FlatList, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { useSearchStore } from "./stores/searchStore";
 
 const categoryIcons: Record<string, string> = {
@@ -96,24 +102,30 @@ const SubcategoriesModal = ({ category }: SubcategoriesModalProps) => {
           </Text>
         </View>
 
-        <FlatList
-          data={subcategories || []}
-          contentContainerStyle={{ paddingBottom: 16 }}
-          renderItem={({ item: subcategory }) => (
-            <Pressable
-              onPress={() => handleSubcategoryPress(subcategory)}
-              className="flex-row items-center py-6 px-4 border-b border-gray-100"
-            >
-              <Text className="text-lg font-bold text-green-mannwork flex-1">
-                {subcategory.name}
-              </Text>
-              <MaterialIcons name="chevron-right" size={24} color="#2D7A3E" />
-            </Pressable>
-          )}
-          keyExtractor={(item, index) =>
-            `${category.id}-${item.id || item.name}-${index}`
-          }
-        />
+        {isLoading ? (
+          <View className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color="#2D7A3E" />
+          </View>
+        ) : (
+          <FlatList
+            data={subcategories || []}
+            contentContainerStyle={{ paddingBottom: 16 }}
+            renderItem={({ item: subcategory }) => (
+              <Pressable
+                onPress={() => handleSubcategoryPress(subcategory)}
+                className="flex-row items-center py-6 px-4 border-b border-gray-100"
+              >
+                <Text className="text-lg font-bold text-green-mannwork flex-1">
+                  {subcategory.name}
+                </Text>
+                <MaterialIcons name="chevron-right" size={24} color="#2D7A3E" />
+              </Pressable>
+            )}
+            keyExtractor={(item, index) =>
+              `${category.id}-${item.id || item.name}-${index}`
+            }
+          />
+        )}
       </View>
     </View>
   );
