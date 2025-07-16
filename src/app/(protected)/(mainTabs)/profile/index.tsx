@@ -7,6 +7,7 @@ import {
   useCurrentUser,
 } from "@/features/profile";
 import SectionDivider from "@/features/profile/components/SectionDivider";
+import { useUserReviews } from "@/features/profile/hooks/useUserReviews";
 import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
@@ -14,50 +15,30 @@ const ProfileScreen = () => {
   const { data: user, isLoading, error } = useCurrentUser();
   const [showMapModal, setShowMapModal] = useState(false);
 
-  // Datos mock para reviews (esto se puede expandir más adelante)
-  const mockRatingDistribution = {
-    5: 12,
-    4: 8,
-    3: 2,
-    2: 1,
-    1: 0,
-  };
+  // Traer reviews reales del usuario logueado
+  const { reviews, loading: loadingReviews } = useUserReviews(user?.id || "");
 
-  const mockReviews = [
-    {
-      id: "1",
-      reviewerName: "María González",
-      reviewerImage: undefined,
-      rating: 5,
-      comment:
-        "Excelente trabajo, muy profesional y puntual. Resolvió el problema rápidamente y con mucha calidad.",
-      date: "15/12/2023",
-    },
-    {
-      id: "2",
-      reviewerName: "Carlos Rodríguez",
-      reviewerImage: undefined,
-      rating: 4,
-      comment: "Buen trabajo, llegó a tiempo y el resultado fue satisfactorio.",
-      date: "10/12/2023",
-    },
-    {
-      id: "3",
-      reviewerName: "Ana Martínez",
-      reviewerImage: undefined,
-      rating: 5,
-      comment: "Muy recomendable, trabajo impecable y precios justos.",
-      date: "05/12/2023",
-    },
-    {
-      id: "4",
-      reviewerName: "Luis Fernández",
-      reviewerImage: undefined,
-      rating: 4,
-      comment: "Profesional y confiable, lo recomiendo.",
-      date: "01/12/2023",
-    },
-  ];
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + (r.calification || 0), 0) /
+        reviews.length
+      : 0;
+
+  const ratingDistribution = [1, 2, 3, 4, 5].reduce((acc, star) => {
+    acc[star] = reviews.filter(
+      (r) => Math.round(r.calification) === star
+    ).length;
+    return acc;
+  }, {} as { [key: number]: number });
+
+  const mappedReviews = reviews.map((r) => ({
+    id: r.id,
+    reviewerName: r.reviewer_name || "Usuario",
+    reviewerImage: r.reviewer_image,
+    rating: r.calification,
+    comment: r.commentary,
+    date: r.created_at,
+  }));
 
   const handleRequestQuote = () => {
     console.log("Solicitar cotización");
@@ -72,7 +53,7 @@ const ProfileScreen = () => {
   };
 
   // Loading state
-  if (isLoading) {
+  if (isLoading || loadingReviews) {
     return (
       <View className="flex-1 bg-white justify-center items-center">
         <ActivityIndicator size="large" color="#2D7A3E" />
@@ -111,8 +92,8 @@ const ProfileScreen = () => {
     firstName: user.name,
     lastName: user.last_name,
     profileImage: user.profile_pic || undefined,
-    rating: user.calification || 0,
-    reviewCount: 0, // Esto se puede obtener de una tabla de reviews más adelante
+    rating: averageRating,
+    reviewCount: reviews.length,
     role: user.rol as "professional" | "client",
   };
 
@@ -152,10 +133,10 @@ const ProfileScreen = () => {
 
         <ProfileReviews
           userName={`${userData.firstName} ${userData.lastName}`}
-          averageRating={userData.rating}
-          totalReviews={userData.reviewCount}
-          ratingDistribution={mockRatingDistribution}
-          reviews={mockReviews}
+          averageRating={averageRating}
+          totalReviews={reviews.length}
+          ratingDistribution={ratingDistribution}
+          reviews={mappedReviews}
           onViewMoreReviews={handleViewMoreReviews}
         />
       </ScrollView>
