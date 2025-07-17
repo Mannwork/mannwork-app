@@ -101,6 +101,7 @@ export const useUserRequests = ({ userRole, status }: UseUserRequestsOptions) =>
             client: {
               name: "",
               lastName: "",
+              clientId: item.client,
             },
             users: [],
           };
@@ -169,6 +170,7 @@ export const useUserRequests = ({ userRole, status }: UseUserRequestsOptions) =>
             client: {
               name: request.users?.name || "",
               lastName: request.users?.last_name || "",
+              clientId: request.users?.id || "",
             },
             // Si la solicitud fue enviada por el profesional, users debe ser el/los destinatario/s profesional/es
             users: item.requests?.request_professionals
