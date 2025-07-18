@@ -1,5 +1,7 @@
+import { Image, Text, View } from "react-native";
+
 import { Message } from "@/common/types/message.type";
-import { Text, View } from "react-native";
+import QuoteRequestCard from "./QuoteRequestCard";
 
 interface MessageItemProps {
     userLogged: string;
@@ -24,11 +26,11 @@ const MessageItem = ({
             case "image":
                 return (
                     <View className="rounded-lg overflow-hidden">
-                        {/* <Image
-              source={{ uri: message.imageUrl }}
-              className="w-48 h-32"
-              resizeMode="cover"
-            /> */}
+                        <Image
+                            source={{ uri: message.content }}
+                            className="w-48 h-32"
+                            resizeMode="cover"
+                        />
                     </View>
                 );
 
@@ -42,15 +44,15 @@ const MessageItem = ({
             //     </View>
             //   );
 
-            // case "quote_request":
-            //   return (
-            //     <QuoteRequestCard
-            //       onQuote={onQuoteRequest || (() => {})}
-            //       isFromMe={message.isFromMe}
-            //       status={message.status || "pending"}
-            //       timestamp={message.timestamp}
-            //     />
-            //   );
+            case "quote_request":
+                return (
+                    <QuoteRequestCard
+                        onQuote={onQuoteRequest || (() => {})}
+                        isFromMe={message.sender_id === userLogged}
+                        status={"pending"}
+                        timestamp={message.created_at}
+                    />
+                );
 
             // case "quote":
             //   return (

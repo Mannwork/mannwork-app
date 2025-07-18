@@ -1,4 +1,5 @@
 import ChatInput from "@/features/chats/components/ChatInput";
+import QuoteButton from "@/features/chats/components/QuoteButton";
 import { useChatMessages } from "@/features/chats/hooks/useChatMessages";
 import { useUserRole } from "@/features/request";
 import { useAuth } from "@clerk/clerk-expo";
@@ -23,6 +24,8 @@ const ChatScreen = () => {
         isLoading,
         error,
         refetch,
+        hasNextPage,
+        fetchNextPage,
     } = useChatMessages(chatId as string);
     const router = useRouter();
     const { data: userRole } = useUserRole();
@@ -70,7 +73,13 @@ const ChatScreen = () => {
 
     const messages = messagesPage?.pages.flatMap((page) => page) || [];
 
-    console.log("xddddddddddddddddddddd", messages);
+    const handleFetchNextPage = async () => {
+        if (hasNextPage) {
+            await fetchNextPage();
+        }
+
+        return;
+    };
 
     return (
         <KeyboardAvoidingView
@@ -101,17 +110,18 @@ const ChatScreen = () => {
                             onRefresh={refetch}
                         />
                     }
+                    onEndReachedThreshold={0.5}
+                    onEndReached={handleFetchNextPage}
+                    inverted
                 />
 
                 {/* Botón de cotización */}
-                {/* {userRole === "client" && (
-                    // <QuoteButton
-                    //     // onRequestQuote={handleRequestQuote}
-                    //     // onViewQuote={handleViewQuote}
-                    //     userRole={userRole}
-                    //     hasQuote={messages.some((m) => m.type === "quote")}
-                    // />
-                )} */}
+                {userRole === "client" && (
+                    <QuoteButton
+                        userRole={userRole}
+                        hasQuote={messages.some((m) => m.type === "quote")}
+                    />
+                )}
 
                 <ChatInput
                     chatId={chatId as string}

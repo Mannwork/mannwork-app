@@ -5,7 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 import { postNewMessage } from "../services/post-new-message";
 
-import type { Message } from "@/common/types/message.type";
+import useSupabaseStorage from "@/common/hooks/useSupabaseStorage";
 interface ChatInputProps {
     chatId: string;
     senderId: string;
@@ -17,35 +17,43 @@ const ChatInput = ({
     senderId,
     placeholder = "Escribe un mensaje...",
 }: ChatInputProps) => {
+    const { handleUploadImage } = useSupabaseStorage(`chats`);
+
     const [content, setContent] = useState("");
 
-    const handleSend = ({
-        attachment_url,
-        content,
-        chat_id,
-        sender_id,
-        type,
-    }: Pick<
-        Message,
-        "content" | "chat_id" | "sender_id" | "type" | "attachment_url"
-    >) => {
+    const handleSend = () => {
         if (content.trim()) {
             postNewMessage({
-                attachment_url,
                 content,
-                chat_id,
-                sender_id,
-                type,
+                chat_id: chatId,
+                sender_id: senderId,
+                type: "text",
             });
             setContent("");
         }
+    };
+
+    const handleSendImage = async () => {
+        const imgUri = await handleUploadImage(senderId);
+        if (imgUri) {
+            postNewMessage({
+                content: imgUri,
+                chat_id: chatId,
+                sender_id: senderId,
+                type: "image",
+            });
+        }
+    };
+
+    const handleSendFile = () => {
+        // Implementar lógica para enviar archivo
     };
 
     return (
         <View className="bg-white border-t border-gray-200 px-4 py-3">
             <View className="flex-row items-end">
                 <Pressable
-                    // onPress={onSendImage}
+                    onPress={handleSendImage}
                     className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center mr-3 mb-2"
                 >
                     <MaterialIcons name="image" size={20} color="#6B7280" />
@@ -81,15 +89,7 @@ const ChatInput = ({
                 </View>
 
                 <Pressable
-                    onPress={() =>
-                        handleSend({
-                            attachment_url: "",
-                            content,
-                            chat_id: chatId,
-                            sender_id: senderId,
-                            type: "text",
-                        })
-                    }
+                    onPress={handleSend}
                     disabled={!content.trim()}
                     className={`w-10 h-10 rounded-full items-center justify-center mb-2 ${
                         content.trim() ? "bg-green-mannwork" : "bg-gray-300"
