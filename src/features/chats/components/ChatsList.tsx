@@ -1,48 +1,67 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { FlatList, RefreshControl, Text, View } from "react-native";
+import { useCallback, useMemo } from "react";
+import { ActivityIndicator, FlatList, RefreshControl, Text, View } from "react-native";
 import ChatItem from "./ChatItem";
 import EmptyChatsState from "./EmptyChatsState";
+import { useChatList } from "../hooks/useChatList";
 
-interface Chat {
-    id: string;
-    professionalName: string;
-    professionalImage?: string;
-    lastMessage: string;
-    lastMessageTime: string;
-    unreadCount: number;
-    mainCategory: string;
-    subCategory: string;
-    status: "active" | "completed" | "pending";
-}
-
-interface ChatsListProps {
-    chats: Chat[];
+interface ChatListProps {
     userRole: "client" | "professional";
     activeTab: "active" | "pending" | "completed";
-    isLoading?: boolean;
-    onRefresh?: () => void;
     onChatPress: (chatId: string) => void;
     onStartChat?: () => void;
 }
 
 const ChatsList = ({
-    chats,
     userRole,
     activeTab,
-    isLoading = false,
-    onRefresh,
     onChatPress,
     onStartChat,
-}: ChatsListProps) => {
-    // Filtrar chats por el tab activo
-    const filteredChats = chats.filter((chat) => chat.status === activeTab);
+}: ChatListProps) => {
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isRefetching,
+        refetch,
+    } = useChatList({ pageSize: 10 });
 
-    const renderChatItem = ({ item }: { item: Chat }) => (
+    // Aplanar los datos de todas las páginas
+    const allChats = useMemo(() => {
+        return data?.pages.flatMap(page => page) || [];
+    }, [data]);
+
+    // Filtrar chats por el tab activo
+    const filteredChats = useMemo(() => {
+        return allChats.filter((chat) => chat.status === activeTab);
+    }, [allChats, activeTab]);
+
+    const renderChatItem = useCallback(({ item }: { item: any }) => (
         <ChatItem chat={item} onPress={() => onChatPress(item.id)} />
-    );
+    ), [onChatPress]);
+
+    const handleLoadMore = useCallback(() => {
+        if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+    const handleRefresh = useCallback(() => {
+        refetch();
+    }, [refetch]);
+
+    // Mostrar estado de carga inicial
+    if (!data && !isRefetching) {
+        return (
+            <View className="flex-1 items-center justify-center">
+                <ActivityIndicator size="large" color="#2D7A3E" />
+            </View>
+        );
+    }
 
     // Si no hay chats en ninguna categoría, mostrar estado vacío general
-    if (chats.length === 0) {
+    if (allChats.length === 0) {
         return (
             <EmptyChatsState userRole={userRole} onStartChat={onStartChat} />
         );
@@ -100,15 +119,24 @@ const ChatsList = ({
             renderItem={renderChatItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+                isFetchingNextPage ? (
+                    <View className="py-4">
+                        <ActivityIndicator size="small" color="#2D7A3E" />
+                    </View>
+                ) : null
+            }
             refreshControl={
                 <RefreshControl
-                    refreshing={isLoading}
-                    onRefresh={onRefresh}
+                    refreshing={isRefetching}
+                    onRefresh={handleRefresh}
                     tintColor="#2D7A3E"
                     colors={["#2D7A3E"]}
                 />
             }
-            contentContainerStyle={{ flexGrow: 1 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
         />
     );
 };
