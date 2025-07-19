@@ -10,7 +10,7 @@ const useSupabaseStorage = (bucket: string) => {
     const [imagesUri, setImagesUri] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleUploadImage = async (userId: string) => {
+    const handleUploadImage = async (userId: string, chatId?: string) => {
         const { status } =
             await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -45,7 +45,9 @@ const useSupabaseStorage = (bucket: string) => {
             }
 
             const fileName = `${userId}-${Date.now()}.${fileExtension}`;
-            const storagePath = `${userId}/${fileName}`;
+            const storagePath = chatId
+                ? `${chatId}/${userId}/${fileName}`
+                : `${userId}/${fileName}`;
 
             try {
                 setIsLoading(true);
