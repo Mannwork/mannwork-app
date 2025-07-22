@@ -21,9 +21,9 @@ interface ChatData {
     requests: {
         category: string;
         subcategory: string;
-        categories: { name: string }[];
-        subcategories: { name: string }[];
-    }[];
+        categories: { name: string };
+        subcategories: { name: string };
+    };
 }
 
 export async function getUserChats(userId: string, page: number, pageSize: number): Promise<ChatListItem[]> {
@@ -42,8 +42,8 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                 requests!chats_request_id_fkey (
                     category,
                     subcategory,
-                    categories ( name ),
-                    subcategories ( name )
+                    categories!inner ( name ),
+                    subcategories!inner ( name )
                 )
             `)
             .or(`client_id.eq.${userId},professional_id.eq.${userId}`)
@@ -54,8 +54,6 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
             console.error('Error fetching chats:', chatsError);
             throw chatsError;
         }
-
-        console.log("chatsData", chatsData);
 
         if (!chatsData || chatsData.length === 0) {
             return [];
@@ -104,9 +102,11 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                 }
 
                 // Get category and subcategory from the related request
-                const request = chat.requests?.[0];
-                const mainCategory = request?.category || 'Sin categoría';
-                const subCategory = request?.subcategory || 'Sin subcategoría';
+
+
+                const request = chat.requests;
+                const mainCategory = request?.categories?.name || 'Sin categoría';
+                const subCategory = request?.subcategories?.name || 'Sin subcategoría';
 
                 return {
                     id: chat.id,
@@ -128,8 +128,6 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                 };
             })
         );
-
-        console.log("chatListItems", chatListItems);
 
         return chatListItems;
     } catch (error) {

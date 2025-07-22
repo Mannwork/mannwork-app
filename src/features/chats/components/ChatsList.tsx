@@ -38,8 +38,6 @@ const ChatsList = ({
         return data?.pages.flatMap((page) => page) || [];
     }, [data]);
 
-    console.log("allChats", allChats);
-
     // Filtrar chats por el tab activo
     const filteredChats = useMemo(() => {
         return allChats.filter((chat) => chat.status === activeTab);
