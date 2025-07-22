@@ -1,9 +1,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useCallback, useMemo } from "react";
-import { ActivityIndicator, FlatList, RefreshControl, Text, View } from "react-native";
+import {
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    Text,
+    View,
+} from "react-native";
+import { useChatList } from "../hooks/useChatList";
 import ChatItem from "./ChatItem";
 import EmptyChatsState from "./EmptyChatsState";
-import { useChatList } from "../hooks/useChatList";
 
 interface ChatListProps {
     userRole: "client" | "professional";
@@ -29,17 +35,22 @@ const ChatsList = ({
 
     // Aplanar los datos de todas las páginas
     const allChats = useMemo(() => {
-        return data?.pages.flatMap(page => page) || [];
+        return data?.pages.flatMap((page) => page) || [];
     }, [data]);
+
+    console.log("allChats", allChats);
 
     // Filtrar chats por el tab activo
     const filteredChats = useMemo(() => {
         return allChats.filter((chat) => chat.status === activeTab);
     }, [allChats, activeTab]);
 
-    const renderChatItem = useCallback(({ item }: { item: any }) => (
-        <ChatItem chat={item} onPress={() => onChatPress(item.id)} />
-    ), [onChatPress]);
+    const renderChatItem = useCallback(
+        ({ item }: { item: any }) => (
+            <ChatItem chat={item} onPress={() => onChatPress(item.id)} />
+        ),
+        [onChatPress]
+    );
 
     const handleLoadMore = useCallback(() => {
         if (hasNextPage && !isFetchingNextPage) {

@@ -26,13 +26,6 @@ interface ChatData {
     }[];
 }
 
-/**
- * Fetches a paginated list of chats for a given user.
- * @param userId The ID of the logged-in user.
- * @param page The current page number (1-indexed).
- * @param pageSize The number of chats per page.
- * @returns A promise that resolves to an array of ChatListItem.
- */
 export async function getUserChats(userId: string, page: number, pageSize: number): Promise<ChatListItem[]> {
     const offset = (page - 1) * pageSize;
 
@@ -61,6 +54,8 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
             console.error('Error fetching chats:', chatsError);
             throw chatsError;
         }
+
+        console.log("chatsData", chatsData);
 
         if (!chatsData || chatsData.length === 0) {
             return [];
@@ -134,25 +129,11 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
             })
         );
 
+        console.log("chatListItems", chatListItems);
+
         return chatListItems;
     } catch (error) {
         console.error('Error in getUserChats:', error);
         throw error;
     }
 }
-
-// Example usage:
-// async function displayChats() {
-//     const loggedInUserId = 'YOUR_LOGGED_IN_USER_ID'; // Replace with the actual logged-in user ID
-//     const page = 1;
-//     const pageSize = 10;
-//     try {
-//         const chats = await getUserChats(loggedInUserId, page, pageSize);
-//         console.log(chats);
-//         // Now you can use 'chats' to populate your frontend interface
-//     } catch (error) {
-//         console.error('Failed to fetch chats:', error);
-//     }
-// }
-
-// displayChats();
