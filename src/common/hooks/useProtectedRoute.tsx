@@ -37,10 +37,17 @@ export const useProtectedRoute = () => {
             segments.length === 2 &&
             segments[0] === "(auth)" &&
             segments[1] === "sign-up";
+        const inForgotPassIndex =
+            segments.length === 2 &&
+            segments[0] === "(auth)" &&
+            segments[1] === "forgot-pass";
 
-        console.log("xd", segments, "xd2", isSignedIn);
-
-        if (!isSignedIn && !inSignInModalGroup && !inSignUpIndex) {
+        if (
+            !isSignedIn &&
+            !inSignInModalGroup &&
+            !inSignUpIndex &&
+            !inForgotPassIndex
+        ) {
             router.replace("/(auth)/sign-in");
             return;
         }

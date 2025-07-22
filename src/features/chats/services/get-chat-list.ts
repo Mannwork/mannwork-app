@@ -2,6 +2,9 @@ import { supabase } from "@/common/lib/supabase/supabaseClient";
 
 interface ChatListItem {
     id: string;
+    request_id: string;
+    client_id: string;
+    professional_id: string;
     professionalName: string;
     professionalImage?: string;
     lastMessage: string;
@@ -21,18 +24,11 @@ interface ChatData {
     requests: {
         category: string;
         subcategory: string;
-        categories: { name: string }[];
-        subcategories: { name: string }[];
-    }[];
+        categories: { name: string };
+        subcategories: { name: string };
+    };
 }
 
-/**
- * Fetches a paginated list of chats for a given user.
- * @param userId The ID of the logged-in user.
- * @param page The current page number (1-indexed).
- * @param pageSize The number of chats per page.
- * @returns A promise that resolves to an array of ChatListItem.
- */
 export async function getUserChats(userId: string, page: number, pageSize: number): Promise<ChatListItem[]> {
     const offset = (page - 1) * pageSize;
 
@@ -49,8 +45,8 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                 requests!chats_request_id_fkey (
                     category,
                     subcategory,
-                    categories ( name ),
-                    subcategories ( name )
+                    categories!inner ( name ),
+                    subcategories!inner ( name )
                 )
             `)
             .or(`client_id.eq.${userId},professional_id.eq.${userId}`)
@@ -109,12 +105,20 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                 }
 
                 // Get category and subcategory from the related request
-                const request = chat.requests?.[0];
-                const mainCategory = request?.category || 'Sin categoría';
-                const subCategory = request?.subcategory || 'Sin subcategoría';
+
+
+                const request = chat.requests;
+                const mainCategory = request?.categories?.name || 'Sin categoría';
+                const subCategory = request?.subcategories?.name || 'Sin subcategoría';
+
+                console.log("chat", chat);
+                
 
                 return {
                     id: chat.id,
+                    request_id: chat.request_id,
+                    client_id: chat.client_id,
+                    professional_id: chat.professional_id,
                     professionalName: otherUserData 
                         ? `${otherUserData.name} ${otherUserData.last_name}`.trim() 
                         : 'Usuario',
@@ -140,19 +144,3 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
         throw error;
     }
 }
-
-// Example usage:
-// async function displayChats() {
-//     const loggedInUserId = 'YOUR_LOGGED_IN_USER_ID'; // Replace with the actual logged-in user ID
-//     const page = 1;
-//     const pageSize = 10;
-//     try {
-//         const chats = await getUserChats(loggedInUserId, page, pageSize);
-//         console.log(chats);
-//         // Now you can use 'chats' to populate your frontend interface
-//     } catch (error) {
-//         console.error('Failed to fetch chats:', error);
-//     }
-// }
-
-// displayChats();

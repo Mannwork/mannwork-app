@@ -1,19 +1,23 @@
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
+import { postNewMessage } from "../services/post-new-message";
 
 interface QuoteButtonProps {
-    onRequestQuote?: () => void;
+    chatId: string;
     onViewQuote?: () => void;
     userRole: "client" | "professional";
     hasQuote?: boolean;
 }
 
 const QuoteButton = ({
-    onRequestQuote,
     onViewQuote,
     userRole,
     hasQuote = false,
+    chatId,
 }: QuoteButtonProps) => {
+    const { userId } = useAuth();
+
     const getButtonText = () => {
         if (userRole === "client") {
             return hasQuote ? "Ver cotización" : "Solicitar cotización";
@@ -30,7 +34,12 @@ const QuoteButton = ({
         if (hasQuote && onViewQuote) {
             onViewQuote();
         } else {
-            onRequestQuote?.();
+            postNewMessage({
+                content: "",
+                chat_id: chatId,
+                sender_id: userId as string,
+                type: "quote_request",
+            });
         }
     };
 
