@@ -14,16 +14,10 @@ import EmptyChatsState from "./EmptyChatsState";
 interface ChatListProps {
     userRole: "client" | "professional";
     activeTab: "active" | "pending" | "completed";
-    onChatPress: (chatId: string) => void;
     onStartChat?: () => void;
 }
 
-const ChatsList = ({
-    userRole,
-    activeTab,
-    onChatPress,
-    onStartChat,
-}: ChatListProps) => {
+const ChatsList = ({ userRole, activeTab, onStartChat }: ChatListProps) => {
     const {
         data,
         fetchNextPage,
@@ -44,10 +38,8 @@ const ChatsList = ({
     }, [allChats, activeTab]);
 
     const renderChatItem = useCallback(
-        ({ item }: { item: any }) => (
-            <ChatItem chat={item} onPress={() => onChatPress(item.id)} />
-        ),
-        [onChatPress]
+        ({ item }: { item: any }) => <ChatItem chat={item} />,
+        []
     );
 
     const handleLoadMore = useCallback(() => {

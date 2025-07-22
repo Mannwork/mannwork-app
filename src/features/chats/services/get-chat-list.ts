@@ -2,6 +2,9 @@ import { supabase } from "@/common/lib/supabase/supabaseClient";
 
 interface ChatListItem {
     id: string;
+    request_id: string;
+    client_id: string;
+    professional_id: string;
     professionalName: string;
     professionalImage?: string;
     lastMessage: string;
@@ -108,8 +111,14 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                 const mainCategory = request?.categories?.name || 'Sin categoría';
                 const subCategory = request?.subcategories?.name || 'Sin subcategoría';
 
+                console.log("chat", chat);
+                
+
                 return {
                     id: chat.id,
+                    request_id: chat.request_id,
+                    client_id: chat.client_id,
+                    professional_id: chat.professional_id,
                     professionalName: otherUserData 
                         ? `${otherUserData.name} ${otherUserData.last_name}`.trim() 
                         : 'Usuario',

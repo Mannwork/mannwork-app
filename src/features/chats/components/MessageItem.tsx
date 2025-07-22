@@ -1,25 +1,22 @@
 import { Image, Text, View } from "react-native";
 
 import { Message } from "@/common/types/message.type";
+import { formatTime } from "@/common/utils/formatTime";
+import QuoteCard from "./QuoteCard";
 import QuoteRequestCard from "./QuoteRequestCard";
 
 interface MessageItemProps {
     userLogged: string;
     message: Message;
     onQuoteRequest?: () => void;
-    onPayQuote?: () => void;
 }
 
 const MessageItem = ({
     userLogged,
     message,
     onQuoteRequest,
-    onPayQuote,
 }: MessageItemProps) => {
-    const formatTime = (timestamp: string) => {
-        // Aquí podrías implementar lógica para formatear la hora
-        return timestamp;
-    };
+    const formattedTime = formatTime(message.created_at);
 
     const renderMessageContent = () => {
         switch (message.type) {
@@ -49,21 +46,17 @@ const MessageItem = ({
                     <QuoteRequestCard
                         onQuote={onQuoteRequest || (() => {})}
                         isFromMe={message.sender_id === userLogged}
-                        status={"pending"}
-                        timestamp={message.created_at}
+                        timestamp={formattedTime}
                     />
                 );
 
-            // case "quote":
-            //   return (
-            //     <QuoteCard
-            //       quote={message.quote!}
-            //       isFromMe={message.isFromMe}
-            //       onPay={onPayQuote}
-            //       status={message.quoteStatus || "pending"}
-            //       timestamp={message.timestamp}
-            //     />
-            //   );
+            case "quote":
+                return (
+                    <QuoteCard
+                        quoteId={message.content}
+                        timestamp={formattedTime}
+                    />
+                );
 
             default:
                 return (
@@ -114,7 +107,7 @@ const MessageItem = ({
                                 : "text-gray-500"
                         }`}
                     >
-                        {formatTime(message.created_at)}
+                        {formattedTime}
                     </Text>
                 </View>
             </View>

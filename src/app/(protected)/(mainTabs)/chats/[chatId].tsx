@@ -1,3 +1,4 @@
+import ChatHeader from "@/features/chats/components/ChatHeader";
 import ChatInput from "@/features/chats/components/ChatInput";
 import QuoteButton from "@/features/chats/components/QuoteButton";
 import { useChatMessages } from "@/features/chats/hooks/useChatMessages";
@@ -36,34 +37,12 @@ const ChatScreen = () => {
         router.push(`/chats/quote-modal?chatId=${chatId}`);
     };
 
-    // Cliente abre modal de pago
-    const handlePayQuote = (quoteMessage: any) => {
-        router.push(
-            `/chats/see-quote-modal?quoteAmount=${
-                quoteMessage.quote.amount
-            }&quoteDescription=${encodeURIComponent(
-                quoteMessage.quote.description
-            )}&quoteProfessionalName=${encodeURIComponent(
-                quoteMessage.quote.professionalName
-            )}&quoteProfessionalAvatar=${encodeURIComponent(
-                quoteMessage.quote.professionalAvatar || ""
-            )}&quoteId=${quoteMessage.id}`
-        );
-    };
-
     const renderMessage = ({ item }: { item: any }) => (
         <MessageItem
             userLogged={userId as string}
             message={item}
             onQuoteRequest={
                 userRole === "professional" ? handleQuoteRequest : undefined
-            }
-            onPayQuote={
-                userRole === "client" &&
-                item.type === "quote" &&
-                item.quoteStatus === "pending"
-                    ? () => handlePayQuote(item)
-                    : undefined
             }
         />
     );
@@ -88,14 +67,7 @@ const ChatScreen = () => {
             keyboardVerticalOffset={Platform.OS === "ios" ? insets.top + 60 : 0}
         >
             <View className="flex-1 bg-gray-50">
-                {/* <ChatHeader
-                    professionalName={mockChatData.professionalName}
-                    professionalImage={mockChatData.professionalImage}
-                    mainCategory={mockChatData.mainCategory}
-                    subCategory={mockChatData.subCategory}
-                    status={mockChatData.status}
-                    // onOptionsPress={handleOptionsPress}
-                /> */}
+                <ChatHeader />
 
                 <FlatList
                     data={messages}
@@ -118,6 +90,7 @@ const ChatScreen = () => {
                 {/* Botón de cotización */}
                 {userRole === "client" && (
                     <QuoteButton
+                        chatId={chatId as string}
                         userRole={userRole}
                         hasQuote={messages.some((m) => m.type === "quote")}
                     />

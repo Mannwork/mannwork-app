@@ -23,11 +23,6 @@ const ChatsScreen = () => {
 
     if (isLoading || !userRole) return null;
 
-    const handleChatPress = (chatId: string) => {
-        // Navegar al chat individual
-        router.push(`/chats/${chatId}`);
-    };
-
     const handleSearch = () => {
         // Implementar búsqueda de chats
         console.log("Buscar chats");
@@ -64,7 +59,6 @@ const ChatsScreen = () => {
             <ChatsList
                 userRole={userRole}
                 activeTab={activeTab}
-                onChatPress={handleChatPress}
                 onStartChat={handleStartChat}
             />
         </View>
