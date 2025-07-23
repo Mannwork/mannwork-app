@@ -29,6 +29,7 @@ export const useUserRequests = ({ userRole, status }: UseUserRequestsOptions) =>
             categories!requests_category_fkey(name)
           `)
           .eq("client", userId);
+console.log(status, "status");
 
         if (status) {
           query = query.eq("status", status);

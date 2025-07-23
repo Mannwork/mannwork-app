@@ -27,6 +27,8 @@ const RequestDetailModal = ({
     onProfessionalPress, // Nueva prop
     activeTab, // Nueva prop
 }: RequestDetailModalProps) => {
+   
+    
     const insets = useSafeAreaInsets();
     const { userId } = useAuth();
 
@@ -84,6 +86,7 @@ const RequestDetailModal = ({
 
     const getPaymentStatus = () => {
         // Mock payment status - esto vendría de la API
+      
         switch (request.status) {
             case "pending":
                 return {
@@ -171,8 +174,7 @@ const RequestDetailModal = ({
     };
 
     const availableActions = getAvailableActions();
-    console.log("Available actions:", availableActions);
-    console.log("onUpdateStatus function:", onUpdateStatus);
+   
 
     return (
         <View className="flex-1 bg-white">

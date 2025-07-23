@@ -51,7 +51,7 @@ export function useCreateRequest(): UseCreateRequestReturn {
         photos: data.photos || [],
         client: data.client,
         category: data.category,
-        status: 'pending', // Estado inicial
+        status: 'searching', // Estado inicial
       };
 
       // Solo agregar campos opcionales si existen

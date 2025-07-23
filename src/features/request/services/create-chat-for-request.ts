@@ -36,6 +36,7 @@ export const createChatForRequest = async ({
       request_id: requestId,
       client_id: clientId,
       professional_id: professionalId,
+      status: 'pending',
     })
     .select('id')
     .single();

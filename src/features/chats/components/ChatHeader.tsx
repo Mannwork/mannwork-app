@@ -53,7 +53,7 @@ const ChatHeader = () => {
         >
             <View className="flex-row items-center">
                 <Pressable
-                    onPress={() => router.back()}
+                    onPress={() => router.replace("/(protected)/(mainTabs)/chats")}
                     className="w-10 h-10 bg-white/20 rounded-full items-center justify-center mr-3"
                 >
                     <MaterialIcons

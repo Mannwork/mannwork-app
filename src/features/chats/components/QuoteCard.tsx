@@ -2,10 +2,10 @@ import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image, Pressable, Text, View } from "react-native";
 import { useQuote } from "../hooks/useQuotes";
+import { router } from "expo-router";
 
 interface QuoteCardProps {
     quoteId: string;
-
     timestamp: string;
 }
 
@@ -13,6 +13,20 @@ const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
     const { userId } = useAuth();
     const { data: quote } = useQuote(quoteId);
     const isFromMe = quote?.professional_id === userId;
+
+    const handlePay = () => {
+        if (!quote) return;
+        router.push({
+            pathname: "/(protected)/(mainTabs)/chats/see-quote-modal",
+            params: {
+                quoteId: quoteId,
+                quoteAmount: quote.price?.toString() || "0",
+                quoteDescription: quote.descriptionservice || "",
+                quoteProfessionalName: quote.professionalName || "",
+                quoteProfessionalAvatar: quote.professionalAvatar || "",
+            },
+        });
+    };
 
     return (
         <View
@@ -58,7 +72,7 @@ const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
                     marginBottom: 6,
                 }}
             >
-                ${quote?.price.toLocaleString()}
+                ${quote?.price?.toLocaleString()}
             </Text>
             <Text style={{ color: "#444", fontSize: 15, marginBottom: 10 }}>
                 {quote?.descriptionservice}
@@ -93,7 +107,7 @@ const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
             </View>
             {quote?.status === "pending" && !isFromMe && (
                 <Pressable
-                    // onPress={onPay}
+                    onPress={handlePay}
                     style={{
                         backgroundColor: "#2D7A3E",
                         borderRadius: 12,
