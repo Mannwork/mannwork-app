@@ -133,14 +133,16 @@ const RequestDetailScreen = () => {
     const handleClose = () => router.back();
 
     const handleUpdateStatus = async (
-        newStatus: "pending" | "in_progress" | "completed" | "cancelled"
+        newStatus: "searching" | "pending" | "in_progress" | "completed" | "cancelled"
     ) => {
         try {
             // Mapear el estado del frontend al estado de la base de datos
             const mapStatusToDB = (status: string) => {
                 switch (status) {
-                    case "pending":
+                    case "searching":
                         return "searching";
+                    case "pending":
+                        return "pending";
                     case "in_progress":
                         return "working";
                     case "completed":

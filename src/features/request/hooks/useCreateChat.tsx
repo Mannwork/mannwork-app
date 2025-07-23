@@ -1,5 +1,6 @@
 import { useAuth } from "@clerk/clerk-expo";
 
+import { supabase } from "@/common/lib/supabase/supabaseClient";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Request } from "../components/RequestCard";
@@ -36,6 +37,17 @@ export const useCreateChat = ({ request }: Props) => {
         }
 
         try {
+            // Si la request está en 'searching', actualizar a 'pending'
+            if (request.status === "searching") {
+                const { error: updateError } = await supabase
+                    .from("requests")
+                    .update({ status: "pending" })
+                    .eq("id", request.id);
+                if (updateError) {
+                    console.error("Error al actualizar status de request:", updateError);
+                }
+            }
+
             const createdChat = await createChatForRequest({
                 requestId: request.id,
                 clientId: clientId,

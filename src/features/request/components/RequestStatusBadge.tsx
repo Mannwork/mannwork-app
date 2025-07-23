@@ -1,12 +1,18 @@
 import { Text, View } from "react-native";
 
 interface RequestStatusBadgeProps {
-  status: "pending" | "in_progress" | "completed" | "cancelled";
+  status: "searching" | "pending" | "in_progress" | "completed" | "cancelled";
 }
 
 const RequestStatusBadge = ({ status }: RequestStatusBadgeProps) => {
   const getStatusConfig = () => {
     switch (status) {
+      case "searching":
+        return {
+          label: "Buscando",
+          bgColor: "bg-yellow-100",
+          textColor: "text-yellow-800",
+        };
       case "pending":
         return {
           label: "Pendiente",

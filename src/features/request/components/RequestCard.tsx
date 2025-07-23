@@ -18,7 +18,7 @@ export interface Request {
         province: string;
     };
     images: string[];
-    status: "pending" | "in_progress" | "completed" | "cancelled";
+    status: "searching" | "pending" | "in_progress" | "completed" | "cancelled";
     createdAt: string;
     userRole: "client" | "professional";
     // Información del usuario que creó la solicitud
@@ -87,6 +87,7 @@ const RequestCard = ({
     const getCategoryIcon = (categoryName: string) => {
         return categoryIcons[categoryName] || "category";
     };
+
 
     return (
         <Pressable

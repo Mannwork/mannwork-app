@@ -42,7 +42,28 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
           .update({ created_at: new Date().toISOString() })
           .eq('id', existingSearch.id);
       } else {
-        // Si no existe, crear nueva entrada
+        // Obtener todas las búsquedas existentes del usuario, ordenadas por fecha descendente
+        const { data: allSearches, error: fetchError } = await supabase
+          .from('user_search_history')
+          .select('id, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+
+        if (fetchError) throw fetchError;
+
+        // Si ya hay 2 búsquedas, eliminar la más antigua
+        if (allSearches && allSearches.length >= 2) {
+          // Buscar la más antigua
+          const oldest = allSearches.reduce((prev, curr) =>
+            new Date(prev.created_at) < new Date(curr.created_at) ? prev : curr
+          );
+          await supabase
+            .from('user_search_history')
+            .delete()
+            .eq('id', oldest.id);
+        }
+
+        // Insertar la nueva búsqueda
         await supabase
           .from('user_search_history')
           .insert({
