@@ -2,9 +2,11 @@ import ChatHeader from "@/features/chats/components/ChatHeader";
 import ChatInput from "@/features/chats/components/ChatInput";
 import QuoteButton from "@/features/chats/components/QuoteButton";
 import { useChatMessages } from "@/features/chats/hooks/useChatMessages";
+import { updateMessagesReadStatus } from "@/features/chats/services/update-messages-read-status";
 import { useUserRole } from "@/features/request";
 import { useAuth } from "@clerk/clerk-expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -46,6 +48,10 @@ const ChatScreen = () => {
             }
         />
     );
+
+    useEffect(() => {
+        updateMessagesReadStatus(chatId as string, userId as string);
+    }, [chatId, userId]);
 
     if (isLoading) return <ActivityIndicator />;
     if (error) return <Text>Error al cargar mensajes</Text>;

@@ -1,10 +1,8 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { useCallback, useMemo } from "react";
 import {
     ActivityIndicator,
     FlatList,
     RefreshControl,
-    Text,
     View,
 } from "react-native";
 import { useChatList } from "../hooks/useChatList";
@@ -25,17 +23,12 @@ const ChatsList = ({ userRole, activeTab, onStartChat }: ChatListProps) => {
         isFetchingNextPage,
         isRefetching,
         refetch,
-    } = useChatList({ pageSize: 10 });
+    } = useChatList({ pageSize: 10, statusSelected: activeTab });
 
     // Aplanar los datos de todas las páginas
     const allChats = useMemo(() => {
         return data?.pages.flatMap((page) => page) || [];
     }, [data]);
-
-    // Filtrar chats por el tab activo
-    const filteredChats = useMemo(() => {
-        return allChats.filter((chat) => chat.status === activeTab);
-    }, [allChats, activeTab]);
 
     const renderChatItem = useCallback(
         ({ item }: { item: any }) => <ChatItem chat={item} />,
@@ -68,55 +61,9 @@ const ChatsList = ({ userRole, activeTab, onStartChat }: ChatListProps) => {
         );
     }
 
-    // Si no hay chats en la categoría seleccionada, mostrar mensaje específico
-    if (filteredChats.length === 0) {
-        const getEmptyMessage = () => {
-            switch (activeTab) {
-                case "active":
-                    return {
-                        title: "No tienes trabajos activos",
-                        subtitle: "Los trabajos en curso aparecerán aquí",
-                        icon: "work-outline",
-                    };
-                case "pending":
-                    return {
-                        title: "No tienes trabajos pendientes",
-                        subtitle: "Las solicitudes pendientes aparecerán aquí",
-                        icon: "schedule",
-                    };
-                case "completed":
-                    return {
-                        title: "No tienes trabajos completados",
-                        subtitle: "Los trabajos finalizados aparecerán aquí",
-                        icon: "check-circle-outline",
-                    };
-            }
-        };
-
-        const emptyMessage = getEmptyMessage();
-
-        return (
-            <View className="flex-1 items-center justify-center px-8 py-12">
-                <View className="w-24 h-24 bg-gray-100 rounded-full items-center justify-center mb-6">
-                    <MaterialIcons
-                        name={emptyMessage.icon as any}
-                        size={48}
-                        color="#9CA3AF"
-                    />
-                </View>
-                <Text className="text-gray-900 text-xl font-bold text-center mb-3">
-                    {emptyMessage.title}
-                </Text>
-                <Text className="text-gray-600 text-base text-center leading-6">
-                    {emptyMessage.subtitle}
-                </Text>
-            </View>
-        );
-    }
-
     return (
         <FlatList
-            data={filteredChats}
+            data={allChats}
             renderItem={renderChatItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}

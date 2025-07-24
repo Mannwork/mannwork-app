@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useChatStore } from "../store/chat.store";
@@ -46,6 +47,8 @@ const ChatHeader = () => {
         }
     };
 
+    useEffect(() => {}, [actualChatData]);
+
     return (
         <View
             className="bg-green-mannwork px-4 py-3"
@@ -53,7 +56,9 @@ const ChatHeader = () => {
         >
             <View className="flex-row items-center">
                 <Pressable
-                    onPress={() => router.replace("/(protected)/(mainTabs)/chats")}
+                    onPress={() =>
+                        router.replace("/(protected)/(mainTabs)/chats")
+                    }
                     className="w-10 h-10 bg-white/20 rounded-full items-center justify-center mr-3"
                 >
                     <MaterialIcons

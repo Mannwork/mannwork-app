@@ -50,11 +50,7 @@ const ChatsScreen = () => {
                 onFilter={handleFilter}
             />
 
-            <ChatsTabs
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-                counts={{ active: 0, pending: 0, completed: 0 }}
-            />
+            <ChatsTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
             <ChatsList
                 userRole={userRole}
