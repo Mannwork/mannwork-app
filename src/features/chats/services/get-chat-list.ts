@@ -7,9 +7,6 @@ interface ChatListItem {
     professional_id: string;
     professionalName: string;
     professionalImage?: string;
-    lastMessage: string;
-    lastMessageTime: string;
-    unreadCount: number;
     mainCategory: string;
     subCategory: string;
     status: "active" | "completed" | "pending";
@@ -29,7 +26,14 @@ interface ChatData {
     };
 }
 
-export async function getUserChats(userId: string, page: number, pageSize: number): Promise<ChatListItem[]> {
+interface GetChatListParams {
+    userId: string;
+    page: number;
+    pageSize: number;
+    statusSelected: string;
+}
+
+export async function getUserChats({ userId, page, pageSize, statusSelected }: GetChatListParams): Promise<ChatListItem[]> {
     const offset = (page - 1) * pageSize;
 
     try {
@@ -47,10 +51,12 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                     subcategory,
                     categories!inner ( name ),
                     subcategories!inner ( name )
-                )
+                ),
+                updated_at
             `)
             .or(`client_id.eq.${userId},professional_id.eq.${userId}`)
-            .order('created_at', { ascending: false })
+            .eq('status', statusSelected)
+            .order('updated_at', { ascending: false })
             .range(offset, offset + pageSize - 1);
 
         if (chatsError) {
@@ -79,40 +85,9 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                     console.error(`Error fetching user details for ID ${otherUserId}:`, userError);
                 }
 
-                // Get the last message in the chat
-                const { data: lastMessageData, error: messageError } = await supabase
-                    .from('messages')
-                    .select('content, created_at, sender_id')
-                    .eq('chat_id', chat.id)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .single();
-
-                if (messageError && messageError.code !== 'PGRST116') {
-                    console.error(`Error fetching last message for chat ${chat.id}:`, messageError);
-                }
-
-                // Get unread message count
-                const { count: unreadCount, error: unreadError } = await supabase
-                    .from('messages')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('chat_id', chat.id)
-                    .eq('is_read', false)
-                    .neq('sender_id', userId);
-
-                if (unreadError) {
-                    console.error(`Error fetching unread count for chat ${chat.id}:`, unreadError);
-                }
-
-                // Get category and subcategory from the related request
-
-
                 const request = chat.requests;
                 const mainCategory = request?.categories?.name || 'Sin categoría';
                 const subCategory = request?.subcategories?.name || 'Sin subcategoría';
-
-                console.log("chat", chat);
-                
 
                 return {
                     id: chat.id,
@@ -123,14 +98,6 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
                         ? `${otherUserData.name} ${otherUserData.last_name}`.trim() 
                         : 'Usuario',
                     professionalImage: otherUserData?.profile_pic,
-                    lastMessage: lastMessageData?.content || 'No hay mensajes',
-                    lastMessageTime: lastMessageData?.created_at 
-                        ? new Date(lastMessageData.created_at).toLocaleTimeString('es-AR', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                        })
-                        : '',
-                    unreadCount: unreadCount || 0,
                     mainCategory,
                     subCategory,
                     status: chat.status as "active" | "completed" | "pending"
@@ -143,4 +110,4 @@ export async function getUserChats(userId: string, page: number, pageSize: numbe
         console.error('Error in getUserChats:', error);
         throw error;
     }
-}
+}    

@@ -1,6 +1,8 @@
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
+import { useChatItem } from "../hooks/useChatItem";
 import { useChatStore } from "../store/chat.store";
 
 interface ChatItemProps {
@@ -8,9 +10,6 @@ interface ChatItemProps {
         id: string;
         professionalName: string;
         professionalImage?: string;
-        lastMessage: string;
-        lastMessageTime: string;
-        unreadCount: number;
         mainCategory: string;
         subCategory: string;
         status: "active" | "completed" | "pending";
@@ -22,6 +21,11 @@ interface ChatItemProps {
 
 const ChatItem = ({ chat }: ChatItemProps) => {
     const { setActualChatData } = useChatStore();
+
+    const { userId } = useAuth();
+
+    const { lastMessage, lastMessageType, lastMessageTime, unreadCount } =
+        useChatItem(chat.id, userId as string);
 
     // const getStatusColor = (status: string) => {
     //     switch (status) {
@@ -99,7 +103,7 @@ const ChatItem = ({ chat }: ChatItemProps) => {
                         {formatName(chat.professionalName)}
                     </Text>
                     <Text className="text-gray-500 text-sm font-medium">
-                        {chat.lastMessageTime}
+                        {lastMessageTime}
                     </Text>
                 </View>
 
@@ -109,7 +113,11 @@ const ChatItem = ({ chat }: ChatItemProps) => {
                             className="text-gray-700 text-base"
                             numberOfLines={1}
                         >
-                            {chat.lastMessage}
+                            {lastMessageType === "quote"
+                                ? "Mensaje de cotización"
+                                : lastMessageType === "quote_request"
+                                ? "Solicitud de cotización"
+                                : lastMessage}
                         </Text>
                         <View className="mt-2">
                             <Text className="text-green-mannwork text-sm font-semibold">
@@ -121,13 +129,11 @@ const ChatItem = ({ chat }: ChatItemProps) => {
                         </View>
                     </View>
 
-                    {chat.unreadCount > 0 && (
+                    {unreadCount > 0 && (
                         <View className="ml-3">
                             <View className="bg-green-mannwork rounded-full min-w-[24px] h-6 items-center justify-center px-2">
                                 <Text className="text-white text-sm font-bold">
-                                    {chat.unreadCount > 99
-                                        ? "99+"
-                                        : chat.unreadCount}
+                                    {unreadCount > 99 ? "99+" : unreadCount}
                                 </Text>
                             </View>
                         </View>

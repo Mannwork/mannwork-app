@@ -1,5 +1,7 @@
+import { supabase } from "@/common/lib/supabase/supabaseClient";
 import { useAuth } from "@clerk/clerk-expo";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { getUserChats } from "../services/get-chat-list";
 
 const PAGE_SIZE = 10; // Number of items per page
@@ -7,18 +9,30 @@ const PAGE_SIZE = 10; // Number of items per page
 interface UseChatListOptions {
     initialPageParam?: number;
     pageSize?: number;
+    statusSelected?: string;
 }
 
-export function useChatList({ pageSize = PAGE_SIZE }: UseChatListOptions) {
+export function useChatList({
+    pageSize = PAGE_SIZE,
+    statusSelected = "active",
+}: UseChatListOptions) {
     const { userId } = useAuth();
+    const queryClient = useQueryClient();
 
-    return useInfiniteQuery({
-        queryKey: ["chats", userId],
+    const query = useInfiniteQuery({
+        queryKey: ["chats", userId, statusSelected],
         queryFn: async ({ pageParam = 1 }) => {
             if (!userId) return [];
             // Ensure pageParam is a number
             const page = typeof pageParam === "number" ? pageParam : 1;
-            return await getUserChats(userId, page, pageSize);
+
+            console.log("Fetching page:", page);
+            return await getUserChats({
+                userId,
+                page,
+                pageSize,
+                statusSelected,
+            });
         },
         getNextPageParam: (lastPage, allPages) => {
             // If the last page is empty or has fewer items than the page size, we've reached the end
@@ -32,6 +46,58 @@ export function useChatList({ pageSize = PAGE_SIZE }: UseChatListOptions) {
         // Use placeholderData to keep previous data while fetching
         placeholderData: (previousData) => previousData,
     });
+
+    // Suscripción a cambios en tiempo real
+    useEffect(() => {
+        if (!userId) return;
+
+        // 1. Suscripción a cambios en la tabla de mensajes
+        const messagesSubscription = supabase
+            .channel(`messages-updates-${userId}`)
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "messages",
+                },
+                () => {
+                    queryClient.invalidateQueries({
+                        queryKey: ["chats", userId, statusSelected],
+                    });
+                }
+            )
+            .subscribe();
+
+        // 2. Suscripción a cambios en la tabla de chats
+        const chatsSubscription = supabase
+            .channel(`chats-updates-${userId}`)
+            .on(
+                "postgres_changes",
+                {
+                    event: "UPDATE",
+                    schema: "public",
+                    table: "chats",
+                    filter: `or(client_id.eq.${userId},professional_id.eq.${userId})`,
+                },
+                (payload) => {
+                    if (payload.new.updated_at !== payload.old?.updated_at) {
+                        queryClient.invalidateQueries({
+                            queryKey: ["chats", userId, statusSelected],
+                        });
+                    }
+                }
+            )
+            .subscribe();
+
+        // Limpieza al desmontar
+        return () => {
+            messagesSubscription.unsubscribe();
+            chatsSubscription.unsubscribe();
+        };
+    }, [userId, statusSelected, queryClient]);
+
+    return query;
 }
 
 export default useChatList;
