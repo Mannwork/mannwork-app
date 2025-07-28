@@ -9,6 +9,7 @@ interface Quote {
     status: "pending" | "accepted" | "rejected";
     durationestimate?: string;
     validuntil?: Date;
+    work_date?: Date;
 }
 
 export const postNewQuote = async (quote: Quote) => {
