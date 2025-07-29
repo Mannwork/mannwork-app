@@ -7,7 +7,7 @@ import SearchBarInput from "@/features/home/SearchbarInput";
 import SubcategoryCarrousel from "@/features/home/SubcategoryCarrousel";
 import { useUserRole } from "@/features/request";
 import { useState } from "react";
-import { RefreshControl, ScrollView, View } from "react-native";
+import { Button, RefreshControl, ScrollView, View } from "react-native";
 
 const HomeScreen = () => {
     const { data: userRole, isLoading: isLoadingRole } = useUserRole();
@@ -57,6 +57,26 @@ const HomeScreen = () => {
                 <InfoCardSwiper />
                 <SubcategoryCarrousel />
                 <View className="h-8" />
+                {userRole === "professional" && (
+                    <View style={{ padding: 16 }}>
+                        <Button
+                            title="Conectar con Mercado Pago"
+                            color="#2D7A3E"
+                            onPress={async () => {
+                                // URL de conexión OAuth de Mercado Pago
+                                const clientId =
+                                    process.env.NEXT_PUBLIC_MP_CLIENT_ID;
+                                const redirectUri =
+                                    encodeURIComponent("TU_REDIRECT_URL"); // Cambia por tu URL
+                                const oauthUrl = `https://auth.mercadopago.com/authorization?client_id=${clientId}&response_type=code&platform_id=mp&redirect_uri=${redirectUri}`;
+                                // Abre la URL en el navegador
+                                import("expo-linking").then((Linking) => {
+                                    Linking.openURL(oauthUrl);
+                                });
+                            }}
+                        />
+                    </View>
+                )}
             </ScrollView>
         </View>
     );
