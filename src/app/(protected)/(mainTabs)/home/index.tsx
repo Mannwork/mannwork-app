@@ -10,56 +10,56 @@ import { useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
 
 const HomeScreen = () => {
-  const { data: userRole, isLoading: isLoadingRole } = useUserRole();
-  const [refreshing, setRefreshing] = useState(false);
+    const { data: userRole, isLoading: isLoadingRole } = useUserRole();
+    const [refreshing, setRefreshing] = useState(false);
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      // Simular recarga de datos
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // Aquí podrías recargar datos reales de la API
-      console.log("Refrescando datos de la home...");
-    } catch (error) {
-      console.error("Error al refrescar:", error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  // Mostrar loading mientras se carga el rol del usuario
-  if (isLoadingRole || !userRole) {
-    return (
-      <View className="flex-1 bg-gray-50">
-        <Header />
-        <LoadingState />
-      </View>
-    );
-  }
-
-  return (
-    <View className="flex-1 bg-gray-50">
-      <Header />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            colors={["#2D7A3E"]}
-            tintColor="#2D7A3E"
-          />
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        try {
+            // Simular recarga de datos
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            // Aquí podrías recargar datos reales de la API
+            console.log("Refrescando datos de la home...");
+        } catch (error) {
+            console.error("Error al refrescar:", error);
+        } finally {
+            setRefreshing(false);
         }
-      >
-        <SearchBarInput />
-        <RecentSearches />
-        <Categories />
-        <InfoCardSwiper />
-        <SubcategoryCarrousel />
-        <View className="h-8" />
-      </ScrollView>
-    </View>
-  );
+    };
+
+    // Mostrar loading mientras se carga el rol del usuario
+    if (isLoadingRole || !userRole) {
+        return (
+            <View className="flex-1 bg-gray-50">
+                <Header />
+                <LoadingState />
+            </View>
+        );
+    }
+
+    return (
+        <View className="flex-1 bg-gray-50">
+            <Header />
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
+                        colors={["#2D7A3E"]}
+                        tintColor="#2D7A3E"
+                    />
+                }
+            >
+                <SearchBarInput />
+                <RecentSearches />
+                <Categories />
+                <InfoCardSwiper />
+                <SubcategoryCarrousel />
+                <View className="h-8" />
+            </ScrollView>
+        </View>
+    );
 };
 
 export default HomeScreen;

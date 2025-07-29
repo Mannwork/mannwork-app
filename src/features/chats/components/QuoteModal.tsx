@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -12,6 +13,7 @@ import {
     TextInput,
     View,
 } from "react-native";
+
 import { postNewMessage } from "../services/post-new-message";
 import { postNewQuote } from "../services/post-new-quote";
 import { useChatStore } from "../store/chat.store";
@@ -26,10 +28,18 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
     const chatId = params.chatId as string;
     const [description, setDescription] = useState("");
     const [amount, setAmount] = useState("");
+    const [workDate, setWorkDate] = useState<Date>(new Date());
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [mode, setMode] = useState<"date" | "time">("date");
     const [error, setError] = useState("");
 
     const handleSend = async () => {
-        if (!description.trim() || !amount.trim() || isNaN(Number(amount))) {
+        if (
+            !description.trim() ||
+            !amount.trim() ||
+            isNaN(Number(amount)) ||
+            !workDate
+        ) {
             setError("Completa todos los campos correctamente.");
             return;
         }
@@ -42,6 +52,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
                 price: Number(amount),
                 descriptionservice: description.trim(),
                 status: "pending",
+                work_date: workDate,
             });
 
             if (quote) {
@@ -194,6 +205,92 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
                         >
                             El cliente pagará por tu solicitud
                         </Text>
+
+                        {/* Fecha y hora del trabajo */}
+                        <View
+                            style={{
+                                marginTop: 20,
+                                width: "100%",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    color: "#fff",
+                                    marginBottom: 8,
+                                    fontWeight: "500",
+                                }}
+                            >
+                                Fecha y hora del trabajo:
+                            </Text>
+                            <Pressable
+                                onPress={() => {
+                                    setMode("date");
+                                    setShowDatePicker(true);
+                                }}
+                                style={{
+                                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                    padding: 12,
+                                    borderRadius: 8,
+                                    width: "80%",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        color: "#2D7A3E",
+                                        fontWeight: "500",
+                                    }}
+                                >
+                                    {workDate.toLocaleString("es-AR", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </Text>
+                            </Pressable>
+
+                            {showDatePicker && (
+                                <DateTimePicker
+                                    value={workDate}
+                                    mode={mode}
+                                    display="default"
+                                    onChange={(
+                                        event: any,
+                                        selectedDate?: Date
+                                    ) => {
+                                        if (Platform.OS === "android") {
+                                            setShowDatePicker(false);
+                                            if (event.type === "dismissed") {
+                                                return;
+                                            }
+                                        }
+
+                                        if (selectedDate) {
+                                            setWorkDate(selectedDate);
+                                            if (
+                                                mode === "date" &&
+                                                Platform.OS === "android"
+                                            ) {
+                                                // On Android, after selecting date, show time picker
+                                                setMode("time");
+                                                setShowDatePicker(true);
+                                            } else if (
+                                                mode === "time" &&
+                                                Platform.OS === "android"
+                                            ) {
+                                                // Time has been selected, close the picker
+                                                setShowDatePicker(false);
+                                            }
+                                        }
+                                    }}
+                                    minimumDate={new Date()}
+                                    locale="es-AR"
+                                />
+                            )}
+                        </View>
                         {description.trim() !== "" && (
                             <Text
                                 style={{
