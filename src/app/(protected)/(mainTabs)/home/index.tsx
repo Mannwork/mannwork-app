@@ -1,3 +1,4 @@
+import { envs } from "@/common/config/envs";
 import Categories from "@/features/home/Categories";
 import Header from "@/features/home/Header";
 import InfoCardSwiper from "@/features/home/InfoCardSwiper";
@@ -64,10 +65,10 @@ const HomeScreen = () => {
                             color="#2D7A3E"
                             onPress={async () => {
                                 // URL de conexión OAuth de Mercado Pago
-                                const clientId =
-                                    process.env.NEXT_PUBLIC_MP_CLIENT_ID;
-                                const redirectUri =
-                                    encodeURIComponent("TU_REDIRECT_URL"); // Cambia por tu URL
+                                const clientId = envs.EXPO_PUBLIC_MP_CLIENT_ID;
+                                const redirectUri = encodeURIComponent(
+                                    envs.EXPO_PUBLIC_REDIRECT_URL
+                                ); // Cambia por tu URL
                                 const oauthUrl = `https://auth.mercadopago.com/authorization?client_id=${clientId}&response_type=code&platform_id=mp&redirect_uri=${redirectUri}`;
                                 // Abre la URL en el navegador
                                 import("expo-linking").then((Linking) => {
