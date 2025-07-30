@@ -1,4 +1,4 @@
-import { envs } from "@/common/config/envs";
+import { getAuthMpUrl } from "@/common/utils/mp";
 import Categories from "@/features/home/Categories";
 import Header from "@/features/home/Header";
 import InfoCardSwiper from "@/features/home/InfoCardSwiper";
@@ -7,12 +7,14 @@ import RecentSearches from "@/features/home/RecentSearches";
 import SearchBarInput from "@/features/home/SearchbarInput";
 import SubcategoryCarrousel from "@/features/home/SubcategoryCarrousel";
 import { useUserRole } from "@/features/request";
+import { useAuth } from "@clerk/clerk-expo";
 import { useState } from "react";
-import { Button, RefreshControl, ScrollView, View } from "react-native";
+import { Button, Linking, RefreshControl, ScrollView, View } from "react-native";
 
 const HomeScreen = () => {
     const { data: userRole, isLoading: isLoadingRole } = useUserRole();
     const [refreshing, setRefreshing] = useState(false);
+    const {userId} = useAuth()
 
     const handleRefresh = async () => {
         setRefreshing(true);
@@ -58,26 +60,21 @@ const HomeScreen = () => {
                 <InfoCardSwiper />
                 <SubcategoryCarrousel />
                 <View className="h-8" />
-                {userRole === "professional" && (
-                    <View style={{ padding: 16 }}>
-                        <Button
+                <Button 
                             title="Conectar con Mercado Pago"
                             color="#2D7A3E"
                             onPress={async () => {
-                                // URL de conexión OAuth de Mercado Pago
-                                const clientId = envs.EXPO_PUBLIC_MP_CLIENT_ID;
-                                const redirectUri = encodeURIComponent(
-                                    envs.EXPO_PUBLIC_REDIRECT_URL
-                                ); // Cambia por tu URL
-                                const oauthUrl = `https://auth.mercadopago.com/authorization?client_id=${clientId}&response_type=code&platform_id=mp&redirect_uri=${redirectUri}`;
-                                // Abre la URL en el navegador
-                                import("expo-linking").then((Linking) => {
-                                    Linking.openURL(oauthUrl);
-                                });
+                                try {
+                                    const url = await getAuthMpUrl(userId as string);
+                                    Linking.openURL(url);
+                                } catch (error) {
+                                    console.error(
+                                        "Error al abrir la URL:",
+                                        error
+                                    );
+                                }
                             }}
                         />
-                    </View>
-                )}
             </ScrollView>
         </View>
     );
