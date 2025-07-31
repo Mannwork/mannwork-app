@@ -48,6 +48,7 @@ const SeeQuoteModal = () => {
           professionalName: quoteProfessionalName || "",
           professionalAvatar: quoteProfessionalAvatar,
         }}
+        professionalAccessToken={params.professionalAccessToken as string || ""}
         onConfirm={handleConfirmPayment}
       />
     </View>

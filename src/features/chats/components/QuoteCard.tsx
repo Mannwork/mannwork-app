@@ -1,8 +1,8 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import { useQuote } from "../hooks/useQuotes";
-import { router } from "expo-router";
 
 interface QuoteCardProps {
     quoteId: string;
@@ -13,7 +13,6 @@ const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
     const { userId } = useAuth();
     const { data: quote } = useQuote(quoteId);
     const isFromMe = quote?.professional_id === userId;
-
     const handlePay = () => {
         if (!quote) return;
         router.push({
@@ -24,6 +23,7 @@ const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
                 quoteDescription: quote.descriptionservice || "",
                 quoteProfessionalName: quote.professionalName || "",
                 quoteProfessionalAvatar: quote.professionalAvatar || "",
+                professionalAccessToken: quote.professionalAccessToken || "",
             },
         });
     };

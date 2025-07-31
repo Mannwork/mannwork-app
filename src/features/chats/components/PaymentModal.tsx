@@ -1,7 +1,8 @@
+import { getPaymentMpUrl } from '@/common/utils/mp-submited';
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Linking, Pressable, Text, View } from "react-native";
 
 interface PaymentModalProps {
   visible: boolean;
@@ -12,6 +13,7 @@ interface PaymentModalProps {
     professionalName: string;
     professionalAvatar?: string;
   };
+  professionalAccessToken: string;
   onConfirm: () => void;
 }
 
@@ -19,18 +21,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   visible,
   onClose,
   quote,
+  professionalAccessToken,
   onConfirm,
 }) => {
+    console.log(professionalAccessToken);
+
+const handlePay = async () => {
+  const url = await getPaymentMpUrl(quote, professionalAccessToken);
+  Linking.openURL(url);
+};
+  
   return (
-    <View
-      style={{
-        width: "100%",
-        borderRadius: 0,
-        overflow: "hidden",
-        backgroundColor: "#fff",
-        flex: 1,
-      }}
-    >
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header/fondo verde */}
       <LinearGradient
         colors={["#2D7A3E", "#4BB96F"]}
@@ -119,54 +121,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         </View>
       </LinearGradient>
 
-      {/* Parte blanca: método de pago */}
-      <View
-        style={{
-          paddingHorizontal: 24,
-          paddingTop: 32,
-          backgroundColor: "#fff",
-          flex: 1,
-        }}
-      >
-        <Text
-          style={{
-            color: "#222",
-            fontWeight: "bold",
-            fontSize: 16,
-            marginBottom: 8,
-          }}
-        >
-          Pagarás con el siguiente método de pago:
-        </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 12,
-          }}
-        >
-          <MaterialIcons name="credit-card" size={24} color="#2D7A3E" />
-          <Text style={{ color: "#222", fontSize: 16, marginLeft: 8 }}>
-            Visa
-          </Text>
-          <Text style={{ color: "#888", fontSize: 15, marginLeft: 8 }}>
-            Terminadas en 5501
-          </Text>
-          <MaterialIcons
-            name="check-circle"
-            size={22}
-            color="#4BB96F"
-            style={{ marginLeft: 8 }}
-          />
-        </View>
-        <Pressable style={{ marginBottom: 24 }}>
-          <Text style={{ color: "#2D7A3E", fontSize: 15, fontWeight: "bold" }}>
-            Cambiar método de pago
-          </Text>
-        </Pressable>
-      </View>
+      {/* Espaciador flexible para empujar el botón abajo */}
+      <View style={{ flex: 1 }} />
 
-      {/* Botón al final */}
+      {/* Botón fijo abajo */}
       <View
         style={{
           paddingHorizontal: 24,
@@ -181,10 +139,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             paddingVertical: 16,
             alignItems: "center",
           }}
-          onPress={onConfirm}
+          onPress={handlePay}
         >
           <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 18 }}>
-            Continuar
+           Pagar
           </Text>
         </Pressable>
       </View>

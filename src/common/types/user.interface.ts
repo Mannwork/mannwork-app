@@ -30,6 +30,8 @@ export interface User {
         category_name: string;
         subcategory_name: string;
     }[];
+    mp_access_token: string | null;
+    is_mp_connected: boolean;
 }
 
 interface IdentificationPics {

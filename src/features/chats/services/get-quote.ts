@@ -9,7 +9,8 @@ export const getQuote = async (quoteId: string) => {
             professional:users!professional_id (
                 profile_pic,
                 name,
-                last_name
+                last_name,
+                mp_access_token
             )
         `)
         .eq("id", quoteId)
@@ -26,6 +27,7 @@ export const getQuote = async (quoteId: string) => {
     return {
         ...quote,
         professionalName: professional?.name + " " + professional?.last_name.split("")[0] + "." || 'Profesional',
-        professionalAvatar: professional?.profile_pic || null
+        professionalAvatar: professional?.profile_pic || null,
+        professionalAccessToken: professional?.mp_access_token || ""
     };
 };

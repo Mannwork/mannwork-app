@@ -21,6 +21,7 @@ export interface Quote {
     updatedat: string;
     professionalAvatar: string;
     professionalName: string;
+    professionalAccessToken: string;    
 }
 
 export const useQuote = (quoteId: string | undefined) => {
