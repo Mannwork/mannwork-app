@@ -8,6 +8,7 @@ interface PaymentModalProps {
   visible: boolean;
   onClose: () => void;
   quote: {
+    chatId: string;
     amount: number;
     description: string;
     professionalName: string;
