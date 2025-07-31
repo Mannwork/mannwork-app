@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import { useQuote } from "../hooks/useQuotes";
 
@@ -10,6 +10,8 @@ interface QuoteCardProps {
 }
 
 const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
+    const { chatId } = useLocalSearchParams();
+
     const { userId } = useAuth();
     const { data: quote } = useQuote(quoteId);
     const isFromMe = quote?.professional_id === userId;
@@ -19,6 +21,7 @@ const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
             pathname: "/(protected)/(mainTabs)/chats/see-quote-modal",
             params: {
                 quoteId: quoteId,
+                chatId: chatId,
                 quoteAmount: quote.price?.toString() || "0",
                 quoteDescription: quote.descriptionservice || "",
                 quoteProfessionalName: quote.professionalName || "",

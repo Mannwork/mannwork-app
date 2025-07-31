@@ -5,6 +5,7 @@ import { supabase } from '@/common/lib/supabase/supabaseClient';
     const { data, error } = await supabase.functions.invoke('mp-submited', {
       body: {
         name: 'Functions',
+        chatId: quote.chatId,
         amount: quote.amount,
         title: quote.description,
         marketplace: professionalAccessToken,

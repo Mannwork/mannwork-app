@@ -43,6 +43,7 @@ const SeeQuoteModal = () => {
         visible={true}
         onClose={handleClose}
         quote={{
+          chatId: params.chatId as string || "",
           amount: parseInt(quoteAmount || "0"),
           description: quoteDescription || "",
           professionalName: quoteProfessionalName || "",
