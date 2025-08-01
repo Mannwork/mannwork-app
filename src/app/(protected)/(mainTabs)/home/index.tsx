@@ -1,6 +1,7 @@
 import { getAuthMpUrl } from "@/common/utils/mp";
 import Categories from "@/features/home/Categories";
 import MpLinkCard from "@/features/home/components/MpLinkCard";
+import StatsLinkCard from "@/features/home/components/StatsLinkCard";
 import Header from "@/features/home/Header";
 import InfoCardSwiper from "@/features/home/InfoCardSwiper";
 import LoadingState from "@/features/home/LoadingState";
@@ -62,6 +63,10 @@ const HomeScreen = () => {
                 <SearchBarInput />
                 <RecentSearches />
                 <Categories />
+                {
+                    user?.membership_json?.isPro &&
+                <StatsLinkCard />
+                }
                 {userRole=== 'professional' && !user?.mp_access_token && (
                   <MpLinkCard
                     onPress={async () => {

@@ -119,7 +119,7 @@ export default function SelectProfessionalCard({
       </View>
       {/* Badges abajo, alineados a la izquierda */}
       <View className="flex-row items-center px-5 pb-4 gap-4">
-        {professional.verified && (
+        {/* {professional.verified && (
           <View className="flex-row items-center mr-2">
             <MaterialIcons
               name="verified"
@@ -131,8 +131,8 @@ export default function SelectProfessionalCard({
               Certificado
             </Text>
           </View>
-        )}
-        {professional.premium && (
+        )} */}
+        {professional.membership_json?.isPro && (
           <View className="flex-row items-center">
             <FontAwesome name="diamond" size={18} color="#2D7A3E" />
             <Text className="ml-1 text-xs text-green-mannwork font-semibold">

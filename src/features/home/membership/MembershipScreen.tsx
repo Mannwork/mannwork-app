@@ -1,5 +1,7 @@
+import { getSubscriptionUrl } from "@/common/utils/mp-subscription-redirect";
+import { useCurrentUser } from "@/features/profile";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 
 const benefits = [
   { icon: "star", label: "Aparecé primero en las búsquedas" },
@@ -8,11 +10,20 @@ const benefits = [
   { icon: "verified", label: "Medalla PRO en tu perfil" },
   { icon: "bar-chart", label: "Estadísticas avanzadas" },
   { icon: "support-agent", label: "Soporte prioritario" },
+  { icon: "attach-file", label: "Poder enviar fotos y archivos" },
 ];
 
 const MembershipScreen = () => {
+  const {data: user} = useCurrentUser();
+
+
+const handleSubscription = async () => {
+      const url = await getSubscriptionUrl(10, user?.email as string);
+      Linking.openURL(url);
+}
+
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-gray-50">
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
         showsVerticalScrollIndicator={false}
@@ -73,7 +84,7 @@ const MembershipScreen = () => {
         <Pressable
           className="mx-10 rounded-full bg-green-mannwork py-4 items-center shadow-lg"
           onPress={() => {
-            /* lógica de contratación */
+            handleSubscription();
           }}
         >
           <Text className="text-white font-extrabold text-lg tracking-wide">

@@ -14,6 +14,8 @@ import {
 
 const RequestsScreen = () => {
   const [activeTab, setActiveTab] = useState<string>("received");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
   const { data: userRole, isLoading: isLoadingRole } = useUserRole();
 
   // Cambiar la tab inicial según el rol
@@ -38,7 +40,7 @@ const RequestsScreen = () => {
   }
 
   const {
-    data: requests,
+    data: allRequests,
     isLoading: isLoadingRequests,
     refetch,
   } = useUserRequests({
@@ -46,9 +48,45 @@ const RequestsScreen = () => {
     status: getStatusFromTab(activeTab),
   });
 
+  // Filtrar solicitudes basado en la búsqueda
+  const filteredRequests = (allRequests || []).filter((request) => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    
+    // Filtrar por nombre de la solicitud (title)
+    if (request.title.toLowerCase().includes(query)) return true;
+    
+    // Filtrar por categoría
+    if (request.category.toLowerCase().includes(query)) return true;
+    
+    // Filtrar por subcategoría
+    if (request.subcategory.toLowerCase().includes(query)) return true;
+    
+    // Filtrar por nombre del cliente
+    if (request.client.name.toLowerCase().includes(query)) return true;
+    if (request.client.lastName.toLowerCase().includes(query)) return true;
+    
+    // Filtrar por nombre de profesionales
+    const professionalMatch = request.users.some(user => 
+      user.role === "professional" && (
+        user.name.toLowerCase().includes(query) ||
+        user.lastName.toLowerCase().includes(query)
+      )
+    );
+    if (professionalMatch) return true;
+    
+    return false;
+  });
+
+  const requests = filteredRequests;
+
   const handleSearch = () => {
-    // TODO: Implementar búsqueda de solicitudes
-    console.log("Buscar solicitudes");
+    setIsSearchVisible(!isSearchVisible);
+    if (isSearchVisible) {
+      // Si se está cerrando la búsqueda, limpiar el query
+      setSearchQuery("");
+    }
   };
 
   const handleCreate = () => {
@@ -93,7 +131,13 @@ const RequestsScreen = () => {
   if (isLoadingRole || isLoadingRequests) {
     return (
       <View className="flex-1 bg-gray-50">
-        <RequestsHeader onSearch={handleSearch} onCreate={handleCreate} />
+        <RequestsHeader 
+          onSearch={handleSearch} 
+          onCreate={handleCreate}
+          isSearchVisible={isSearchVisible}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+        />
         <LoadingState />
       </View>
     );
@@ -101,7 +145,13 @@ const RequestsScreen = () => {
 
   return (
     <View className="flex-1 bg-gray-50">
-      <RequestsHeader onSearch={handleSearch} onCreate={handleCreate} />
+      <RequestsHeader 
+        onSearch={handleSearch} 
+        onCreate={handleCreate}
+        isSearchVisible={isSearchVisible}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+      />
       <RequestsTabs
         userRole={userRole || "client"}
         activeTab={activeTab}

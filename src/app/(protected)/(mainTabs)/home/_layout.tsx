@@ -42,6 +42,12 @@ const HomeLayout = () => {
           animation: "slide_from_right",
         }}
       />
+      <Stack.Screen
+        name="professional-stats"
+        options={{
+          headerShown: false ,
+  }}
+/>
     </Stack>
   );
 };
