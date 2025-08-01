@@ -18,6 +18,13 @@ interface NearbyProfessional {
   category_id: number;
   subcategory_id: string;
   distance?: number;
+  membership_json: membership_json;
+}
+
+interface membership_json {
+  isPro: boolean;
+  endDate: string;
+  startingDate: string;
 }
 
 interface UseNearbyProfessionalsOptions {
@@ -61,7 +68,7 @@ export const useNearbyProfessionals = ({
       // Buscar los usuarios profesionales
       const { data: users, error: usersError } = await supabase
         .from("users")
-        .select("id, name, last_name, profile_pic, calification, service_radius, ubication_json, rol")
+        .select("id, name, last_name, profile_pic, calification, service_radius, ubication_json, rol, membership_json")
         .in("id", userIds)
         .eq("rol", "professional");
 
@@ -82,7 +89,7 @@ export const useNearbyProfessionals = ({
       if (combinedData.length === 0) {
         const { data: directUsers, error: directError } = await supabase
           .from("users")
-          .select("id, name, last_name, profile_pic, calification, service_radius, ubication_json, rol")
+          .select("id, name, last_name, profile_pic, calification, service_radius, ubication_json, rol, membership_json ")
           .eq("rol", "professional");
 
         if (directError) {
@@ -139,6 +146,7 @@ export const useNearbyProfessionals = ({
                   category_id: item.category_id,
                   subcategory_id: item.subcategory_id,
                   distance: Math.round(distance * 10) / 10,
+                  membership_json: user.membership_json,
                 };
               }
               return null;
@@ -189,6 +197,7 @@ export const useNearbyProfessionals = ({
                 category_id: item.category_id,
                 subcategory_id: item.subcategory_id,
                 distance: Math.round(distance * 10) / 10,
+                membership_json: user.membership_json,
               };
             }
             return null;

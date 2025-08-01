@@ -12,13 +12,11 @@ interface ProfileBannerProps {
     reviewCount: number;
     role: "professional" | "client";
   };
-  onRequestQuote?: () => void;
   isOwnProfile?: boolean;
 }
 
 const ProfileBanner = ({
   user,
-  onRequestQuote,
   isOwnProfile = false,
 }: ProfileBannerProps) => {
   const insets = useSafeAreaInsets();
@@ -87,17 +85,6 @@ const ProfileBanner = ({
               ({user.reviewCount} valoraciones)
             </Text>
           </View>
-
-          {user.role === "professional" && onRequestQuote && !isOwnProfile && (
-            <Pressable
-              onPress={onRequestQuote}
-              className="bg-white rounded-lg px-6 py-3"
-            >
-              <Text className="text-green-mannwork font-bold">
-                Pedir cotización
-              </Text>
-            </Pressable>
-          )}
         </View>
       </View>
     </View>

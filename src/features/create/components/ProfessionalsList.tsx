@@ -12,7 +12,7 @@ interface Professional {
   category: string;
   address: string;
   verified: boolean;
-  premium: boolean;
+  membership_json: boolean;
   avatar: string;
   distance: number;
 }
@@ -37,6 +37,7 @@ export default function ProfessionalsList({
   const filteredProfessionals = professionals.filter(
     (prof) => prof.id !== userId
   );
+
 
   if (filteredProfessionals.length === 0) {
     return (

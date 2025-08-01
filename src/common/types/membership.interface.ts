@@ -1,5 +1,5 @@
 export interface Membership {
-    isActive: boolean;
+    isPro: boolean;
     isFeatured: boolean;
     extraQuotesLimit: number;
     hasProBadge: boolean;

@@ -47,6 +47,8 @@ export default function SelectProfessionalsScreen() {
       subcategoryId: formData.subcategory || "",
       maxDistance: 50, // 50km máximo
     });
+    
+    
 
   const handleSelect = (id: string) => {
     if (selectedIds.includes(id)) {
@@ -94,7 +96,7 @@ export default function SelectProfessionalsScreen() {
       category: `${params.categoryName} • ${params.subcategoryName}`,
       address: prof.ubication_json.address || "Ubicación no disponible",
       verified: true, // TODO: Implementar verificación
-      premium: false, // TODO: Implementar premium
+      membership_json: prof.membership_json,  // TODO: Implementar premium
       avatar: prof.profile_pic,
       distance: prof.distance,
     })) || [];
