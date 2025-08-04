@@ -1,6 +1,6 @@
 import { useCurrentUser } from "@/features/profile";
 import { useRouter } from "expo-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import InfoCard from "./InfoCard";
 

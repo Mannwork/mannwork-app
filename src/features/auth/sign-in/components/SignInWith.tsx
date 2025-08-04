@@ -29,11 +29,14 @@ export const useWarmUpBrowser = () => {
 
 WebBrowser.maybeCompleteAuthSession();
 
+type Variant = 'primary' | 'secondary' | 'outline' | 'ghost';
+
 interface SignInWithProps {
     strategy: "oauth_google" | "oauth_facebook";
+    variant?: Variant;
 }
 
-const SignInWith = ({ strategy }: SignInWithProps) => {
+const SignInWith = ({ strategy, variant = 'primary' }: SignInWithProps) => {
     useWarmUpBrowser();
 
     const { startSSOFlow } = useSSO();
@@ -58,7 +61,7 @@ const SignInWith = ({ strategy }: SignInWithProps) => {
     }, [startSSOFlow, strategy]);
 
     return (
-        <AuthButton onPress={onPress}>
+        <AuthButton onPress={onPress} variant={variant}>
             <Image
                 source={strategyIcons[strategy]}
                 className="w-8 h-8 absolute left-4"

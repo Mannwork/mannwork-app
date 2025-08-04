@@ -1,4 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,6 +11,11 @@ interface ProfileBannerProps {
     rating: number;
     reviewCount: number;
     role: "professional" | "client";
+    membership_json?: {
+      isPro: boolean;
+      endDate: Date | null;
+      startingDate: Date | null;
+    };
   };
   isOwnProfile?: boolean;
 }
@@ -79,12 +84,21 @@ const ProfileBanner = ({
             {isOwnProfile ? user.lastName : user.lastName.charAt(0) + "."}
           </Text>
 
+
           <View className="flex-row items-center mb-4">
             {renderStars(user.rating)}
             <Text className="text-white text-sm ml-2">
               ({user.reviewCount} valoraciones)
             </Text>
           </View>
+          {user.membership_json?.isPro && user.role === "professional" && (
+          <View className="flex-row items-center bg-white rounded-full px-2 py-1">
+            <FontAwesome name="diamond" size={18} color="#2D7A3E" />
+            <Text className="ml-1 text-xs text-green-mannwork font-semibold">
+              Premium
+            </Text>
+          </View>
+        )}
         </View>
       </View>
     </View>

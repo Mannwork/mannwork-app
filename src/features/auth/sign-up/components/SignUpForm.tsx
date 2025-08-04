@@ -18,9 +18,11 @@ import {
     signUpCredentialsScheme,
     SignUpFields,
 } from "@/features/auth/sign-up/validators/signUpCredentials.validator";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SignUpForm = () => {
     const [loading, setLoading] = useState(false);
+    const insets = useSafeAreaInsets();
 
     const {
         control,
@@ -78,7 +80,7 @@ const SignUpForm = () => {
     };
 
     return (
-        <MyKeyboardAvoidingView className="justify-between p-8">
+        <MyKeyboardAvoidingView style={{ paddingTop: insets.top + 20 }}  className="justify-between p-8">
             <View>
                 <CustomInput
                     control={control}
@@ -124,7 +126,7 @@ const SignUpForm = () => {
                 {loading ? (
                     <ActivityIndicator color="#2d7a3e" size="small" />
                 ) : (
-                    <Text className="font-semibold">Registrarse</Text>
+                    <Text className="font-semibold text-white">Registrarse</Text>
                 )}
             </AuthButton>
         </MyKeyboardAvoidingView>
