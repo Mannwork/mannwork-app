@@ -33,12 +33,10 @@ export default function SelectProfessionalCard({
   categoryName?: string;
   subcategoryName?: string;
 }) {
-  // Separar nombre y apellido si vienen juntos
+  // Usar el nombre completo y la inicial del apellido que ya vienen calculados
   const fullName = professional.name || "";
-  const nameParts = fullName.split(" ");
-  const firstName = nameParts[0] || "";
-  const lastName = nameParts.slice(1).join(" ") || "";
-  const lastInitial = lastName.charAt(0) || "";
+  const firstName = fullName.split(" ")[0] || "";
+  const lastInitial = professional.lastInitial || "";
 
   // Obtener el icono correcto de la categoría
   const categoryLabel = categoryName || professional.category;

@@ -1,42 +1,73 @@
+import { useProfessionalStats } from "@/features/home/hooks/useProfessionalStats";
 import ProfessionalStats from "@/features/home/professionalStats";
-import { View } from 'react-native';
+import { useAuth } from "@clerk/clerk-expo";
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 export default function ProfessionalStatsScreen() {
-  // Datos de ejemplo/mock
-  const stats = {
-    jobsThisMonth: 8,
-    totalJobs: 120,
-    incomeThisMonth: 250000,
-    netIncome: 210000,  
-    avgIncomePerJob: 31250,
-    growthVsLastMonth: 12,
-    acceptanceRate: 92,
-    responseRate: 85,
-    successRate: 97,
-    profileViews: 340,
-    requestsReceived: 22,
-    topZones: ["Palermo", "Recoleta", "Belgrano"],
-    isPremium: true,
-    commissionSavings: 18000,
-    premiumBenefits: ["Clientes destacados", "Menor comisión", "Más visibilidad"],
-    insights: [
-      "Tu calificación subió 0.2 este mes. ¡Buen trabajo!",
-      "Recibiste más visitas esta semana.",
-      "Tu tasa de respuesta es menor a la media.",
-    ],
-    monthlyIncomeHistory: [
-      { month: "Ene", value: 180000 },
-      { month: "Feb", value: 200000 },
-      { month: "Mar", value: 220000 },
-      { month: "Abr", value: 210000 },
-      { month: "May", value: 230000 },
-      { month: "Jun", value: 250000 },
-    ],
-  };
+  const { userId } = useAuth();
+  const { stats, loading, error } = useProfessionalStats(userId || '');
+  
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2D7A3E" />
+        <Text style={styles.loadingText}>Cargando estadísticas...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error al cargar las estadísticas</Text>
+        <Text style={styles.errorSubtext}>{error}</Text>
+      </View>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>No se encontraron datos</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
       <ProfessionalStats stats={stats} />
     </View>
   );
-}   
+}
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#2D7A3E',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#E74C3C',
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: '#7F8C8D',
+    textAlign: 'center',
+  },
+});

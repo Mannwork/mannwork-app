@@ -1,14 +1,17 @@
+import { ReactNode } from "react";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import { Text, TextInput, TextInputProps, View } from "react-native";
 
 type CustomInputProps<T extends FieldValues> = {
     control: Control<T>; // custom fields
     name: Path<T>;
+    rightIcon?: ReactNode;
 } & TextInputProps;
 
 export default function CustomInput<T extends FieldValues>({
     control,
     name,
+    rightIcon,
     ...props
 }: CustomInputProps<T>) {
     return (
@@ -19,20 +22,33 @@ export default function CustomInput<T extends FieldValues>({
                 field: { value, onChange, onBlur },
                 fieldState: { error },
             }) => (
-                <View className="gap-2">
-                    <TextInput
-                        {...props}
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        className={
-                            "p-3 border rounded-xl " +
-                            props.className +
-                            (error
-                                ? " border-red-500"
-                                : "border-text-secondary")
-                        }
-                    />
+                <View className="gap-2 w-full">
+                    <View className="relative w-full">
+                        <TextInput
+                            {...props}
+                            value={value}
+                            onChangeText={onChange}
+                            onBlur={onBlur}
+                            className={
+                                "p-3 border rounded-xl pr-10 w-full bg-white " +
+                                props.className +
+                                (error
+                                    ? " border-red-500"
+                                    : "border-text-secondary")
+                            }
+                            style={{
+                                paddingRight: rightIcon ? 40 : 16, // Espacio adicional para el ícono
+                            }}
+                        />
+                        {rightIcon && (
+                            <View 
+                                className="absolute right-2 top-0 bottom-0 justify-center pr-3"
+                                pointerEvents="box-none"
+                            >
+                                {rightIcon}
+                            </View>
+                        )}
+                    </View>
                     <Text className="text-red-500">{error?.message}</Text>
                 </View>
             )}

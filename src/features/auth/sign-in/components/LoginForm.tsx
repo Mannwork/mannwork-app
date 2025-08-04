@@ -1,5 +1,6 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, TouchableOpacity, View } from "react-native";
 
 import { router } from "expo-router";
 
@@ -32,6 +33,7 @@ const LoginForm = () => {
     const { signIn, isLoaded, setActive } = useSignIn();
 
     const [loading, setLoading] = useState(!isLoaded);
+    const [showPassword, setShowPassword] = useState(false);
 
     const onSignIn = async (data: SignInFields) => {
         if (!isLoaded) return;
@@ -95,9 +97,22 @@ const LoginForm = () => {
                     control={control}
                     name="password"
                     placeholder="Ingrese su contraseña"
-                    secureTextEntry
+                    secureTextEntry={!showPassword}
                     autoComplete="password"
                     autoCapitalize="none"
+                    rightIcon={
+                        <TouchableOpacity
+                            onPress={() => setShowPassword(!showPassword)}
+                            className="p-1"
+                            hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                        >
+                            <MaterialIcons
+                                name={showPassword ? "visibility-off" : "visibility"}
+                                size={24}
+                                color="#2D7A3E"
+                            />
+                        </TouchableOpacity>
+                    }
                 />
 
                 {errors.root && (
@@ -125,7 +140,7 @@ const LoginForm = () => {
                 {loading ? (
                     <ActivityIndicator color="#2d7a3e" size="small" />
                 ) : (
-                    <Text className="font-semibold">Iniciar sesión</Text>
+                    <Text className="font-semibold text-white">Iniciar sesión</Text>
                 )}
             </AuthButton>
         </MyKeyboardAvoidingView>
