@@ -18,7 +18,7 @@ export interface Request {
         province: string;
     };
     images: string[];
-    status: "searching" | "pending" | "in_progress" | "completed" | "cancelled";
+    status: "searching" | "pending" | "payed" | "working" | "completed" | "cancelled" | "refunded";
     createdAt: string;
     userRole: "client" | "professional";
     // Información del usuario que creó la solicitud

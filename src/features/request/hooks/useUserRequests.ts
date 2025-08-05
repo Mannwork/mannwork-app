@@ -29,7 +29,6 @@ export const useUserRequests = ({ userRole, status }: UseUserRequestsOptions) =>
             categories!requests_category_fkey(name)
           `)
           .eq("client", userId);
-console.log(status, "status");
 
         if (status) {
           query = query.eq("status", status);
@@ -50,7 +49,8 @@ console.log(status, "status");
               )
             )
           `)
-          .eq("professional_id", userId);
+          .eq("professional_id", userId).eq("status", "selected");
+
 
         if (status) {
           // Filtrar por estado en la tabla requests
@@ -65,17 +65,6 @@ console.log(status, "status");
       // Transformar los datos al formato esperado por RequestCard
       const transformedRequests: Request[] = data?.map((item: any) => {
         if (userRole === "client") {
-          // Mapear el estado de la base de datos al formato esperado
-          const mapStatus = (dbStatus: string): "pending" | "in_progress" | "completed" | "cancelled" => {
-            switch (dbStatus) {
-              case 'searching': return 'pending';
-              case 'working': return 'in_progress';
-              case 'completed': return 'completed';
-              case 'cancelled': return 'cancelled';
-              default: return 'pending';
-            }
-          };
-
           // Parsear la ubicación JSON
           const locationData = item.location ? JSON.parse(item.location) : {};
 
@@ -96,7 +85,7 @@ console.log(status, "status");
               province: locationData.province || "",
             },
             images: item.photos || [],
-            status: mapStatus(item.status),
+            status: item.status,
             createdAt: item.inserted_at,
             userRole: "client" as const,
             client: {
@@ -134,17 +123,6 @@ console.log(status, "status");
             };
           }
 
-          // Mapear el estado de la base de datos al formato esperado
-          const mapStatus = (dbStatus: string): "pending" | "in_progress" | "completed" | "cancelled" => {
-            switch (dbStatus) {
-              case 'searching': return 'pending';
-              case 'working': return 'in_progress';
-              case 'completed': return 'completed';
-              case 'cancelled': return 'cancelled';
-              default: return 'pending';
-            }
-          };
-
           // Parsear la ubicación JSON
           const locationData = request.location ? JSON.parse(request.location) : {};
 
@@ -165,7 +143,7 @@ console.log(status, "status");
               province: locationData.province || "",
             },
             images: request.photos || [],
-            status: mapStatus(request.status),
+            status: request.status,
             createdAt: request.inserted_at,
             userRole: "professional" as const,
             client: {

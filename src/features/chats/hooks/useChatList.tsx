@@ -23,10 +23,8 @@ export function useChatList({
         queryKey: ["chats", userId, statusSelected],
         queryFn: async ({ pageParam = 1 }) => {
             if (!userId) return [];
-            // Ensure pageParam is a number
             const page = typeof pageParam === "number" ? pageParam : 1;
 
-            console.log("Fetching page:", page);
             return await getUserChats({
                 userId,
                 page,
