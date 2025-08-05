@@ -9,12 +9,14 @@ interface MessageItemProps {
     userLogged: string;
     message: Message;
     onQuoteRequest?: () => void;
+    isQuoted?: boolean
 }
 
 const MessageItem = ({
     userLogged,
     message,
     onQuoteRequest,
+    isQuoted = false
 }: MessageItemProps) => {
     const formattedTime = formatTime(message.created_at);
 
@@ -47,6 +49,7 @@ const MessageItem = ({
                         onQuote={onQuoteRequest || (() => {})}
                         isFromMe={message.sender_id === userLogged}
                         timestamp={formattedTime}
+                        isQuoted={isQuoted}
                     />
                 );
 

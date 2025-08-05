@@ -56,6 +56,10 @@ export const postNewQuote = async (quote: Quote) => {
         .select()
         .single();
 
+    await supabase.from("requests").update({
+            status: "pending"
+        }).eq("id", newQuote.request_id)
+
     if (insertError) {
         console.error("Error al crear cotización:", insertError);
         throw insertError;

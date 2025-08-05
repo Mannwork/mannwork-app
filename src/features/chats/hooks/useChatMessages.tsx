@@ -2,7 +2,7 @@ import { supabase } from "@/common/lib/supabase/supabaseClient";
 import { Message } from "@/common/types/message.type";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
-import { getChatMessages } from "../services/get-chat-messages";
+import { getChatData } from "../services/get-chat-messages";
 
 const MESSAGES_PER_PAGE = 20;
 
@@ -15,10 +15,10 @@ export const useChatMessages = (chatId: string) => {
         useInfiniteQuery({
             queryKey: queryKey,
             queryFn: ({ pageParam = 1 }) =>
-                getChatMessages({ chatId, pageParam }),
+                getChatData({ chatId, pageParam }),
             initialPageParam: 1,
             getNextPageParam: (lastPage, allPages) => {
-                if (!lastPage || lastPage.length < MESSAGES_PER_PAGE) {
+                if (!lastPage || lastPage.messages.length < MESSAGES_PER_PAGE) {
                     return undefined; // No hay más páginas
                 }
                 return allPages.length + 1;

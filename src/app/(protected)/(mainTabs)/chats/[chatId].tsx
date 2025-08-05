@@ -39,16 +39,6 @@ const ChatScreen = () => {
         router.push(`/chats/quote-modal?chatId=${chatId}`);
     };
 
-    const renderMessage = ({ item }: { item: any }) => (
-        <MessageItem
-            userLogged={userId as string}
-            message={item}
-            onQuoteRequest={
-                userRole === "professional" ? handleQuoteRequest : undefined
-            }
-        />
-    );
-
     useEffect(() => {
         updateMessagesReadStatus(chatId as string, userId as string);
     }, [chatId, userId]);
@@ -56,7 +46,19 @@ const ChatScreen = () => {
     if (isLoading) return <ActivityIndicator />;
     if (error) return <Text>Error al cargar mensajes</Text>;
 
-    const messages = messagesPage?.pages.flatMap((page) => page) || [];
+    const messages = messagesPage?.pages.flatMap((page) => page.messages) || [];
+    const hasActiveQuote = messagesPage?.pages.some((page) => page.hasActiveQuote) || false;
+
+    const renderMessage = ({ item }: { item: any }) => (
+            <MessageItem
+                userLogged={userId as string}
+                message={item}
+                onQuoteRequest={
+                    userRole === "professional" ? handleQuoteRequest : undefined
+                }
+                isQuoted={hasActiveQuote}
+            />
+    )
 
     const handleFetchNextPage = async () => {
         if (hasNextPage) {
@@ -98,7 +100,7 @@ const ChatScreen = () => {
                     <QuoteButton
                         chatId={chatId as string}
                         userRole={userRole}
-                        hasQuote={messages.some((m) => m.type === "quote")}
+                        hasQuote={messagesPage?.pages.some((page) => page.hasActiveQuote)}
                     />
                 )}
 

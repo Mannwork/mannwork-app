@@ -5,12 +5,15 @@ interface QuoteRequestCardProps {
     onQuote: () => void;
     isFromMe: boolean;
     timestamp: string;
+    isQuoted?: boolean;
+
 }
 
 const QuoteRequestCard = ({
     onQuote,
     isFromMe,
     timestamp,
+    isQuoted = false,
 }: QuoteRequestCardProps) => {
     const isPressable = !isFromMe;
     const CardContent = (
@@ -52,7 +55,7 @@ const QuoteRequestCard = ({
             <Text style={{ color: "#444", fontSize: 15, marginBottom: 12 }}>
                 El cliente está esperando una cotización para este trabajo.
             </Text>
-            {!isFromMe && (
+            {(!isFromMe && !isQuoted) && (
                 <View style={{ marginTop: 4 }}>
                     <Text
                         style={{

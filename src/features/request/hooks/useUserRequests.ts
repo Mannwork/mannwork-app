@@ -49,7 +49,8 @@ export const useUserRequests = ({ userRole, status }: UseUserRequestsOptions) =>
               )
             )
           `)
-          .eq("professional_id", userId);
+          .eq("professional_id", userId).eq("status", "selected");
+
 
         if (status) {
           // Filtrar por estado en la tabla requests
@@ -121,17 +122,6 @@ export const useUserRequests = ({ userRole, status }: UseUserRequestsOptions) =>
               users: [],
             };
           }
-
-          // Mapear el estado de la base de datos al formato esperado
-          const mapStatus = (dbStatus: string): "pending" | "in_progress" | "completed" | "cancelled" => {
-            switch (dbStatus) {
-              case 'searching': return 'pending';
-              case 'working': return 'in_progress';
-              case 'completed': return 'completed';
-              case 'cancelled': return 'cancelled';
-              default: return 'pending';
-            }
-          };
 
           // Parsear la ubicación JSON
           const locationData = request.location ? JSON.parse(request.location) : {};

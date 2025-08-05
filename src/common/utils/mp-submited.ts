@@ -1,9 +1,6 @@
 import { supabase } from '@/common/lib/supabase/supabaseClient';
 
   export const getPaymentMpUrl = async (quote: any, professionalAccessToken: string) => {
-  console.log("xd",{...quote, professionalAccessToken});
-  
-  
     try {
     const { data, error } = await supabase.functions.invoke('mp-submited', {
       body: {

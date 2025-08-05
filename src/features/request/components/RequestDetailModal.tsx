@@ -4,7 +4,9 @@ import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { categoryIcons } from "@/common/types/categories.interface";
+import { router } from "expo-router";
 import { useCreateChat } from "../hooks/useCreateChat";
+import { updateRefuseRequest } from "../services/update-refuse-request";
 import { updateRequestStatus } from "../services/update-request-status";
 import { Request } from "./RequestCard";
 import RequestStatusBadge from "./RequestStatusBadge";
@@ -161,7 +163,8 @@ const RequestDetailModal = ({
                     label: "Rechazar solicitud",
                     color: "bg-red-500",
                     onPress: () => {
-                        console.log("Cancelar solicitud presionado");
+                        updateRefuseRequest(request.id, userId as string);
+                        router.back();
                     },
                 });
             }
@@ -173,6 +176,7 @@ const RequestDetailModal = ({
                     color: "bg-red-500",
                     onPress: () => {
                         updateRequestStatus("cancelled", request.id);
+                        router.back();
                     },
                 });
             }

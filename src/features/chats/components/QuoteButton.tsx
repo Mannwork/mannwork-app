@@ -2,7 +2,6 @@ import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Pressable, Text, View } from "react-native";
-import { getChatMessages } from "../services/get-chat-messages";
 import { getQuote } from "../services/get-quote";
 import { postNewMessage } from "../services/post-new-message";
 
@@ -36,10 +35,9 @@ const QuoteButton = ({
     const handlePress = async () => {
         if (hasQuote) {
             // Buscar el último mensaje tipo 'quote' para este chat
-            const messages = await getChatMessages({ chatId, pageParam: 1 });
-            const quoteMsg = messages.find((msg: any) => msg.type === "quote");
-            if (quoteMsg) {
-                const quote = await getQuote(quoteMsg.content);
+            const quote = await getQuote("", chatId);
+            
+            if (quote) {
                 router.push({
                     pathname: "/(protected)/(mainTabs)/chats/see-quote-modal",
                     params: {
