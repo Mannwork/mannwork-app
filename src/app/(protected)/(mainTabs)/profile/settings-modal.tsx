@@ -11,18 +11,6 @@ const SettingsModalScreen = () => {
     router.back();
   };
 
-  const handleEditProfile = () => {
-    // Navegar a la pantalla de editar perfil
-    // router.push("/(protected)/(mainTabs)/profile/edit");
-    console.log("Editar perfil");
-  };
-
-  const handleLogout = () => {
-    // Lógica para cerrar sesión
-    console.log("Cerrar sesión");
-    // Aquí podrías navegar a la pantalla de login o limpiar el estado de autenticación
-  };
-
   const handleCustomerSupport = () => {
     // Navegar a la pantalla de soporte al cliente
     // router.push("/(protected)/support");
@@ -55,8 +43,6 @@ const SettingsModalScreen = () => {
       <SettingsModal
         visible={true}
         onClose={handleClose}
-        onEditProfile={handleEditProfile}
-        onLogout={handleLogout}
         onCustomerSupport={handleCustomerSupport}
         onShare={handleShare}
         onAboutMannwork={handleAboutMannwork}

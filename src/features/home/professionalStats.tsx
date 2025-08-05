@@ -3,8 +3,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import { Circle } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Circle } from "react-native-svg";
 import { Grid, LineChart, XAxis } from 'react-native-svg-charts';
 
 export interface ProfessionalStatsProps {
@@ -175,11 +175,11 @@ const ProfessionalStats: React.FC<ProfessionalStatsProps> = ({ stats }) => {
           <Text className="text-lg font-bold text-white ml-2">Alcance</Text>
         </View>
         <View className="flex-row justify-between">
-          <View className="items-center flex-1">
-            <MaterialIcons name="remove-red-eye" size={24} color="#fff" />
-            <Text className="text-2xl font-bold text-white">{stats.profileViews}</Text>
-            <Text className="text-white/80 text-xs">Vistas</Text>
-          </View>
+        <View className="items-center flex-1">
+  <MaterialIcons name="check-circle" size={24} color="#fff" />
+  <Text className="text-2xl font-bold text-white">{stats.successRate}%</Text>
+  <Text className="text-white/80 text-xs">Éxito</Text>
+</View>
           <View className="items-center flex-1">
             <MaterialIcons name="mail" size={24} color="#fff" />
             <Text className="text-2xl font-bold text-white">{stats.requestsReceived}</Text>
@@ -212,7 +212,7 @@ const ProfessionalStats: React.FC<ProfessionalStatsProps> = ({ stats }) => {
               Ahorro: ${stats.commissionSavings}
             </Text>
           </View>
-          <View className="flex-row flex-wrap">
+          <View className="flex-row justify-center flex-wrap">
             {stats.premiumBenefits?.map((b, i) => (
               <View key={i} className="bg-white/20 rounded-full px-3 py-1 mr-2 mb-2">
                 <Text className="text-white text-xs">{b}</Text>

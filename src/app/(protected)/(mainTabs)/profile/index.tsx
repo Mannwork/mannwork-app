@@ -8,13 +8,11 @@ import {
 } from "@/features/profile";
 import SectionDivider from "@/features/profile/components/SectionDivider";
 import { useUserReviews } from "@/features/profile/hooks/useUserReviews";
-import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
 const ProfileScreen = () => {
   const { data: user, isLoading, error } = useCurrentUser();
-  const [showMapModal, setShowMapModal] = useState(false);
-
+  
   // Traer reviews reales del usuario logueado
   const { reviews, loading: loadingReviews } = useUserReviews(user?.id || "");
 
@@ -40,16 +38,8 @@ const ProfileScreen = () => {
     date: r.created_at,
   }));
 
-  const handleRequestQuote = () => {
-    console.log("Solicitar cotización");
-  };
-
   const handleViewMoreReviews = () => {
     console.log("Ver más opiniones");
-  };
-
-  const handleMapPress = () => {
-    console.log("Ver mapa");
   };
 
   // Loading state
@@ -95,6 +85,7 @@ const ProfileScreen = () => {
     rating: averageRating,
     reviewCount: reviews.length,
     role: user.rol as "professional" | "client",
+    membership_json: user.membership_json || undefined,
   };
 
   const profileInfo = {
@@ -106,8 +97,7 @@ const ProfileScreen = () => {
     <View className="flex-1 bg-white">
       <ScrollView showsVerticalScrollIndicator={false}>
         <ProfileBanner
-          user={userData}
-          onRequestQuote={handleRequestQuote}
+            user={userData}
           isOwnProfile={true}
         />
         <SectionDivider />

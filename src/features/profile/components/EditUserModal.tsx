@@ -157,36 +157,60 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
         {/* Nombre */}
         <Text className="text-base font-bold text-gray-800 mb-2">Nombre</Text>
         <TextInput
-          className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 mb-4"
-          placeholder="Tu nombre"
+          className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 pr-2"
+          placeholder="Nombre"
           value={name}
-          onChangeText={setName}
+          onChangeText={(text) => {
+            if (text.length <= 50) {
+              setName(text);
+            }
+          }}
+          maxLength={30}
           style={{ lineHeight: Platform.OS === "ios" ? 0 : undefined }}
         />
+        <Text className="text-xs text-gray-500 mb-4 mt-2 text-left ml-2">
+          {name.length}/30 caracteres
+        </Text>
 
         {/* Apellido */}
         <Text className="text-base font-bold text-gray-800 mb-2">Apellido</Text>
         <TextInput
-          className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 mb-4"
-          placeholder="Tu apellido"
+          className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 pr-2"
+          placeholder="Apellido"
           value={lastName}
-          onChangeText={setLastName}
+          onChangeText={(text) => {
+            if (text.length <= 50) {
+              setLastName(text);
+            }
+          }}
+          maxLength={30}
           style={{ lineHeight: Platform.OS === "ios" ? 0 : undefined }}
         />
+        <Text className="text-xs text-gray-500 mb-4 mt-2 text-left ml-2">
+          {lastName.length}/30 caracteres
+        </Text>
 
         {/* Descripción */}
         <Text className="text-base font-bold text-gray-800 mb-2">
           Descripción
         </Text>
         <TextInput
-          className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 mb-4 min-h-[100px]"
-          placeholder="Cuéntanos sobre ti..."
+          className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 min-h-[100px] pr-2"
+          placeholder="Cuéntanos sobre ti.. ."
           value={description}
-          onChangeText={setDescription}
+          onChangeText={(text) => {
+            if (text.length <= 500) {
+              setDescription(text);
+            }
+          }}
+          maxLength={250}
           multiline
           textAlignVertical="top"
           style={{ lineHeight: 22 }}
         />
+        <Text className="text-xs text-gray-500 mb-4 mt-2 text-left ml-2">
+          {description.length}/250 caracteres
+        </Text>
 
         {/* Profesiones (solo para profesionales) */}
         {isProfessional && (

@@ -7,8 +7,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface SettingsModalProps {
   visible: boolean;
   onClose: () => void;
-  onEditProfile?: () => void;
-  onLogout?: () => void;
   onCustomerSupport?: () => void;
   onShare?: () => void;
   onAboutMannwork?: () => void;
@@ -17,8 +15,6 @@ interface SettingsModalProps {
 const SettingsModal = ({
   visible,
   onClose,
-  onEditProfile,
-  onLogout,
   onCustomerSupport,
   onShare,
   onAboutMannwork,
@@ -51,9 +47,9 @@ const SettingsModal = ({
     }
   };
 
-  const handlePrivacy = () => {
-    router.push({ pathname: "/(protected)/(mainTabs)/profile/privacy-modal" });
-  };
+  // const handlePrivacy = () => {
+  //   router.push({ pathname: "/(protected)/(mainTabs)/profile/privacy-modal" });
+  // };
 
   const renderSettingsOption = (
     icon: string,
@@ -113,12 +109,12 @@ const SettingsModal = ({
               "Configurar alertas y notificaciones",
               handleNotifications
             )}
-            {renderSettingsOption(
+            {/* {renderSettingsOption(
               "security",
               "Privacidad y seguridad",
               "Configurar privacidad de la cuenta",
               handlePrivacy
-            )}
+            )} */}
           </View>
 
           {/* Soporte */}

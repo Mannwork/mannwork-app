@@ -1,8 +1,8 @@
 import { getPaymentMpUrl } from '@/common/utils/mp-submited';
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
-import { Image, Linking, Pressable, Text, View } from "react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, Image, Linking, Pressable, Text, View } from "react-native";
 
 interface PaymentModalProps {
   visible: boolean;
@@ -26,12 +26,19 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   professionalAccessToken,
   onConfirm,
 }) => {
-    console.log(professionalAccessToken);
+  const [isLoading, setIsLoading] = useState(false);
 
-const handlePay = async () => {
-  const url = await getPaymentMpUrl(quote, professionalAccessToken);
-  Linking.openURL(url);
-};
+  const handlePay = async () => {
+    setIsLoading(true);
+    try {
+      const url = await getPaymentMpUrl(quote, professionalAccessToken);
+      Linking.openURL(url);
+    } catch (error) {
+      console.error('Error al obtener URL de pago:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -136,15 +143,25 @@ const handlePay = async () => {
       >
         <Pressable
           style={{
-            backgroundColor: "#2D7A3E",
+            backgroundColor: isLoading ? "#9CA3AF" : "#2D7A3E",
             borderRadius: 24,
             paddingVertical: 16,
             alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "center",
           }}
           onPress={handlePay}
+          disabled={isLoading}
         >
+          {isLoading && (
+            <ActivityIndicator 
+              size="small" 
+              color="#fff" 
+              style={{ marginRight: 8 }} 
+            />
+          )}
           <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 18 }}>
-           Pagar
+            {isLoading ? "Procesando..." : "Pagar"}
           </Text>
         </Pressable>
       </View>
