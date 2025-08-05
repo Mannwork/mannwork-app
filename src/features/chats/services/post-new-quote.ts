@@ -42,6 +42,10 @@ export const postNewQuote = async (quote: Quote) => {
             throw updateError;
         }
 
+        await supabase.from("requests").update({
+            status: "pending"
+        }).eq("id", existingQuote.request_id)
+
         return updatedQuote;
     }
 

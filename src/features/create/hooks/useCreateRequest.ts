@@ -16,7 +16,8 @@ interface CreateRequestData {
   client: string;
   category: number;
   subCategory: string;
-  professionals: string[]; // IDs de los profesionales seleccionados
+  professionals: string[];
+  status: "searching"
 }
 
 interface UseCreateRequestReturn {
@@ -98,7 +99,6 @@ export function useCreateRequest(): UseCreateRequestReturn {
         console.warn('La solicitud se creó pero no se pudieron relacionar los profesionales');
       }
 
-      console.log('Solicitud creada exitosamente:', newRequest);
       return true;
 
     } catch (err) {

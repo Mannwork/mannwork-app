@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 
 interface RequestStatusBadgeProps {
-  status: "searching" | "pending" | "in_progress" | "completed" | "cancelled";
+  status: "searching" | "pending" | "payed" | "working" | "completed" | "cancelled" | "refunded";
 }
 
 const RequestStatusBadge = ({ status }: RequestStatusBadgeProps) => {
@@ -19,7 +19,19 @@ const RequestStatusBadge = ({ status }: RequestStatusBadgeProps) => {
           bgColor: "bg-yellow-100",
           textColor: "text-yellow-800",
         };
-      case "in_progress":
+      case "payed":
+        return {
+          label: "Pagado",
+          bgColor: "bg-green-100",
+          textColor: "text-green-800",
+        };
+      case "refunded":
+        return {
+          label: "Reembolsado",
+          bgColor: "bg-red-100",
+          textColor: "text-red-800",
+        };
+      case "working":
         return {
           label: "En progreso",
           bgColor: "bg-blue-100",

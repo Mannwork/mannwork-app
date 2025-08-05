@@ -13,7 +13,6 @@ export const getOnboardingStatus = async (userId: string) => {
 
   if (!data) {
     throw new Error("Error fetching data: data es falsy.");
-    
   }
 
   return data?.is_onboarding_complete ?? false;

@@ -1,11 +1,10 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { Pressable, Text, View } from "react-native";
-import { postNewMessage } from "../services/post-new-message";
-import { useQuery } from "@tanstack/react-query";
 import { getChatMessages } from "../services/get-chat-messages";
 import { getQuote } from "../services/get-quote";
-import { router } from "expo-router";
+import { postNewMessage } from "../services/post-new-message";
 
 interface QuoteButtonProps {
     chatId: string;
@@ -49,6 +48,7 @@ const QuoteButton = ({
                         quoteDescription: quote.descriptionservice || "",
                         quoteProfessionalName: quote.professionalName || "",
                         quoteProfessionalAvatar: quote.professionalAvatar || "",
+                        professionalAccessToken: quote.professionalAccessToken || "",
                     },
                 });
             }

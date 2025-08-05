@@ -75,6 +75,7 @@ export default function SelectProfessionalsScreen() {
         category: formData.category,
         subCategory: formData.subcategory,
         professionals: selectedIds,
+        status: "searching"
       });
 
       if (success) {

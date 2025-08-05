@@ -33,26 +33,6 @@ const RequestDetailScreen = () => {
                 data.subcategory ||
                 "Subcategoría no disponible";
 
-            // Mapear el estado de la base de datos al formato esperado
-            const mapStatus = (dbStatus: string) => {
-                switch (dbStatus) {
-                    case "searching":
-                        return "pending";
-                    case "accepted":
-                        return "in_progress";
-                    case "working":
-                        return "in_progress";
-                    case "paid":
-                        return "completed";
-                    case "completed":
-                        return "completed";
-                    case "cancelled":
-                        return "cancelled";
-                    default:
-                        return "pending";
-                }
-            };
-
             // Obtener profesionales asociados a esta solicitud
             const { data: requestProfessionals } = await supabase
                 .from("request_professionals")
@@ -113,11 +93,7 @@ const RequestDetailScreen = () => {
                     province: locationData.province || "",
                 },
                 images: data.photos || [],
-                status: mapStatus(data.status) as
-                    | "pending"
-                    | "in_progress"
-                    | "completed"
-                    | "cancelled",
+                status: data.status,
                 createdAt: data.inserted_at,
                 userRole: userRole || "client",
                 client: {
@@ -131,48 +107,6 @@ const RequestDetailScreen = () => {
     });
 
     const handleClose = () => router.back();
-
-    const handleUpdateStatus = async (
-        newStatus: "searching" | "pending" | "in_progress" | "completed" | "cancelled"
-    ) => {
-        try {
-            // Mapear el estado del frontend al estado de la base de datos
-            const mapStatusToDB = (status: string) => {
-                switch (status) {
-                    case "searching":
-                        return "searching";
-                    case "pending":
-                        return "pending";
-                    case "in_progress":
-                        return "working";
-                    case "completed":
-                        return "completed";
-                    case "cancelled":
-                        return "cancelled";
-                    default:
-                        return "searching";
-                }
-            };
-
-            const dbStatus = mapStatusToDB(newStatus);
-
-            const { error } = await supabase
-                .from("requests")
-                .update({ status: dbStatus })
-                .eq("id", requestId);
-
-            if (error) {
-                console.error("Error al actualizar estado:", error);
-                return;
-            }
-
-            console.log("Estado actualizado a:", newStatus);
-            // TODO: Refrescar los datos o navegar de vuelta
-            router.back();
-        } catch (error) {
-            console.error("Error al actualizar estado:", error);
-        }
-    };
 
     // Nueva función para navegar al perfil del profesional
     const handleProfessionalPress = (userId: string) => {
@@ -204,7 +138,6 @@ const RequestDetailScreen = () => {
             currentUserRole={userRole || "client"}
             isVisible={true}
             onClose={handleClose}
-            onUpdateStatus={handleUpdateStatus}
             onProfessionalPress={handleProfessionalPress}
         />
     );

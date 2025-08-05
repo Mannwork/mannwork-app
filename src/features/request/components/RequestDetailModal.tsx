@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { categoryIcons } from "@/common/types/categories.interface";
 import { useCreateChat } from "../hooks/useCreateChat";
+import { updateRequestStatus } from "../services/update-request-status";
 import { Request } from "./RequestCard";
 import RequestStatusBadge from "./RequestStatusBadge";
 
@@ -13,7 +14,6 @@ interface RequestDetailModalProps {
     currentUserRole: "client" | "professional";
     isVisible: boolean;
     onClose: () => void;
-    onUpdateStatus?: (status: Request["status"]) => void;
     onProfessionalPress?: (userId: string) => void; // Nueva prop
     activeTab?: string; // Nueva prop para distinguir entre enviada y recibida
 }
@@ -23,9 +23,7 @@ const RequestDetailModal = ({
     currentUserRole,
     isVisible,
     onClose,
-    onUpdateStatus,
     onProfessionalPress, // Nueva prop
-    activeTab, // Nueva prop
 }: RequestDetailModalProps) => {
    
     
@@ -86,30 +84,47 @@ const RequestDetailModal = ({
 
     const getPaymentStatus = () => {
         // Mock payment status - esto vendría de la API
-      
         switch (request.status) {
+            case "searching":
+                return {
+                    status: "searching",
+                    label: "Esperando presupuestos",
+                    color: "text-blue-600",
+                };
             case "pending":
                 return {
                     status: "pending",
                     label: "Pendiente de pago",
                     color: "text-yellow-600",
                 };
-            case "in_progress":
+            case "payed":
                 return {
-                    status: "partial",
-                    label: "Pago parcial",
+                    status: "payed",
+                    label: "Pagado",
+                    color: "text-green-600",
+                };
+            case "working":
+                return {
+                    status: "working",
+                    label: "Trabajo en progreso",
                     color: "text-blue-600",
                 };
             case "completed":
                 return {
                     status: "completed",
-                    label: "Pagado",
+                    label: "Trabajo completado",
                     color: "text-green-600",
                 };
             case "cancelled":
                 return {
                     status: "cancelled",
                     label: "Cancelado",
+                    color: "text-red-600",
+                };
+            case "refunded":
+                return {
+                    status: "refunded",
+                    label: "Reembolsado",
                     color: "text-red-600",
                 };
             default:
@@ -127,44 +142,48 @@ const RequestDetailModal = ({
     const getAvailableActions = () => {
         const actions = [];
 
-        // Solo mostrar acciones para solicitudes pendientes o en progreso
-        if (request.status === "pending" || request.status === "in_progress") {
-            if (currentUserRole === "professional") {
-                // Profesionales pueden iniciar trabajo (solo si está pendiente) y cancelar
-                if (request.status === "pending") {
-                    actions.push({
-                        id: "start_work",
-                        label: "Ir al chat",
-                        color: "bg-green-mannwork",
-                        onPress: handleCreateChat,
-                    });
-                }
+        if (request.status === "cancelled" || request.status === "refunded" || request.status === "completed") {
+            return [];
+        }
+
+        if (currentUserRole === "professional") {
+            // Profesionales pueden iniciar trabajo (solo si está pendiente) y cancelar
+            actions.push({
+                id: "start_work",
+                label: "Ir al chat",
+                color: "bg-green-mannwork",
+                onPress: handleCreateChat,
+            });
+
+            if (request.status === "pending" || request.status === "searching") {
                 actions.push({
                     id: "cancel",
                     label: "Rechazar solicitud",
                     color: "bg-red-500",
                     onPress: () => {
                         console.log("Cancelar solicitud presionado");
-                        if (onUpdateStatus) {
-                            onUpdateStatus("cancelled");
-                        } else {
-                            console.log("onUpdateStatus no está definido");
-                        }
                     },
                 });
-            } else {
-                // Clientes solo pueden cancelar
+            }
+        } else {
+            if (request.status === "searching" || request.status === "pending" ) {    
                 actions.push({
                     id: "cancel",
                     label: "Cancelar solicitud",
                     color: "bg-red-500",
                     onPress: () => {
-                        console.log("Cancelar solicitud presionado (cliente)");
-                        if (onUpdateStatus) {
-                            onUpdateStatus("cancelled");
-                        } else {
-                            console.log("onUpdateStatus no está definido");
-                        }
+                        updateRequestStatus("cancelled", request.id);
+                    },
+                });
+            }
+
+            if (request.status === "working" || request.status === "payed") {
+                actions.push({
+                    id: "complete_request",
+                    label: "Finalizar trabajo",
+                    color: "bg-green-mannwork",
+                    onPress: () => {
+                        updateRequestStatus("completed", request.id);
                     },
                 });
             }
@@ -175,7 +194,6 @@ const RequestDetailModal = ({
 
     const availableActions = getAvailableActions();
    
-
     return (
         <View className="flex-1 bg-white">
             {/* Header */}
