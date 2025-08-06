@@ -13,7 +13,7 @@ import {
 } from "@/features/request";
 
 const RequestsScreen = () => {
-  const [activeTab, setActiveTab] = useState<string>("received");
+  const [activeTab, setActiveTab] = useState<"received" | "sent" | "completed">("received");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
   const { data: userRole, isLoading: isLoadingRole } = useUserRole();
@@ -27,12 +27,6 @@ const RequestsScreen = () => {
     }
   }, [userRole]);
 
-  // Obtener solicitudes según el rol y tab activa
-  const getStatusFromTab = (tab: string) => {
-    if (tab === "completed") return "completed";
-    return undefined; // Para "sent" y "received" trae todas las no completadas
-  };
-
   // Lógica para solicitudes enviadas por profesionales
   let requestsQueryRole = userRole;
   if (userRole === "professional" && activeTab === "sent") {
@@ -45,7 +39,7 @@ const RequestsScreen = () => {
     refetch,
   } = useUserRequests({
     userRole: requestsQueryRole || "client",
-    status: getStatusFromTab(activeTab),
+    status: activeTab,
   });
 
   // Filtrar solicitudes basado en la búsqueda
@@ -65,13 +59,13 @@ const RequestsScreen = () => {
     
     // Filtrar por nombre del cliente
     if (request.client.name.toLowerCase().includes(query)) return true;
-    if (request.client.lastName.toLowerCase().includes(query)) return true;
+    if (request.client.last_name.toLowerCase().includes(query)) return true;
     
     // Filtrar por nombre de profesionales
-    const professionalMatch = request.users.some(user => 
-      user.role === "professional" && (
-        user.name.toLowerCase().includes(query) ||
-        user.lastName.toLowerCase().includes(query)
+    const professionalMatch = request.professionals.some(pro => 
+      pro.rol === "professional" && (
+        pro.name.toLowerCase().includes(query) ||
+        pro.last_name.toLowerCase().includes(query)
       )
     );
     if (professionalMatch) return true;
@@ -94,7 +88,7 @@ const RequestsScreen = () => {
     router.push("/(protected)/(mainTabs)/home/search-modal");
   };
 
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = (tab: "received" | "sent" | "completed") => {
     setActiveTab(tab);
   };
 

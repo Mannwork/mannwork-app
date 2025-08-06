@@ -3,7 +3,12 @@ import { Pressable, Text, View } from "react-native";
 interface RequestsTabsProps {
   userRole: "client" | "professional";
   activeTab: string;
-  onTabChange: (tab: string) => void;
+  onTabChange: (tab: "received" | "sent" | "completed") => void;
+}
+
+interface Tab {
+  id: "received" | "sent" | "completed";
+  label: string;
 }
 
 const RequestsTabs = ({
@@ -11,7 +16,8 @@ const RequestsTabs = ({
   activeTab,
   onTabChange,
 }: RequestsTabsProps) => {
-  const getTabs = () => {
+  const getTabs = (): Tab[] => {
+
     if (userRole === "client") {
       return [
         { id: "sent", label: "Enviadas" },

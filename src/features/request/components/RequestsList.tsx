@@ -1,15 +1,17 @@
 import { RefreshControl, ScrollView, View } from "react-native";
 
+import { RequestItem } from "../interfaces/request.interface";
 import EmptyRequestsState from "./EmptyRequestsState";
-import RequestCard, { Request } from "./RequestCard";
+import RequestCard from "./RequestCard";
 
 interface RequestsListProps {
-  requests: Request[];
+  requests: RequestItem[];
   userRole: "client" | "professional";
   activeTab: string;
   isLoading?: boolean;
   onRefresh?: () => void;
-  onRequestPress?: (request: Request) => void;
+  onRequestPress?: (request: RequestItem) => void;
+
   onCreateRequest?: () => void;
   onBrowseRequests?: () => void;
 }
