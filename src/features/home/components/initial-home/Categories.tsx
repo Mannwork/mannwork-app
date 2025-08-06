@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { FlatList, Pressable, Text, View } from "react-native";
-import { useCategories } from "../../common/hooks/useCategories";
+import { useCategories } from "../../../../common/hooks/useCategories";
 
 const categoryIcons: Record<string, string> = {
     Carpintero: "carpenter",

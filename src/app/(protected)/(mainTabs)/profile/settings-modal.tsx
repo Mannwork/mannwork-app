@@ -1,7 +1,7 @@
 import { Stack, useRouter } from "expo-router";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import SettingsModal from "../../../../features/profile/components/SettingsModal";
+import SettingsModal from "../../../../features/profile/components/settings/SettingsModal";
 
 const SettingsModalScreen = () => {
   const insets = useSafeAreaInsets();

@@ -13,7 +13,6 @@ import Google from "@/assets/social/icon-google.png";
 
 const strategyIcons = {
     oauth_google: Google,
-
     oauth_facebook: Facebook,
 };
 

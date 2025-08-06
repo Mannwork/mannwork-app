@@ -1,4 +1,4 @@
-import MembershipScreen from "@/features/home/membership/MembershipScreen";
+import MembershipScreen from "@/features/home/components/membership/MembershipScreen";
 import { View } from "react-native";
 
 export default function MembershipRouteScreen() {

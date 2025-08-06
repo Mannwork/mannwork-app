@@ -6,7 +6,7 @@ import {
   ProfileReviews,
   useCurrentUser,
 } from "@/features/profile";
-import SectionDivider from "@/features/profile/components/SectionDivider";
+import SectionDivider from "@/features/profile/components/initial-profile/SectionDivider";
 import { useUserReviews } from "@/features/profile/hooks/useUserReviews";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 

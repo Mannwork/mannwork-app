@@ -1,5 +1,5 @@
 import { useCategories } from "@/common/hooks/useCategories";
-import SubcategoriesModal from "@/features/home/SubcategoriesModal";
+import SubcategoriesModal from "@/features/home/components/initial-home/SubcategoriesModal";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

@@ -22,10 +22,10 @@ const SignUpLayout = () => {
                 name="select-category"
                 options={{ headerShown: false }}
             />
-            <Stack.Screen name="contact-data" />
-            <Stack.Screen name="ubication-data" />
+            <Stack.Screen name="contact-data" options={{ headerShown: false }} />
+            <Stack.Screen name="ubication-data" options={{ headerShown: false }} />
             <Stack.Screen name="personal-data" />
-            <Stack.Screen name="review" />
+            <Stack.Screen name="review" options={{ headerShown: false }} />
         </Stack>
     );
 };
