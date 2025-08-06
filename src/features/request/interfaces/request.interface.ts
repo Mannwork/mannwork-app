@@ -7,7 +7,7 @@ export interface RequestItemLocation {
 export interface RequestItemClient {
     name: string;
     last_name: string;
-    clientId: string;
+    id: string;
 }
 
 export interface RequestItemProfessional {
@@ -15,6 +15,7 @@ export interface RequestItemProfessional {
     name: string;
     last_name: string;
     rol: "professional";
+
 }
 
 export interface RequestItem {

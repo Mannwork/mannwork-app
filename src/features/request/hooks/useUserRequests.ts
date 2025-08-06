@@ -33,6 +33,8 @@ export const useUserRequests = ({ userRole, status }: UseUserRequestsOptions) =>
       }
     },
     enabled: !!userId && !!status,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
 

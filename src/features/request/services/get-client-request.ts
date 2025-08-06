@@ -16,7 +16,7 @@ export const getClientRequests = async (clientId: string, status: string[]): Pro
             inserted_at,
             category: categories(name),
             subcategory: subcategories(name),
-            client: users!requests_client_fkey(clientId: id, name, last_name),
+            client: users!requests_client_fkey(id, name, last_name),
             professionals: request_professionals(...users(id, name, last_name, rol))
         `)
         .eq("client", clientId)

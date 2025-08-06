@@ -64,13 +64,14 @@ export default function SelectProfessionalsScreen() {
 
     try {
       setIsLoading(true);
-      await handleUploadImages(userId, formData.images);
+      const images = await handleUploadImages(userId, formData.images);
+
 
       const success = await createRequest({
         name: formData.title,
         description: formData.description,
         location: formData.locationData,
-        photos: formData.images,
+        photos: images as string[],
         client: userId,
         category: formData.category,
         subCategory: formData.subcategory,

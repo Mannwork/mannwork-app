@@ -6,7 +6,9 @@ export const getProfessionalRequest = async (proId: string, status: string[]): P
     const { data: requestIdsData, error: idsError } = await supabase
         .from('request_professionals')
         .select('request_id')
-        .eq('professional_id', proId);
+        .eq('professional_id', proId)
+        .in('status', ['selected', 'completed']);
+
 
     if (idsError) {
         console.error("Error fetching request IDs:", idsError);

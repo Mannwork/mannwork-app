@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 
 import { categoryIcons } from "@/common/types/categories.interface";
+import { useAuth } from "@clerk/clerk-react";
 import { RequestItem } from "../interfaces/request.interface";
 import RequestImages from "./RequestImages";
 import RequestLocation from "./RequestLocation";
@@ -10,16 +11,15 @@ import RequestStatusBadge from "./RequestStatusBadge";
 interface RequestCardProps {
     request: RequestItem;
     onPress?: (request: RequestItem) => void;
-    currentUserRole: "client" | "professional";
 }
 
 const RequestCard = ({
     request,
     onPress,
-    currentUserRole,
 }: RequestCardProps) => {
-    const formatDate = (dateString: Date) => {
+    const { userId } = useAuth();
 
+    const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
         return date.toLocaleDateString("es-ES", {
             day: "2-digit",
@@ -29,7 +29,7 @@ const RequestCard = ({
     };
 
     const getUsersDisplay = () => {
-        if (currentUserRole === "client") {
+        if (request.client.id === userId) {
             // Cliente ve los profesionales
             const professionals = request.professionals
 
@@ -56,7 +56,6 @@ const RequestCard = ({
     const getCategoryIcon = (categoryName: string) => {
         return categoryIcons[categoryName] || "category";
     };
-
 
     return (
         <Pressable
@@ -89,13 +88,13 @@ const RequestCard = ({
                 <View className="flex-row items-center mb-2">
                     <MaterialIcons
                         name={
-                            currentUserRole === "client" ? "person" : "business"
+                            request.client.id === userId ? "business" : "person"
                         }
                         size={16}
                         color="#6B7280"
                     />
                     <Text className="text-sm text-gray-600 ml-1">
-                        {currentUserRole === "client"
+                        {request.client.id === userId
                             ? "Profesional: "
                             : "Cliente: "}
                         {usersDisplay}

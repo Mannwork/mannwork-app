@@ -56,7 +56,6 @@ const RequestsList = ({
           key={request.id}
           request={request}
           onPress={onRequestPress}
-          currentUserRole={userRole}
         />
       ))}
       <View className="h-4" />
