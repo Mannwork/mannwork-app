@@ -6,12 +6,14 @@ type CustomInputProps<T extends FieldValues> = {
     control: Control<T>; // custom fields
     name: Path<T>;
     rightIcon?: ReactNode;
-} & TextInputProps;
+    inputClassName?: string;
+} & Omit<TextInputProps, 'className'>;
 
 export default function CustomInput<T extends FieldValues>({
     control,
     name,
     rightIcon,
+    inputClassName = '',
     ...props
 }: CustomInputProps<T>) {
     return (
@@ -30,19 +32,19 @@ export default function CustomInput<T extends FieldValues>({
                             onChangeText={onChange}
                             onBlur={onBlur}
                             className={
-                                "p-3 border rounded-xl pr-10 w-full bg-white " +
-                                props.className +
+                                `p-4 border rounded-xl w-full bg-white text-base ${inputClassName} ` +
                                 (error
                                     ? " border-red-500"
-                                    : "border-text-secondary")
+                                    : "border-gray-300 focus:border-primary")
                             }
                             style={{
-                                paddingRight: rightIcon ? 40 : 16, // Espacio adicional para el ícono
+                                paddingRight: rightIcon ? 43 : 16, // Espacio adicional para el ícono
+                                height: 56, // Altura fija para consistencia
                             }}
                         />
                         {rightIcon && (
                             <View 
-                                className="absolute right-2 top-0 bottom-0 justify-center pr-3"
+                                className="absolute right-0 top-0 bottom-0 justify-center pr-3"
                                 pointerEvents="box-none"
                             >
                                 {rightIcon}

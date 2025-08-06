@@ -1,4 +1,4 @@
-import { EditProfessionsModal } from "@/features/profile/components/EditProfessionsModal";
+import { EditProfessionsModal } from "@/features/profile/components/settings/EditProfessionsModal";
 import { useCurrentUser } from "@/features/profile/hooks/useCurrentUser";
 import { useUpdateProfile } from "@/features/profile/hooks/useUpdateProfile";
 import { useProfessionsStore } from "@/features/profile/store/professions.store";

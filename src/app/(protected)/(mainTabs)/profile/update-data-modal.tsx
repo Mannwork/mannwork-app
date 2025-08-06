@@ -1,4 +1,4 @@
-import EditUserModal from "@/features/profile/components/EditUserModal";
+import EditUserModal from "@/features/profile/components/settings/EditUserModal";
 import { router } from "expo-router";
 
 const UpdateDataModal = () => {

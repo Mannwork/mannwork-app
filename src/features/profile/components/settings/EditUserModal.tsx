@@ -15,9 +15,9 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useCurrentUser } from "../hooks/useCurrentUser";
-import { useUpdateProfile } from "../hooks/useUpdateProfile";
-import { useProfessionsStore } from "../store/professions.store";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { useUpdateProfile } from "../../hooks/useUpdateProfile";
+import { useProfessionsStore } from "../../store/professions.store";
 
 interface EditUserModalProps {
   visible: boolean;
@@ -196,7 +196,7 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
         </Text>
         <TextInput
           className="bg-gray-50 rounded-xl px-4 py-3 text-base border border-gray-200 min-h-[100px] pr-2"
-          placeholder="Cuéntanos sobre ti.. ."
+          placeholder="Cuéntanos sobre ti..."
           value={description}
           onChangeText={(text) => {
             if (text.length <= 500) {

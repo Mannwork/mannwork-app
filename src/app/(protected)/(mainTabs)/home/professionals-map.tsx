@@ -1,4 +1,4 @@
-import ProfessionalsMap from "@/features/home/components/ProfessionalsMap";
+import ProfessionalsMap from "@/features/home/components/professional-selecteds/ProfessionalsMap";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";

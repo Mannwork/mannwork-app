@@ -1,5 +1,5 @@
+import ProfessionalStats from "@/features/home/components/stats/professionalStats";
 import { useProfessionalStats } from "@/features/home/hooks/useProfessionalStats";
-import ProfessionalStats from "@/features/home/professionalStats";
 import { useAuth } from "@clerk/clerk-expo";
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 

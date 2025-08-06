@@ -3,8 +3,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
-import useHomeCategories from "./hooks/useHomeCategories";
-import { useSearchStore } from "./stores/searchStore";
+import useHomeCategories from "../../hooks/useHomeCategories";
+import { useSearchStore } from "../../stores/searchStore";
 
 const categoryIcons: Record<string, string> = {
     Carpintero: "carpenter",

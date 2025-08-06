@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSearchStore } from "./stores/searchStore";
+import { useSearchStore } from "../../stores/searchStore";
 
 const categoryIcons: Record<string, string> = {
   Carpintero: "carpenter",

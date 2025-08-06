@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 
 import { router } from "expo-router";
 
@@ -82,34 +82,54 @@ const LoginForm = () => {
     };
 
     return (
-        <MyKeyboardAvoidingView className="justify-between p-8">
-            <View>
-                <CustomInput
-                    control={control}
-                    name="email"
-                    placeholder="Ingrese su correo electrónico"
-                    autoFocus
-                    keyboardType="email-address"
-                    autoComplete="email"
-                    autoCapitalize="none"
+        <MyKeyboardAvoidingView className="flex-1">
+            <View className="items-center justify-center h-1/3 bg-[#2D7A3E]">
+                <Image 
+                    source={require('@/assets/logo_blanco.png')} 
+                    className="w-72 h-72"
+                    resizeMode="contain"
                 />
-                <CustomInput
+            </View>
+            
+            <View className="flex-1 bg-white rounded-t-[40px] -mt-8 w-full px-4 pt-12">
+                <View className="bg-white rounded-3xl px-6 w-full">
+                    <View className="items-center mb-6">
+                        <Text className="text-2xl font-bold text-primary mb-1">Bienvenido!</Text>
+                        <Text className="text-text-secondary">Inicia sesión para continuar</Text>
+                    </View>
+                <View className="mb-4">
+                    <Text className="text-sm font-medium text-text-primary mb-1">Correo electrónico</Text>
+                    <CustomInput
+                        control={control}
+                        name="email"
+                        placeholder="tucorreo@ejemplo.com"
+                        autoFocus
+                        keyboardType="email-address"
+                        autoComplete="email"
+                        autoCapitalize="none"
+                        inputClassName="h-14 text-base px-4"
+                    />
+                </View>
+                <View className="mb-2">
+                    <Text className="text-sm font-medium text-text-primary mb-1">Contraseña</Text>
+                    <CustomInput
                     control={control}
                     name="password"
                     placeholder="Ingrese su contraseña"
                     secureTextEntry={!showPassword}
                     autoComplete="password"
                     autoCapitalize="none"
+                    inputClassName="h-14 text-base px-4 pr-12"
                     rightIcon={
                         <TouchableOpacity
                             onPress={() => setShowPassword(!showPassword)}
-                            className="p-1"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2"
                             hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
                         >
                             <MaterialIcons
                                 name={showPassword ? "visibility-off" : "visibility"}
-                                size={24}
-                                color="#2D7A3E"
+                                size={22}
+                                color="#6B7280"
                             />
                         </TouchableOpacity>
                     }
@@ -121,29 +141,42 @@ const LoginForm = () => {
                     </Text>
                 )}
 
-                <View className="flex-row justify-between">
-                    <Pressable onPress={goToForgotPass}>
-                        <Text className="text-sm text-text-secondary">
+                <View className="flex-row justify-end mb-6">
+                    <Pressable 
+                        onPress={goToForgotPass}
+                        className="py-2"
+                    >
+                        <Text className="text-sm font-medium text-primary">
                             ¿Olvidaste tu contraseña?
                         </Text>
                     </Pressable>
+                </View>
+                
+                <AuthButton 
+                    onPress={handleSubmit(onSignIn)}
+                    className="mb-6"
+                >
+                    {loading ? (
+                        <ActivityIndicator color="white" size="small" />
+                    ) : (
+                        <Text className="text-base font-semibold text-white">Iniciar sesión</Text>
+                    )}
+                </AuthButton>
+
+                <View className="flex-row justify-center items-center mt-4">
+                    <Text className="text-text-secondary">
+                        ¿No tienes una cuenta?{" "}
+                    </Text>
                     <Pressable onPress={goToRegister}>
-                        <Text className="text-sm text-text-secondary">
-                            ¿No tienes una cuenta?{" "}
-                            <Text className="font-semibold">Registrate</Text>
+                        <Text className="text-primary font-semibold">
+                            Regístrate aquí
                         </Text>
                     </Pressable>
                 </View>
+                </View>
             </View>
-
-            <AuthButton onPress={handleSubmit(onSignIn)}>
-                {loading ? (
-                    <ActivityIndicator color="#2d7a3e" size="small" />
-                ) : (
-                    <Text className="font-semibold text-white">Iniciar sesión</Text>
-                )}
-            </AuthButton>
-        </MyKeyboardAvoidingView>
+        </View>
+    </MyKeyboardAvoidingView>
     );
 };
 

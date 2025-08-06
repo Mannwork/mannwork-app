@@ -1,13 +1,13 @@
 import { getAuthMpUrl } from "@/common/utils/mp";
-import Categories from "@/features/home/Categories";
-import MpLinkCard from "@/features/home/components/MpLinkCard";
-import StatsLinkCard from "@/features/home/components/StatsLinkCard";
-import Header from "@/features/home/Header";
-import InfoCardSwiper from "@/features/home/InfoCardSwiper";
-import LoadingState from "@/features/home/LoadingState";
-import RecentSearches from "@/features/home/RecentSearches";
-import SearchBarInput from "@/features/home/SearchbarInput";
-import SubcategoryCarrousel from "@/features/home/SubcategoryCarrousel";
+import Categories from "@/features/home/components/initial-home/Categories";
+import Header from "@/features/home/components/initial-home/Header";
+import InfoCardSwiper from "@/features/home/components/initial-home/InfoCardSwiper";
+import LoadingState from "@/features/home/components/initial-home/LoadingState";
+import MpLinkCard from "@/features/home/components/initial-home/MpLinkCard";
+import RecentSearches from "@/features/home/components/initial-home/RecentSearches";
+import SearchBarInput from "@/features/home/components/initial-home/SearchbarInput";
+import StatsLinkCard from "@/features/home/components/initial-home/StatsLinkCard";
+import SubcategoryCarrousel from "@/features/home/components/initial-home/SubcategoryCarrousel";
 import {
     useCurrentUser,
 } from "@/features/profile";

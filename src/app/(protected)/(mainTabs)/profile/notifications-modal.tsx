@@ -1,3 +1,3 @@
-import NotificationsModal from "@/features/profile/components/NotificationsModal";
+import NotificationsModal from "@/features/profile/components/settings/NotificationsModal";
 
 export default NotificationsModal;

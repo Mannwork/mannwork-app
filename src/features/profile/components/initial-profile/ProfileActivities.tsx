@@ -2,7 +2,7 @@ import { useCategories } from "@/common/hooks/useCategories";
 import { categoryIcons } from "@/common/types/categories.interface";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
-import { useSubcategoriesByCategories } from "../hooks/useSubcategoriesByCategories";
+import { useSubcategoriesByCategories } from "../../hooks/useSubcategoriesByCategories";
 
 interface ProfileActivitiesProps {
   professions: {

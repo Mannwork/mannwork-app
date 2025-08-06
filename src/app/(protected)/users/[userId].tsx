@@ -6,7 +6,7 @@ import {
   ProfileMap,
   ProfileReviews,
 } from "@/features/profile";
-import SectionDivider from "@/features/profile/components/SectionDivider";
+import SectionDivider from "@/features/profile/components/initial-profile/SectionDivider";
 import { useUserReviews } from "@/features/profile/hooks/useUserReviews";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
