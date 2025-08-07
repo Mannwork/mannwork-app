@@ -1,7 +1,7 @@
 import { supabase } from "@/common/lib/supabase/supabaseClient";
 
 export const updateRefuseRequest = async (requestId: string, professionalId: string) => {
-    try {
+    try {    
         const { data, error } = await supabase
             .from('request_professionals')
             .update({ status: 'refused' })
@@ -11,6 +11,7 @@ export const updateRefuseRequest = async (requestId: string, professionalId: str
         if (error) {
             throw error;
         }
+        console.log("xd2");
 
         return data;
     } catch (e) {

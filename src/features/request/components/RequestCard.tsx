@@ -2,52 +2,24 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 
 import { categoryIcons } from "@/common/types/categories.interface";
+import { useAuth } from "@clerk/clerk-react";
+import { RequestItem } from "../interfaces/request.interface";
 import RequestImages from "./RequestImages";
 import RequestLocation from "./RequestLocation";
 import RequestStatusBadge from "./RequestStatusBadge";
 
-export interface Request {
-    id: string;
-    title: string;
-    description: string;
-    category: string;
-    subcategory: string;
-    location: {
-        address: string;
-        city: string;
-        province: string;
-    };
-    images: string[];
-    status: "searching" | "pending" | "payed" | "working" | "completed" | "cancelled" | "refunded";
-    createdAt: string;
-    userRole: "client" | "professional";
-    // Información del usuario que creó la solicitud
-    client: {
-        name: string;
-        lastName: string;
-        clientId?: string;
-    };
-    // Información de los profesionales (para clientes) o clientes (para profesionales)
-    users: {
-        id: string;
-        name: string;
-        lastName: string;
-        role: "client" | "professional";
-    }[];
-}
-
 interface RequestCardProps {
-    request: Request;
-    onPress?: (request: Request) => void;
-    currentUserRole: "client" | "professional";
+    request: RequestItem;
+    onPress?: (request: RequestItem) => void;
 }
 
 const RequestCard = ({
     request,
     onPress,
-    currentUserRole,
 }: RequestCardProps) => {
-    const formatDate = (dateString: string) => {
+    const { userId } = useAuth();
+
+    const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
         return date.toLocaleDateString("es-ES", {
             day: "2-digit",
@@ -57,27 +29,24 @@ const RequestCard = ({
     };
 
     const getUsersDisplay = () => {
-        if (currentUserRole === "client") {
+        if (request.client.id === userId) {
             // Cliente ve los profesionales
-            const professionals = request.users.filter(
-                (user) => user.role === "professional"
-            );
-            if (professionals.length === 0) return null;
+            const professionals = request.professionals
 
             if (professionals.length === 1) {
                 const prof = professionals[0];
-                return `${prof.name} ${prof.lastName.charAt(0)}.`;
+                return `${prof.name} ${prof.last_name.charAt(0)}.`;
             } else {
                 const firstProf = professionals[0];
-                return `${firstProf.name} ${firstProf.lastName.charAt(0)}. y ${
+                return `${firstProf.name} ${firstProf.last_name.charAt(0)}. y ${
                     professionals.length - 1
                 } más`;
             }
         } else {
             // Profesional ve el cliente
-            const client = request.users.find((user) => user.role === "client");
+            const { client } = request;
             if (!client) return null;
-            return `${client.name} ${client.lastName.charAt(0)}.`;
+            return `${client.name} ${client.last_name.charAt(0)}.`;
         }
     };
 
@@ -87,7 +56,6 @@ const RequestCard = ({
     const getCategoryIcon = (categoryName: string) => {
         return categoryIcons[categoryName] || "category";
     };
-
 
     return (
         <Pressable
@@ -120,13 +88,13 @@ const RequestCard = ({
                 <View className="flex-row items-center mb-2">
                     <MaterialIcons
                         name={
-                            currentUserRole === "client" ? "person" : "business"
+                            request.client.id === userId ? "business" : "person"
                         }
                         size={16}
                         color="#6B7280"
                     />
                     <Text className="text-sm text-gray-600 ml-1">
-                        {currentUserRole === "client"
+                        {request.client.id === userId
                             ? "Profesional: "
                             : "Cliente: "}
                         {usersDisplay}

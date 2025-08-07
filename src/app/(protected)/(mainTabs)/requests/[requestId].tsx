@@ -60,26 +60,9 @@ const RequestDetailScreen = () => {
                 requestProfessionals?.map((rp: any) => ({
                     id: rp.professional_id,
                     name: rp.users?.name || "",
-                    lastName: rp.users?.last_name || "",
-                    role: "professional" as const,
+                    last_name: rp.users?.last_name || "",
+                    rol: "professional" as const,
                 })) || [];
-
-            // Crear array de usuarios incluyendo cliente y profesionales
-            const users = [
-                // Agregar cliente si existe
-                ...(clientData
-                    ? [
-                          {
-                              id: clientData.id,
-                              name: clientData.name,
-                              lastName: clientData.last_name,
-                              role: "client" as const,
-                          },
-                      ]
-                    : []),
-                // Agregar profesionales
-                ...professionals,
-            ];
 
             return {
                 id: data.id,
@@ -98,9 +81,10 @@ const RequestDetailScreen = () => {
                 userRole: userRole || "client",
                 client: {
                     name: clientData?.name || "",
-                    lastName: clientData?.last_name || "",
+                    last_name: clientData?.last_name || "",
+                    id: clientData?.id || "",
                 },
-                users: users,
+                professionals,
             };
         },
         enabled: !!requestId && !!allSubcategories.length,

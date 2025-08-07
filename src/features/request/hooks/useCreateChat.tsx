@@ -3,11 +3,11 @@ import { useAuth } from "@clerk/clerk-expo";
 import { supabase } from "@/common/lib/supabase/supabaseClient";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Request } from "../components/RequestCard";
+import { RequestItem } from "../interfaces/request.interface";
 import { createChatForRequest } from "../services/create-chat-for-request";
 
 interface Props {
-    request: Request;
+    request: RequestItem;
 }
 
 export const useCreateChat = ({ request }: Props) => {
@@ -22,9 +22,7 @@ export const useCreateChat = ({ request }: Props) => {
             throw new Error("No user ID");
         }
 
-        const clientId = request.users.find(
-            (user) => user.role === "client"
-        )?.id;
+        const clientId = request.client?.id;
 
         if (!clientId) {
             setIsLoading(false);

@@ -84,6 +84,7 @@ const useSupabaseStorage = (bucket: string) => {
             );
 
             setImagesUri(uploadedImageUrls);
+            return uploadedImageUrls
         } catch (error) {
             console.log("Error al subir las imágenes:", error);
             Alert.alert("Error", "Ocurrió un problema al subir las imágenes.");

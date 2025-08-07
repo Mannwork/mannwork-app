@@ -6,13 +6,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { categoryIcons } from "@/common/types/categories.interface";
 import { router } from "expo-router";
 import { useCreateChat } from "../hooks/useCreateChat";
+import { RequestItem } from "../interfaces/request.interface";
 import { updateRefuseRequest } from "../services/update-refuse-request";
 import { updateRequestStatus } from "../services/update-request-status";
-import { Request } from "./RequestCard";
 import RequestStatusBadge from "./RequestStatusBadge";
 
 interface RequestDetailModalProps {
-    request: Request;
+    request: RequestItem;
     currentUserRole: "client" | "professional";
     isVisible: boolean;
     onClose: () => void;
@@ -27,8 +27,6 @@ const RequestDetailModal = ({
     onClose,
     onProfessionalPress, // Nueva prop
 }: RequestDetailModalProps) => {
-   
-    
     const insets = useSafeAreaInsets();
     const { userId } = useAuth();
 
@@ -37,13 +35,13 @@ const RequestDetailModal = ({
     // Determinar si es una solicitud enviada por profesional (no soy destinatario)
     const isProSent =
         currentUserRole === "professional" &&
-        !request.users.some(
-            (u) => u.role === "professional" && u.id === userId
+        !request.professionals.some(
+            (u) => u.rol === "professional" && u.id === userId
         );
 
     if (!isVisible) return null;
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
         return date.toLocaleDateString("es-ES", {
             day: "2-digit",
@@ -56,23 +54,14 @@ const RequestDetailModal = ({
 
     const getUsersDisplay = () => {
         if (currentUserRole === "client") {
-            const professionals = request.users.filter(
-                (user) => user.role === "professional"
-            );
-            return professionals;
+            return request.professionals;
         } else {
-            console.log(request.users, "users");
-
             if (isProSent) {
                 // Profesional viendo su propia solicitud enviada: mostrar solo destinatarios
-                return request.users.filter(
-                    (user) => user.role === "professional"
-                );
+                return request.professionals
             }
-            console.log(isProSent, "es pro");
-
             // Profesional destinatario: mostrar al cliente
-            const client = request.users.find((user) => user.role === "client");
+            const client = request.client;
             return client ? [client] : [];
         }
     };
@@ -162,9 +151,10 @@ const RequestDetailModal = ({
                     id: "cancel",
                     label: "Rechazar solicitud",
                     color: "bg-red-500",
-                    onPress: () => {
-                        updateRefuseRequest(request.id, userId as string);
-                        router.back();
+                    onPress: async () => {
+                        await updateRefuseRequest(request.id, userId as string);
+
+                        router.replace("/(protected)/(mainTabs)/requests");
                     },
                 });
             }
@@ -174,9 +164,10 @@ const RequestDetailModal = ({
                     id: "cancel",
                     label: "Cancelar solicitud",
                     color: "bg-red-500",
-                    onPress: () => {
-                        updateRequestStatus("cancelled", request.id);
-                        router.back();
+                    onPress: async () => {
+                        await updateRequestStatus("cancelled", request.id);
+
+                        router.replace("/(protected)/(mainTabs)/requests");
                     },
                 });
             }
@@ -362,16 +353,16 @@ const RequestDetailModal = ({
                                         <View className="w-12 h-12 bg-green-mannwork rounded-full items-center justify-center">
                                             <Text className="text-white font-bold text-lg">
                                                 {user.name.charAt(0)}
-                                                {user.lastName.charAt(0)}
+                                                {user.last_name.charAt(0)}
                                             </Text>
                                         </View>
                                         <View className="ml-3">
                                             <Text className="text-gray-900 font-semibold text-base">
                                                 {user.name}{" "}
-                                                {user.lastName.charAt(0)}.
+                                                {user.last_name.charAt(0)}.
                                             </Text>
                                             <Text className="text-gray-600 text-sm">
-                                                {user.role === "professional"
+                                                {isProSent || currentUserRole === "client"
                                                     ? "Profesional"
                                                     : "Cliente"}
                                             </Text>
