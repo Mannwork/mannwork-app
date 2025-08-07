@@ -17,13 +17,53 @@ export const getProfessionalRequest = async (proId: string, status: string[]): P
 
     const requestIds = requestIdsData.map(item => item.request_id);
 
-     if (requestIds.length === 0) {
+     if (requestIds.length === 0 && status.includes("searching")) {
         return [];
     }
 
-     const { data, error } = await supabase
-        .from("requests")
-        .select(`
+    if (status.includes("completed")) {
+        const orConditions = `client.eq.${proId},id.in.(${requestIds.join(',')})`;
+    
+         const { data, error } = await supabase
+            .from("requests")
+            .select(`
+                id,
+                name,
+                description,
+                location,
+                photos,
+                status,
+                inserted_at,
+                category: categories(name),
+                subcategory: subcategories(name),
+                client: users!requests_client_fkey(clientId: id, name, last_name),
+                professionals: request_professionals(...users(id, name, last_name, rol))
+            `)
+            .or(orConditions)
+            .in("status", status)
+            .order("inserted_at", { ascending: false });
+    
+        if (error) {
+            console.error("Error fetching client requests:", error);
+            throw new Error(error.message);
+        }
+        
+        const formattedData = data.map((request: any) => ({
+            ...request,
+            category: request.category.name || "Sin categoría",
+            subcategory: request.subcategory.name || "Sin subcategoría",
+            userRole: "professional",
+            location: JSON.parse(request.location),
+            title: request.name,
+            images: request.photos,
+            createdAt: request.inserted_at
+        }));
+    
+        return formattedData as RequestItem[];
+    } else {
+        const { data, error } = await supabase
+            .from("requests")
+            .select(`
             id,
             name,
             description,
@@ -35,17 +75,18 @@ export const getProfessionalRequest = async (proId: string, status: string[]): P
             subcategory: subcategories(name),
             client: users!requests_client_fkey(clientId: id, name, last_name),
             professionals: request_professionals(...users(id, name, last_name, rol))
-        `)
-        .in("id", requestIds)
-        .in("status", status)
-        .order("inserted_at", { ascending: false });
+            `)
+            .in("id", requestIds)
+            .in("status", status)
+            .order("inserted_at", { ascending: false });
 
-    if (error) {
-        console.error("Error fetching client requests:", error);
-        throw new Error(error.message);
-    }
-    
-    const formattedData = data.map((request: any) => ({
+
+        if (error) {
+            console.error("Error fetching client requests:", error);
+            throw new Error(error.message);
+        }
+
+        const formattedData = data.map((request: any) => ({
         ...request,
         category: request.category.name || "Sin categoría",
         subcategory: request.subcategory.name || "Sin subcategoría",
@@ -54,7 +95,9 @@ export const getProfessionalRequest = async (proId: string, status: string[]): P
         title: request.name,
         images: request.photos,
         createdAt: request.inserted_at
-    }));
+        }));
 
-    return formattedData as RequestItem[];
+        return formattedData as RequestItem[];
+    }
+
 }
