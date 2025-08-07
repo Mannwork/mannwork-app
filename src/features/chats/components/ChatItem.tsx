@@ -64,7 +64,10 @@ const ChatItem = ({ chat }: ChatItemProps) => {
             professional_id: chat.professional_id,
         });
 
-        router.push(`/chats/${chat.id}`);
+        router.push({
+            pathname: "/chats/[chatId]",
+            params: { chatId: chat.id, client: chat.client_id },
+        });
     };
 
     return (

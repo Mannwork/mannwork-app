@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MessageItem from "../../../../features/chats/components/MessageItem";
 
 const ChatScreen = () => {
-    const { chatId } = useLocalSearchParams();
+    const { chatId, client } = useLocalSearchParams();
     const { userId } = useAuth();
     const {
         data: messagesPage,
@@ -47,18 +47,19 @@ const ChatScreen = () => {
     if (error) return <Text>Error al cargar mensajes</Text>;
 
     const messages = messagesPage?.pages.flatMap((page) => page.messages) || [];
-    const hasActiveQuote = messagesPage?.pages.some((page) => page.hasActiveQuote) || false;
+    const hasActiveQuote =
+        messagesPage?.pages.some((page) => page.hasActiveQuote) || false;
 
     const renderMessage = ({ item }: { item: any }) => (
-            <MessageItem
-                userLogged={userId as string}
-                message={item}
-                onQuoteRequest={
-                    userRole === "professional" ? handleQuoteRequest : undefined
-                }
-                isQuoted={hasActiveQuote}
-            />
-    )
+        <MessageItem
+            userLogged={userId as string}
+            message={item}
+            onQuoteRequest={
+                userRole === "professional" ? handleQuoteRequest : undefined
+            }
+            isQuoted={hasActiveQuote}
+        />
+    );
 
     const handleFetchNextPage = async () => {
         if (hasNextPage) {
@@ -96,11 +97,13 @@ const ChatScreen = () => {
                 />
 
                 {/* Botón de cotización */}
-                {userRole === "client" && (
+                {userId === client && userRole && (
                     <QuoteButton
                         chatId={chatId as string}
                         userRole={userRole}
-                        hasQuote={messagesPage?.pages.some((page) => page.hasActiveQuote)}
+                        hasQuote={messagesPage?.pages.some(
+                            (page) => page.hasActiveQuote
+                        )}
                     />
                 )}
 
