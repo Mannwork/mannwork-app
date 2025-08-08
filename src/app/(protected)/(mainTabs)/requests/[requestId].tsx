@@ -38,15 +38,16 @@ const RequestDetailScreen = () => {
                 .from("request_professionals")
                 .select(
                     `
-          professional_id,
-          users!request_professionals_professional_id_fkey(
-            id,
-            name,
-            last_name
-          )
-        `
+                        professional_id,
+                        users!request_professionals_professional_id_fkey(
+                            id,
+                            name,
+                            last_name
+                        )
+                    `
                 )
-                .eq("request_id", requestId);
+                .eq("request_id", requestId)
+                .neq("status", "refused");
 
             // Obtener información del cliente
             const { data: clientData } = await supabase
@@ -85,12 +86,14 @@ const RequestDetailScreen = () => {
                     id: clientData?.id || "",
                 },
                 professionals,
+                professionalsCount: professionals.length,
             };
         },
         enabled: !!requestId && !!allSubcategories.length,
     });
 
-    const handleClose = () => router.back();
+    const handleClose = () =>
+        router.replace("/(protected)/(mainTabs)/requests");
 
     // Nueva función para navegar al perfil del profesional
     const handleProfessionalPress = (userId: string) => {
