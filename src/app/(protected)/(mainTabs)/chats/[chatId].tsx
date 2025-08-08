@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MessageItem from "../../../../features/chats/components/MessageItem";
 
 const ChatScreen = () => {
-    const { chatId } = useLocalSearchParams();
+    const { chatId, client } = useLocalSearchParams();
     const { userId } = useAuth();
     const {
         data: messagesPage,
@@ -96,7 +96,7 @@ const ChatScreen = () => {
                 />
 
                 {/* Botón de cotización */}
-                {userRole === "client" && (
+                {userId === client && userRole && (
                     <QuoteButton
                         chatId={chatId as string}
                         userRole={userRole}

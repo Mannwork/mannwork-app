@@ -48,7 +48,6 @@ export default function SelectProfessionalsScreen() {
       maxDistance: 50, // 50km máximo
     });
     
-    
 
   const handleSelect = (id: string) => {
     if (selectedIds.includes(id)) {
@@ -94,6 +93,7 @@ export default function SelectProfessionalsScreen() {
       name: `${prof.name} ${prof.last_name}`,
       lastInitial: prof.last_name.charAt(0),
       rating: prof.calification,
+      total_califications: prof.total_califications,
       reviews: 0, // TODO: Implementar reviews
       category: `${params.categoryName} • ${params.subcategoryName}`,
       address: prof.ubication_json.address || "Ubicación no disponible",

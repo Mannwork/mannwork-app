@@ -2,17 +2,28 @@ import { supabase } from "@/common/lib/supabase/supabaseClient";
 import { useEffect, useState } from "react";
 
 interface ProfessionalStats {
-  jobsThisMonth: number;
+  // Métricas principales
   totalJobs: number;
-  incomeThisMonth: number;
+  completedJobs: number;
+  pendingRequests: number;
+  workingJobs: number;
+  cancelledJobs: number;
+  requestsReceived: number;
+  
+  // Tasas
+  acceptanceRate: number;
+  completionRate: number;
+  cancellationRate: number;
+  successRate: number;
+  
+  // Ingresos
   netIncome: number;
   avgIncomePerJob: number;
+  incomeThisMonth: number;
   growthVsLastMonth: number;
-  acceptanceRate: number;
-  responseRate: number;
-  successRate: number;
+  
+  // Otros
   profileViews: number;
-  requestsReceived: number;
   topZones: string[];
   isPremium: boolean;
   commissionSavings: number;
@@ -40,12 +51,12 @@ export function useProfessionalStats(userId: string) {
           .single();
         if (userError) throw userError;
 
-        // 2. Obtener IDs de requests completadas para este profesional
+        // 2. Obtener requests completadas para este profesional
         const { data: professionalRequests, error: reqError } = await supabase
           .from("request_professionals")
-          .select("request_id, requests(*, bill)", { count: 'exact' })
+          .select("request_id, requests!inner(*, bill)")
           .eq("professional_id", userId)
-          .eq("status", "accepted");
+          .eq("requests.status", "completed");
         if (reqError) throw reqError;
         
         // 3. Obtener detalles de las requests completadas
@@ -91,32 +102,61 @@ export function useProfessionalStats(userId: string) {
           ? Math.round(((incomeThisMonth - lastMonthIncome) / lastMonthIncome) * 100) 
           : incomeThisMonth > 0 ? 100 : 0;
 
-        // Obtener todas las requests del profesional (aceptadas, rechazadas, etc.)
+        // Obtener todas las requests del profesional (todas las que le han llegado)
         const { data: allProfessionalRequests } = await supabase
           .from("request_professionals")
-          .select("status, requests(*, bill)", { count: 'exact' })
+          .select(`
+            request_id, 
+            requests!inner(
+              id,
+              status,
+              bill
+            )
+          `, { count: 'exact' })
           .eq("professional_id", userId);
+
         
-        const totalRequests = allProfessionalRequests?.length || 0;
-        const acceptedRequests = allProfessionalRequests?.filter(
-          (r: any) => r.status === 'accepted'
-        ).length || 0;
+        // Filtrar solo los estados que nos interesan (pending, working, completed, cancelled)
+        const relevantRequests = allProfessionalRequests?.filter(
+          (r: any) => ['searching', 'pending', 'working', "payed",  'completed', 'cancelled'].includes(r.requests?.status)
+        ) || [];
         
-        // Cálculo de tasas
+        const totalRequests = relevantRequests.length;
+        
+        // Contar trabajos por estado
+        const completedCount = relevantRequests.filter(
+          (r: any) => r.requests?.status === 'completed'
+        ).length;
+        
+        const pendingCount = relevantRequests.filter(
+          (r: any) => r.requests?.status === 'pending'|| r.requests?.status === 'searching'
+        ).length;
+        
+        const workingCount = relevantRequests.filter(
+          (r: any) => r.requests?.status === 'working' || r.requests?.status === 'payed'
+        ).length;
+        
+        const cancelledCount = relevantRequests.filter(
+          (r: any) => r.requests?.status === 'cancelled'
+        ).length;
+        
+        // Calcular tasas
         const acceptanceRate = totalRequests > 0 
-          ? Math.round((acceptedRequests / totalRequests) * 100) 
+          ? Math.round(((pendingCount + workingCount) / totalRequests) * 100) 
+          : 0;
+          
+        const completionRate = totalRequests > 0
+          ? Math.round((completedCount / totalRequests) * 100)
+          : 0;
+          
+        const cancellationRate = totalRequests > 0
+          ? Math.round((cancelledCount / totalRequests) * 100)
           : 0;
         
-        // Para responseRate, asumimos que es el porcentaje de requests respondidas
-        const responseRate = totalRequests > 0 
-          ? Math.round(((totalRequests - (allProfessionalRequests?.filter(
-              (r: any) => r.status === 'pending'
-            ).length || 0)) / totalRequests) * 100) 
-          : 0;
-        
-        // Success rate: porcentaje de trabajos completados vs aceptados
-        const successRate = acceptedRequests > 0 
-          ? Math.round((completedRequests.length / acceptedRequests) * 100)
+        // Calcular tasa de éxito: trabajos completados / (completados + cancelados)
+        const totalFinalizedJobs = completedCount + cancelledCount;
+        const successRate = totalFinalizedJobs > 0
+          ? Math.round((completedCount / totalFinalizedJobs) * 100)
           : 0;
         
         // Historial de ingresos de los últimos 6 meses
@@ -143,7 +183,7 @@ export function useProfessionalStats(userId: string) {
               const location = typeof r.location === 'string' 
                 ? JSON.parse(r.location) 
                 : r.location;
-              return location?.neighborhood || location?.city || null;
+              return location?.city || null;
             } catch (e) {
               return null;
             }
@@ -169,30 +209,45 @@ export function useProfessionalStats(userId: string) {
         // Insights personalizados
         const insights = [
           `Tu calificación actual es ${avgRating.toFixed(1)}/5`,
-          `Has completado ${completedRequests.length} trabajos`,
-          growthVsLastMonth > 0 
-            ? `¡Tus ingresos aumentaron un ${growthVsLastMonth}% respecto al mes pasado!` 
-            : growthVsLastMonth < 0
-              ? `Tus ingresos bajaron un ${Math.abs(growthVsLastMonth)}% respecto al mes pasado`
-              : 'Tus ingresos se mantuvieron estables este mes',
+          `Has completado ${completedCount} trabajos`,
+          `Tienes ${pendingCount} solicitudes pendientes`,
           acceptanceRate > 75 
             ? 'Excelente tasa de aceptación' 
             : 'Podrías mejorar tu tasa de aceptación'
         ];
         
+        // Calcular total de trabajos (completados + en curso + cancelados)
+        const totalJobsCount = completedCount + workingCount + cancelledCount;
+        
+        // Calcular métricas de ingresos
+        const monthlyIncome = (jobsThisMonth as any[]).reduce((sum: number, job: any) => sum + ((job.requests?.bill?.total as number) || 0), 0);
+        const totalEarnings = (completedRequests as any[]).reduce((sum: number, req: any) => sum + ((req.requests?.bill?.total as number) || 0), 0);
+        const averagePerJob = completedCount > 0 ? totalEarnings / completedCount : 0;
+        
         // Establecer todas las estadísticas
         setStats({
-          jobsThisMonth: jobsThisMonth.length,
-          totalJobs: completedRequests.length,
-          incomeThisMonth,
-          netIncome,
-          avgIncomePerJob: Math.round(avgIncomePerJob),
-          growthVsLastMonth,
-          acceptanceRate,
-          responseRate,
-          successRate,
-          profileViews: user.profile_views || 0, // Asumiendo que existe este campo
+          // Métricas principales
+          totalJobs: totalJobsCount,
+          completedJobs: completedCount,
+          pendingRequests: pendingCount,
+          workingJobs: workingCount,
+          cancelledJobs: cancelledCount,
           requestsReceived: totalRequests,
+          
+          // Tasas
+          acceptanceRate,
+          completionRate,
+          cancellationRate,
+          successRate,
+          
+          // Ingresos
+          netIncome: totalEarnings,
+          avgIncomePerJob: averagePerJob,
+          incomeThisMonth: monthlyIncome,
+          growthVsLastMonth: growthVsLastMonth,
+          
+          // Otros
+          profileViews: user.profile_views || 0,
           topZones: topZones.length > 0 ? topZones : ["Aún no hay datos de ubicación"],
           isPremium: user.membership_json?.isPro ?? false,
           commissionSavings: Math.round(commissionSavings),

@@ -42,7 +42,8 @@ const RequestDetailScreen = () => {
           users!request_professionals_professional_id_fkey(
             id,
             name,
-            last_name
+            last_name,
+            profile_pic
           )
         `
                 )
@@ -51,7 +52,7 @@ const RequestDetailScreen = () => {
             // Obtener información del cliente
             const { data: clientData } = await supabase
                 .from("users")
-                .select("id, name, last_name")
+                .select("id, name, last_name, profile_pic")
                 .eq("id", data.client)
                 .single();
 
@@ -61,6 +62,7 @@ const RequestDetailScreen = () => {
                     id: rp.professional_id,
                     name: rp.users?.name || "",
                     last_name: rp.users?.last_name || "",
+                    profile_pic: rp.users?.profile_pic || "",
                     rol: "professional" as const,
                 })) || [];
 
@@ -83,6 +85,7 @@ const RequestDetailScreen = () => {
                     name: clientData?.name || "",
                     last_name: clientData?.last_name || "",
                     id: clientData?.id || "",
+                    profile_pic: clientData?.profile_pic || "",
                 },
                 professionals,
             };

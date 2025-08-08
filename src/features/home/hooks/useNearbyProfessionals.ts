@@ -13,6 +13,7 @@ interface NearbyProfessional {
   last_name: string;
   profile_pic?: string;
   calification: number;
+  total_califications: number;
   service_radius: number;
   ubication_json: Location;
   category_id: number;
@@ -68,7 +69,7 @@ export const useNearbyProfessionals = ({
       // Buscar los usuarios profesionales
       const { data: users, error: usersError } = await supabase
         .from("users")
-        .select("id, name, last_name, profile_pic, calification, service_radius, ubication_json, rol, membership_json")
+        .select("id, name, last_name, profile_pic, calification, total_califications, service_radius, ubication_json, rol, membership_json")
         .in("id", userIds)
         .eq("rol", "professional");
 
@@ -89,7 +90,7 @@ export const useNearbyProfessionals = ({
       if (combinedData.length === 0) {
         const { data: directUsers, error: directError } = await supabase
           .from("users")
-          .select("id, name, last_name, profile_pic, calification, service_radius, ubication_json, rol, membership_json ")
+          .select("id, name, last_name, profile_pic, calification, total_califications, service_radius, ubication_json, rol, membership_json ")
           .eq("rol", "professional");
 
         if (directError) {
@@ -141,6 +142,7 @@ export const useNearbyProfessionals = ({
                   last_name: user.last_name,
                   profile_pic: user.profile_pic,
                   calification: user.calification || 0,
+                  total_califications: user.total_califications || 0,
                   service_radius: user.service_radius,
                   ubication_json: userLocation,
                   category_id: item.category_id,
@@ -192,6 +194,7 @@ export const useNearbyProfessionals = ({
                 last_name: user.last_name,
                 profile_pic: user.profile_pic,
                 calification: user.calification || 0,
+                total_califications: user.total_califications || 0,
                 service_radius: user.service_radius,
                 ubication_json: userLocation,
                 category_id: item.category_id,
