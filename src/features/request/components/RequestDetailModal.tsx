@@ -11,8 +11,12 @@ import { updateRefuseRequest } from "../services/update-refuse-request";
 import { updateRequestStatus } from "../services/update-request-status";
 import RequestStatusBadge from "./RequestStatusBadge";
 
+interface RequestDetail extends RequestItem {
+    professionalsCount: number;
+}
+
 interface RequestDetailModalProps {
-    request: RequestItem;
+    request: RequestDetail;
     currentUserRole: "client" | "professional";
     isVisible: boolean;
     onClose: () => void;
@@ -177,6 +181,29 @@ const RequestDetailModal = ({
                         router.replace(
                             "/(protected)/(mainTabs)/requests?activeTab=completed"
                         );
+                    },
+                });
+            }
+
+            if (
+                (request.status === "searching" ||
+                    request.status === "pending") &&
+                request.professionalsCount === 0
+            ) {
+                actions.push({
+                    id: "new-quotes",
+                    label: "Pedir nuevas cotizaciones",
+                    color: "bg-green-mannwork",
+                    onPress: async () => {
+                        router.push({
+                            pathname:
+                                "/(protected)/(mainTabs)/requests/reselect-professionals",
+                            params: {
+                                requestId: request.id,
+                                categoryName: request.category,
+                                subcategoryName: request.subcategory,
+                            },
+                        });
                     },
                 });
             }
