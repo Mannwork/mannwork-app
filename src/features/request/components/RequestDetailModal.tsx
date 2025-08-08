@@ -11,8 +11,12 @@ import { updateRefuseRequest } from "../services/update-refuse-request";
 import { updateRequestStatus } from "../services/update-request-status";
 import RequestStatusBadge from "./RequestStatusBadge";
 
+interface RequestDetail extends RequestItem {
+    professionalsCount: number;
+}
+
 interface RequestDetailModalProps {
-    request: RequestItem;
+    request: RequestDetail;
     currentUserRole: "client" | "professional";
     isVisible: boolean;
     onClose: () => void;
@@ -34,10 +38,7 @@ const RequestDetailModal = ({
 
     // Determinar si es una solicitud enviada por profesional (no soy destinatario)
     const isProSent =
-        currentUserRole === "professional" &&
-        !request.professionals.some(
-            (u) => u.rol === "professional" && u.id === userId
-        );
+        currentUserRole === "professional" && userId === request.client.id;
 
     if (!isVisible) return null;
 
@@ -58,7 +59,7 @@ const RequestDetailModal = ({
         } else {
             if (isProSent) {
                 // Profesional viendo su propia solicitud enviada: mostrar solo destinatarios
-                return request.professionals
+                return request.professionals;
             }
             // Profesional destinatario: mostrar al cliente
             const client = request.client;
@@ -133,11 +134,15 @@ const RequestDetailModal = ({
     const getAvailableActions = () => {
         const actions = [];
 
-        if (request.status === "cancelled" || request.status === "refunded" || request.status === "completed") {
+        if (
+            request.status === "cancelled" ||
+            request.status === "refunded" ||
+            request.status === "completed"
+        ) {
             return [];
         }
 
-        if (currentUserRole === "professional") {
+        if (userId !== request.client.id) {
             // Profesionales pueden iniciar trabajo (solo si está pendiente) y cancelar
             actions.push({
                 id: "start_work",
@@ -146,7 +151,10 @@ const RequestDetailModal = ({
                 onPress: handleCreateChat,
             });
 
-            if (request.status === "pending" || request.status === "searching") {
+            if (
+                request.status === "pending" ||
+                request.status === "searching"
+            ) {
                 actions.push({
                     id: "cancel",
                     label: "Rechazar solicitud",
@@ -159,7 +167,10 @@ const RequestDetailModal = ({
                 });
             }
         } else {
-            if (request.status === "searching" || request.status === "pending" ) {    
+            if (
+                request.status === "searching" ||
+                request.status === "pending"
+            ) {
                 actions.push({
                     id: "cancel",
                     label: "Cancelar solicitud",
@@ -167,7 +178,32 @@ const RequestDetailModal = ({
                     onPress: async () => {
                         await updateRequestStatus("cancelled", request.id);
 
-                        router.replace("/(protected)/(mainTabs)/requests");
+                        router.replace(
+                            "/(protected)/(mainTabs)/requests?activeTab=completed"
+                        );
+                    },
+                });
+            }
+
+            if (
+                (request.status === "searching" ||
+                    request.status === "pending") &&
+                request.professionalsCount === 0
+            ) {
+                actions.push({
+                    id: "new-quotes",
+                    label: "Pedir nuevas cotizaciones",
+                    color: "bg-green-mannwork",
+                    onPress: async () => {
+                        router.push({
+                            pathname:
+                                "/(protected)/(mainTabs)/requests/reselect-professionals",
+                            params: {
+                                requestId: request.id,
+                                categoryName: request.category,
+                                subcategoryName: request.subcategory,
+                            },
+                        });
                     },
                 });
             }
@@ -175,10 +211,12 @@ const RequestDetailModal = ({
             if (request.status === "working" || request.status === "payed") {
                 actions.push({
                     id: "complete_request",
-                    label: "Finalizar trabajo",
+                    label: "Marcar trabajo como finalizado",
                     color: "bg-green-mannwork",
-                    onPress: () => {
-                        updateRequestStatus("completed", request.id);
+                    onPress: async () => {
+                        await updateRequestStatus("completed", request.id);
+
+                        router.replace("/(protected)/(mainTabs)/requests");
                     },
                 });
             }
@@ -188,7 +226,7 @@ const RequestDetailModal = ({
     };
 
     const availableActions = getAvailableActions();
-   
+
     return (
         <View className="flex-1 bg-white">
             {/* Header */}
@@ -362,7 +400,8 @@ const RequestDetailModal = ({
                                                 {user.last_name.charAt(0)}.
                                             </Text>
                                             <Text className="text-gray-600 text-sm">
-                                                {isProSent || currentUserRole === "client"
+                                                {isProSent ||
+                                                currentUserRole === "client"
                                                     ? "Profesional"
                                                     : "Cliente"}
                                             </Text>
@@ -375,7 +414,7 @@ const RequestDetailModal = ({
                 </View>
 
                 {/* Acciones */}
-                {!isProSent && availableActions.length > 0 && (
+                {availableActions.length > 0 && (
                     <View className="px-4 py-4 bg-gray-50">
                         <Text className="text-lg font-semibold text-gray-900 mb-4">
                             Acciones

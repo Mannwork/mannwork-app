@@ -9,4 +9,5 @@ export interface Ubication {
     latitude: number;
     longitude: number;
     serviceRange?: number;
+    address?: string
 }

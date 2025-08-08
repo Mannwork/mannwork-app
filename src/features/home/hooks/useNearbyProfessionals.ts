@@ -33,6 +33,7 @@ interface UseNearbyProfessionalsOptions {
   categoryId: number;
   subcategoryId: string;
   maxDistance?: number; // en km
+  enabled: any
 }
 
 export const useNearbyProfessionals = ({
@@ -40,10 +41,12 @@ export const useNearbyProfessionals = ({
   categoryId,
   subcategoryId,
   maxDistance = 50,
+  enabled
 }: UseNearbyProfessionalsOptions) => {
   return useQuery({
     queryKey: ["nearby-professionals", location, categoryId, subcategoryId],
     queryFn: async (): Promise<NearbyProfessional[]> => {
+
       if (!location?.latitude || !location?.longitude) {
         throw new Error("Ubicación requerida");
       }
@@ -209,11 +212,7 @@ export const useNearbyProfessionals = ({
 
       return professionals;
     },
-    enabled:
-      !!location?.latitude &&
-      !!location?.longitude &&
-      !!categoryId &&
-      !!subcategoryId,
+    enabled: enabled,
     staleTime: 5 * 60 * 1000,
   });
 };
