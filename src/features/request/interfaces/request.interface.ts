@@ -8,6 +8,7 @@ export interface RequestItemClient {
     name: string;
     last_name: string;
     id: string;
+    profile_pic: string;
 }
 
 export interface RequestItemProfessional {
@@ -15,7 +16,7 @@ export interface RequestItemProfessional {
     name: string;
     last_name: string;
     rol: "professional";
-
+    profile_pic: string;
 }
 
 export interface RequestItem {
@@ -31,4 +32,5 @@ export interface RequestItem {
     userRole: "professional" | "client";
     client: RequestItemClient;
     professionals: RequestItemProfessional[];
+    reviewed?: boolean; // Indica si el usuario actual ya calificó esta solicitud
 };

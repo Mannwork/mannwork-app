@@ -12,9 +12,14 @@ import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
 const ProfileScreen = () => {
   const { data: user, isLoading, error } = useCurrentUser();
-  
-  // Traer reviews reales del usuario logueado
-  const { reviews, loading: loadingReviews } = useUserReviews(user?.id || "");
+  // Traer reviews reales del usuario logueado con paginación
+  const { 
+    reviews, 
+    loading: loadingReviews, 
+    loadingMore, 
+    hasMore, 
+    loadMoreReviews 
+  } = useUserReviews(user?.id || "");
 
   const averageRating =
     reviews.length > 0
@@ -29,17 +34,38 @@ const ProfileScreen = () => {
     return acc;
   }, {} as { [key: number]: number });
 
-  const mappedReviews = reviews.map((r) => ({
-    id: r.id,
-    reviewerName: r.reviewer_name || "Usuario",
-    reviewerImage: r.reviewer_image,
-    rating: r.calification,
-    comment: r.commentary,
-    date: r.created_at,
-  }));
+  const mappedReviews = reviews.map((r: any) => {
+    // Si es una respuesta de Supabase con la estructura reviewer
+    if ('reviewer' in r && r.reviewer) {
+      return {
+        id: r.id,
+        reviewerId: r.reviewer_id,
+        reviewerName: `${r.reviewer.name} ${r.reviewer.last_name || ''}`.trim() || "Usuario",
+        reviewerImage: r.reviewer.profile_pic,
+        rating: r.calification,
+        comment: r.commentary,
+        date: r.created_at,
+        reviewerMembershipJson: r.reviewer.membership_json,
+      };
+    }
+    
+    // Si es un objeto plano con las propiedades directamente
+    return {
+      id: r.id,
+      reviewerId: r.reviewer_id,
+      reviewerName: r.reviewer_name || "Usuario",
+      reviewerImage: r.reviewer_image,
+      rating: r.calification,
+      comment: r.commentary,
+      date: r.created_at,
+      reviewerMembershipJson: r.reviewer_membership_json,
+    };
+  });
 
   const handleViewMoreReviews = () => {
-    console.log("Ver más opiniones");
+    if (hasMore && !loadingMore) {
+      loadMoreReviews();
+    }
   };
 
   // Loading state
@@ -121,13 +147,15 @@ const ProfileScreen = () => {
             </>
           )}
 
-        <ProfileReviews
+        <ProfileReviews 
           userName={`${userData.firstName} ${userData.lastName}`}
-          averageRating={averageRating}
+          profileImage={userData.profileImage}
           totalReviews={reviews.length}
+          reviews={mappedReviews} 
+          onViewMoreReviews={hasMore ? handleViewMoreReviews : undefined} 
+          averageRating={averageRating}
           ratingDistribution={ratingDistribution}
-          reviews={mappedReviews}
-          onViewMoreReviews={handleViewMoreReviews}
+          isLoadingMore={loadingMore}
         />
       </ScrollView>
     </View>

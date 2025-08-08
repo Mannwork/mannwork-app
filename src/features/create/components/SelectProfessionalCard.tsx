@@ -88,7 +88,7 @@ export default function SelectProfessionalCard({
             {professional.rating}
           </Text>
           <Text className="ml-2 text-gray-500 text-sm">
-            ({professional.reviews})
+            ({professional.total_califications})
           </Text>
         </View>
       </View>

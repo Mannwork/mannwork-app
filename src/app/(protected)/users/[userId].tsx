@@ -60,6 +60,7 @@ const UserProfileScreen = () => {
     reviewerImage: r.reviewer_image,
     rating: r.calification,
     comment: r.commentary,
+    reviewerMembershipJson: r.reviewer_membership_json,
     date: r.created_at,
   }));
 
@@ -118,7 +119,7 @@ const UserProfileScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ProfileBanner
           user={userData}
-          onRequestQuote={() => {}}
+
           isOwnProfile={false}
         />
         <SectionDivider />

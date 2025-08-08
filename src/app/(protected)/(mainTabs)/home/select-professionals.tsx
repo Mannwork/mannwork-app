@@ -48,7 +48,7 @@ export default function SelectProfessionalsScreen() {
             categoryId: formData.category || 0,
             subcategoryId: formData.subcategory || "",
             maxDistance: 50, // 50km máximo
-            enabled: formData,
+            enabled: !!formData.locationData && !!formData.category && !!formData.subcategory,
         });
 
     const handleSelect = (id: string) => {
@@ -87,21 +87,22 @@ export default function SelectProfessionalsScreen() {
         }
     };
 
-    // Transformar datos para el componente SelectProfessionalCard
-    const transformedProfessionals =
-        (professionals as any[])?.map((prof) => ({
-            id: prof.id,
-            name: `${prof.name} ${prof.last_name}`,
-            lastInitial: prof.last_name.charAt(0),
-            rating: prof.calification,
-            reviews: 0, // TODO: Implementar reviews
-            category: `${params.categoryName} • ${params.subcategoryName}`,
-            address: prof.ubication_json.address || "Ubicación no disponible",
-            verified: true, // TODO: Implementar verificación
-            membership_json: prof.membership_json, // TODO: Implementar premium
-            avatar: prof.profile_pic,
-            distance: prof.distance,
-        })) || [];
+  // Transformar datos para el componente SelectProfessionalCard
+  const transformedProfessionals =
+    (professionals as any[])?.map((prof) => ({
+      id: prof.id,
+      name: `${prof.name} ${prof.last_name}`,
+      lastInitial: prof.last_name.charAt(0),
+      rating: prof.calification,
+      total_califications: prof.total_califications,
+      reviews: 0, // TODO: Implementar reviews
+      category: `${params.categoryName} • ${params.subcategoryName}`,
+      address: prof.ubication_json.address || "Ubicación no disponible",
+      verified: true, // TODO: Implementar verificación
+      membership_json: prof.membership_json,  // TODO: Implementar premium
+      avatar: prof.profile_pic,
+      distance: prof.distance,
+    })) || [];
 
     // Función para navegar al mapa
     const handleMapPress = () => {

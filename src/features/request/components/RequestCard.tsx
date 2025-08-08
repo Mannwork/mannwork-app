@@ -2,8 +2,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 
 import { categoryIcons } from "@/common/types/categories.interface";
+import { useHasUserReviewed } from "@/features/reviews/hooks/useHasUserReviewed";
 import { useAuth } from "@clerk/clerk-react";
-import { RequestItem } from "../interfaces/request.interface";
+import { useRouter } from "expo-router";
+import { RequestItem, RequestItemClient, RequestItemProfessional } from "../interfaces/request.interface";
 import RequestImages from "./RequestImages";
 import RequestLocation from "./RequestLocation";
 import RequestStatusBadge from "./RequestStatusBadge";
@@ -18,6 +20,8 @@ const RequestCard = ({
     onPress,
 }: RequestCardProps) => {
     const { userId } = useAuth();
+    const router = useRouter();
+    const { hasReviewed, loading: loadingReview } = useHasUserReviewed(request.id, userId || '');
 
     const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
@@ -58,9 +62,10 @@ const RequestCard = ({
     };
 
     return (
+        <View className="pb-4 mb-3">  
         <Pressable
             onPress={() => onPress?.(request)}
-            className="bg-white rounded-lg p-4 mb-3 shadow-sm border border-gray-100"
+            className="bg-white rounded-t-lg p-4 shadow-sm border border-gray-100"
         >
             <View className="flex-row items-start justify-between mb-2">
                 <Text className="text-lg font-semibold text-gray-900 flex-1 mr-2">
@@ -125,8 +130,61 @@ const RequestCard = ({
                     />
                 </Pressable>
             </View>
-        </Pressable>
-    );
-};
 
-export default RequestCard;
+        </Pressable>
+        
+                {/* Sección de calificación */}
+        {request.status === 'completed' && ( 
+            !loadingReview && !hasReviewed ? (
+          <View className="mt-0">
+            <Pressable 
+              className="bg-amber-400 py-3 rounded-b-2xl items-center justify-center flex-row shadow-lg shadow-amber-300/50"
+              onPress={() => {
+                const isProfessional = request.professionals[0].id === userId;
+                const userToReview = isProfessional 
+                  ? request.client
+                  : request.professionals[0]
+                  
+                if (!userToReview) return;
+
+                router.push({
+                  pathname: "/requests/review-modal",
+                  params: {
+                    requestId: request.id,
+                    id: userToReview.id,
+                    name: userToReview.name,
+                    lastName: isProfessional 
+                        ? (userToReview as RequestItemProfessional).last_name 
+                        : (userToReview as RequestItemClient).last_name,
+                    avatar: isProfessional 
+                        ? (userToReview as RequestItemProfessional).profile_pic 
+                        : (userToReview as RequestItemClient).profile_pic || 'https://randomuser.me/api/portraits/men/32.jpg',
+                    category: request.category,
+                    subcategory: request.subcategory
+                  }
+                });
+              }}
+            >
+              <MaterialIcons name="star" size={20} color="#FFFFFF" />
+              <Text className="text-white font-bold text-base ml-2">
+                Calificar
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+            <View className="mt-0">
+            <Pressable 
+              className="bg-green-mannwork py-3 rounded-b-2xl items-center justify-center flex-row shadow-lg shadow-amber-300/50"
+            >
+              <MaterialIcons name="star" size={20} color="#FFFFFF" />
+              <Text className="text-white font-bold text-base ml-2">
+                Calificado
+              </Text>
+            </Pressable>
+          </View>
+        ))}
+      </View>
+    );
+  };
+  
+  export default RequestCard;

@@ -4,7 +4,6 @@ const ProtectedLayout = () => {
   return (
     <Stack>
       <Stack.Screen name="(mainTabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="membership" />
       <Stack.Screen name="users/[userId]" options={{ headerShown: false }} />
     </Stack>
   );

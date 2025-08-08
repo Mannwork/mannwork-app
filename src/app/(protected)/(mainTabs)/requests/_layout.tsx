@@ -22,7 +22,15 @@ export default function RequestsLayout() {
                         animation: "slide_from_right",
                     }}
                 />
-            </Stack>
+               <Stack.Screen
+        name="review-modal"
+        options={{
+          headerShown: false,
+          presentation: "fullScreenModal",
+          animation: "slide_from_right",
+        }}
+      />
+      </Stack>
         </ActionSheetProvider>
     );
 }

@@ -1,25 +1,7 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, Text, View } from "react-native";
-
-interface Review {
-  id: string;
-  reviewerName: string;
-  reviewerImage?: string;
-  rating: number;
-  comment?: string;
-  date: string;
-}
-
-interface ProfileReviewsProps {
-  userName: string;
-  averageRating: number;
-  totalReviews: number;
-  ratingDistribution: {
-    [key: number]: number; // 1-5 stars -> count
-  };
-  reviews: Review[];
-  onViewMoreReviews?: () => void;
-}
+import { ProfileReviewsProps } from "@/features/reviews/interfaces/review.interface";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { Image, Pressable, Text, View } from "react-native";
 
 const MONTHS_ES = [
   "enero",
@@ -54,6 +36,7 @@ const ProfileReviews = ({
   ratingDistribution,
   reviews,
   onViewMoreReviews,
+  isLoadingMore = false,
 }: ProfileReviewsProps) => {
   const renderStars = (rating: number, size: number = 16) => {
     const stars = [];
@@ -69,6 +52,13 @@ const ProfileReviews = ({
     }
     return stars;
   };
+
+  const handleProfilePicPress = (userId: string) => {
+    router.push({
+        pathname: "/(protected)/users/[userId]",
+        params: { userId },
+    });
+};
 
   const getMaxCount = () => {
     return Math.max(...Object.values(ratingDistribution));
@@ -122,8 +112,7 @@ const ProfileReviews = ({
       </View>
 
       <View className="space-y-6">
-        {reviews.slice(0, 3).map((review, idx) => {
-          const isVerified = true;
+        {reviews.map((review) => {
           const [firstName, ...lastNameParts] = review.reviewerName.split(" ");
           const lastInitial =
             lastNameParts.length > 0 ? lastNameParts[0][0] + "." : "";
@@ -132,28 +121,24 @@ const ProfileReviews = ({
           return (
             <View key={review.id} className="pb-5">
               <View className="flex-row items-start">
-                <View className="w-14 h-14 bg-gray-200 rounded-full mr-4 items-center justify-center">
+                <Pressable onPress={() => handleProfilePicPress(review.reviewerId)} className="w-14 h-14 bg-gray-200 rounded-full mr-4 items-center justify-center">
                   {review.reviewerImage ? (
-                    <Text className="text-gray-600 text-lg font-bold">
-                      {review.reviewerName.charAt(0)}
-                    </Text>
+                    <Image
+                      source={{ uri: review.reviewerImage }}
+                      className="w-14 h-14 rounded-full"
+                    />
                   ) : (
                     <MaterialIcons name="person" size={32} color="#666" />
                   )}
-                </View>
+                </Pressable>
 
                 <View className="flex-1">
                   <View className="flex-row items-center mb-1">
                     <Text className="text-base font-semibold text-gray-800 mr-2">
                       {displayName}
                     </Text>
-                    {isVerified && (
-                      <MaterialIcons
-                        name="verified"
-                        size={22}
-                        color="#2D7A3E"
-                        className="ml-1"
-                      />
+                    {review.reviewerMembershipJson?.isPro && (
+                        <FontAwesome name="diamond" size={18} color="#2D7A3E" />
                     )}
                   </View>
                   <Text className="text-xs text-gray-500 mb-2 mt-0.5">
@@ -181,8 +166,8 @@ const ProfileReviews = ({
           onPress={onViewMoreReviews}
           className="mt-4 bg-green-mannwork-light rounded-lg py-3"
         >
-          <Text className="text-green-mannwork text-center font-semibold">
-            Ver más comentarios ({reviews.length - 3} más)
+          <Text className="text-primary-600 font-semibold">
+            {isLoadingMore ? 'Cargando...' : 'Ver más opiniones'}
           </Text>
         </Pressable>
       )}
