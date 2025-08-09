@@ -7,7 +7,7 @@ export const getProfessionalRequest = async (proId: string, status: string[]): P
         .from('request_professionals')
         .select('request_id')
         .eq('professional_id', proId)
-        .in('status', ['selected', 'completed']);
+        .in('status', ['selected', 'completed', 'working']);
 
 
     if (idsError) {

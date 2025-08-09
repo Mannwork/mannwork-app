@@ -1,7 +1,9 @@
-import { Image, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 import { Message } from "@/common/types/message.type";
 import { formatTime } from "@/common/utils/formatTime";
+import MessageFile from "./MessageFile";
+import MessageImage from "./MessageImage";
 import QuoteCard from "./QuoteCard";
 import QuoteRequestCard from "./QuoteRequestCard";
 
@@ -9,39 +11,24 @@ interface MessageItemProps {
     userLogged: string;
     message: Message;
     onQuoteRequest?: () => void;
-    isQuoted?: boolean
+    isQuoted?: boolean;
 }
 
 const MessageItem = ({
     userLogged,
     message,
     onQuoteRequest,
-    isQuoted = false
+    isQuoted = false,
 }: MessageItemProps) => {
     const formattedTime = formatTime(message.created_at);
 
     const renderMessageContent = () => {
         switch (message.type) {
             case "image":
-                return (
-                    <View className="rounded-lg overflow-hidden">
-                        <Image
-                            source={{ uri: message.content }}
-                            className="w-48 h-32"
-                            resizeMode="cover"
-                        />
-                    </View>
-                );
+                return <MessageImage message={message} />;
 
-            // case "file":
-            //   return (
-            //     <View className="flex-row items-center bg-gray-100 rounded-lg p-3">
-            //       <MaterialIcons name="attach-file" size={20} color="#6B7280" />
-            //       <Text className="text-gray-700 text-sm ml-2 flex-1">
-            //         {message.fileName}
-            //       </Text>
-            //     </View>
-            //   );
+            case "file":
+                return <MessageFile message={message} />;
 
             case "quote_request":
                 return (

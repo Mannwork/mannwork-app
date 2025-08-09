@@ -137,7 +137,7 @@ const RequestDetailModal = ({
         if (
             request.status === "cancelled" ||
             request.status === "refunded" ||
-            request.status === "completed"
+            (request.status === "completed" && userId === request.client.id)
         ) {
             return [];
         }
@@ -163,6 +163,27 @@ const RequestDetailModal = ({
                         await updateRefuseRequest(request.id, userId as string);
 
                         router.replace("/(protected)/(mainTabs)/requests");
+                    },
+                });
+            }
+
+            if (
+                request.status === "completed" ||
+                request.status === "working" ||
+                request.status === "payed"
+            ) {
+                actions.push({
+                    id: "facturation",
+                    label: "Ver facturación",
+                    color: "bg-green-mannwork",
+                    onPress: () => {
+                        router.push({
+                            pathname: "/requests/facturation-modal",
+                            params: {
+                                requestId: request.id,
+                                requestStatus: request.status,
+                            },
+                        });
                     },
                 });
             }

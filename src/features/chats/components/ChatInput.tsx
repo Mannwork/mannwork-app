@@ -6,6 +6,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { postNewMessage } from "../services/post-new-message";
 
 import useSupabaseStorage from "@/common/hooks/useSupabaseStorage";
+import { useCurrentUser } from "@/features/profile";
 interface ChatInputProps {
     chatId: string;
     senderId: string;
@@ -17,7 +18,10 @@ const ChatInput = ({
     senderId,
     placeholder = "Escribe un mensaje...",
 }: ChatInputProps) => {
-    const { handleUploadImage } = useSupabaseStorage(`chats`);
+    const { data: userLogged } = useCurrentUser();
+
+    const { handleUploadImage, handleUploadDocument } =
+        useSupabaseStorage(`chats`);
 
     const [content, setContent] = useState("");
 
@@ -34,6 +38,16 @@ const ChatInput = ({
     };
 
     const handleSendImage = async () => {
+        if (
+            userLogged?.rol === "professional" &&
+            !userLogged?.membership_json?.isPro
+        ) {
+            alert(
+                "Solo los profesionales con membresía Pro pueden enviar imágenes."
+            );
+            return;
+        }
+
         const imgUri = await handleUploadImage(senderId);
         if (imgUri) {
             postNewMessage({
@@ -45,8 +59,26 @@ const ChatInput = ({
         }
     };
 
-    const handleSendFile = () => {
-        // Implementar lógica para enviar archivo
+    const handleSendFile = async () => {
+        if (
+            userLogged?.rol === "professional" &&
+            !userLogged?.membership_json?.isPro
+        ) {
+            alert(
+                "Solo los profesionales con membresía Pro pueden enviar archivos."
+            );
+            return;
+        }
+
+        const fileUri = await handleUploadDocument(senderId, chatId);
+        if (fileUri) {
+            postNewMessage({
+                content: fileUri,
+                chat_id: chatId,
+                sender_id: senderId,
+                type: "file",
+            });
+        }
     };
 
     return (
@@ -60,7 +92,7 @@ const ChatInput = ({
                 </Pressable>
 
                 <Pressable
-                    // onPress={onSendFile}
+                    onPress={handleSendFile}
                     className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center mr-3 mb-2"
                 >
                     <MaterialIcons
