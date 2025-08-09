@@ -1,5 +1,6 @@
 import ChatHeader from "@/features/chats/components/ChatHeader";
 import ChatInput from "@/features/chats/components/ChatInput";
+import MessageItem from "@/features/chats/components/MessageItem";
 import QuoteButton from "@/features/chats/components/QuoteButton";
 import { useChatMessages } from "@/features/chats/hooks/useChatMessages";
 import { updateMessagesReadStatus } from "@/features/chats/services/update-messages-read-status";
@@ -17,7 +18,6 @@ import {
     View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import MessageItem from "../../../../features/chats/components/MessageItem";
 
 const ChatScreen = () => {
     const { chatId, client } = useLocalSearchParams();

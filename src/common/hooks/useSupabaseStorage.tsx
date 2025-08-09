@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Alert } from "react-native";
 
+import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 
+import { postFileToSupabase } from "../services/post-file";
 import { postImageToSupabase } from "../services/post-image";
 import { postImagesToSupabase } from "../services/post-images";
 
@@ -84,7 +86,7 @@ const useSupabaseStorage = (bucket: string) => {
             );
 
             setImagesUri(uploadedImageUrls);
-            return uploadedImageUrls
+            return uploadedImageUrls;
         } catch (error) {
             console.log("Error al subir las imágenes:", error);
             Alert.alert("Error", "Ocurrió un problema al subir las imágenes.");
@@ -93,9 +95,49 @@ const useSupabaseStorage = (bucket: string) => {
         }
     };
 
+    const handleUploadDocument = async (userId: string, chatId: string) => {
+        try {
+            setIsLoading(true);
+
+            const result = await DocumentPicker.getDocumentAsync({
+                type: [
+                    "application/pdf",
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ],
+                copyToCacheDirectory: false,
+            });
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                const documentUri = result.assets[0].uri;
+                const fileName = result.assets[0].name;
+                const fileType = result.assets[0].mimeType;
+
+                const storagePath = chatId
+                    ? `${chatId}/${userId}/files/${fileName}`
+                    : `${userId}/files/${fileName}`;
+
+                const newFileUrl = await postFileToSupabase(
+                    documentUri,
+                    storagePath,
+                    fileType as string,
+                    bucket
+                );
+
+                return newFileUrl;
+            }
+        } catch (error) {
+            Alert.alert("Error", "No se pudo subir el archivo.");
+            console.error("Error al subir el archivo:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return {
         handleUploadImage,
         handleUploadImages,
+        handleUploadDocument,
         imagesUri,
         isLoading,
     };

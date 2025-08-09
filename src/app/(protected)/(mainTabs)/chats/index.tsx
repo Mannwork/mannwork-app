@@ -1,10 +1,10 @@
+import ChatsHeader from "@/features/chats/components/ChatsHeader";
+import ChatsList from "@/features/chats/components/ChatsList";
+import ChatsTabs from "@/features/chats/components/ChatsTabs";
 import { useUserRole } from "@/features/request/hooks/useUserRole";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
-import ChatsHeader from "../../../../features/chats/components/ChatsHeader";
-import ChatsList from "../../../../features/chats/components/ChatsList";
-import ChatsTabs from "../../../../features/chats/components/ChatsTabs";
 
 const ChatsScreen = () => {
     const { data: userRole, isLoading } = useUserRole();
