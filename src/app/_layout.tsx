@@ -8,6 +8,7 @@ import { envs } from "@/common/config/envs";
 import { ClerkSupabaseProvider } from "@/common/providers/ClerkSupabaseProvider";
 
 import MySlot from "@/common/components/MySlot";
+import GlobalAlert from "@/common/components/GlobalAlert";
 
 import "@/common/lib/nativewind/global.css";
 
@@ -22,6 +23,7 @@ export default function RootLayout() {
             <ClerkSupabaseProvider>
                 <QueryClientProvider client={queryClient}>
                     <MySlot />
+                    <GlobalAlert />
                 </QueryClientProvider>
             </ClerkSupabaseProvider>
         </ClerkProvider>

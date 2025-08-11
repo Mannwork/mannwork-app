@@ -11,10 +11,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 
+import { useCurrentUser } from "@/features/profile";
 import useFacturation from "@/features/request/hooks/useFacturation";
 
 const FacturationModal = () => {
     const insets = useSafeAreaInsets();
+    const {data: user}= useCurrentUser();
+    const isPro = user?.membership_json?.isPro;
 
     const { requestId, requestStatus } = useLocalSearchParams<{
         requestId: string;
@@ -92,7 +95,7 @@ const FacturationModal = () => {
                                         Comisión:
                                     </Text>
                                     <Text className="text-gray-500 mr-2">
-                                        {`$${data.amount * 0.05} ARS`}
+                                        {`$${data.amount * (isPro ? 0.01 : 0.05)} ARS`}
                                     </Text>
                                 </View>
                                 <View className="flex-row items-center justify-between pb-2 mb-2">
