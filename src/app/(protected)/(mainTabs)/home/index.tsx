@@ -8,9 +8,7 @@ import RecentSearches from "@/features/home/components/initial-home/RecentSearch
 import SearchBarInput from "@/features/home/components/initial-home/SearchbarInput";
 import StatsLinkCard from "@/features/home/components/initial-home/StatsLinkCard";
 import SubcategoryCarrousel from "@/features/home/components/initial-home/SubcategoryCarrousel";
-import {
-    useCurrentUser,
-} from "@/features/profile";
+import { useCurrentUser } from "@/features/profile";
 import { useUserRole } from "@/features/request";
 import { useAuth } from "@clerk/clerk-expo";
 import { useState } from "react";
@@ -19,8 +17,8 @@ import { Linking, RefreshControl, ScrollView, View } from "react-native";
 const HomeScreen = () => {
     const { data: userRole, isLoading: isLoadingRole } = useUserRole();
     const [refreshing, setRefreshing] = useState(false);
-    const {userId} = useAuth()
-   const { data: user } = useCurrentUser();
+    const { userId } = useAuth();
+    const { data: user } = useCurrentUser();
 
     const handleRefresh = async () => {
         setRefreshing(true);
@@ -63,21 +61,20 @@ const HomeScreen = () => {
                 <SearchBarInput />
                 <RecentSearches />
                 <Categories />
-                {
-                    user?.membership_json?.isPro &&
-                <StatsLinkCard />
-                }
-                {userRole=== 'professional' && !user?.mp_access_token && (
-                  <MpLinkCard
-                    onPress={async () => {
-                      try {
-                        const url = await getAuthMpUrl(userId as string);
-                        Linking.openURL(url);
-                      } catch (error) {
-                        console.error('Error al abrir la URL:', error);
-                      }
-                    }}
-                  />
+                {user?.membership_json?.isPro && <StatsLinkCard />}
+                {userRole === "professional" && !user?.mp_access_token && (
+                    <MpLinkCard
+                        onPress={async () => {
+                            try {
+                                const url = await getAuthMpUrl(
+                                    userId as string
+                                );
+                                Linking.openURL(url);
+                            } catch (error) {
+                                console.error("Error al abrir la URL:", error);
+                            }
+                        }}
+                    />
                 )}
                 <InfoCardSwiper />
                 <SubcategoryCarrousel />
