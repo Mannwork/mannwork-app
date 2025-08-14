@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { envs } from "@/common/config/envs";
 
 import { ClerkSupabaseProvider } from "@/common/providers/ClerkSupabaseProvider";
+import NotificationProvider from "@/common/providers/PushNotificationProvider";
 
 import MySlot from "@/common/components/MySlot";
 
@@ -21,7 +22,9 @@ export default function RootLayout() {
         >
             <ClerkSupabaseProvider>
                 <QueryClientProvider client={queryClient}>
-                    <MySlot />
+                    <NotificationProvider>
+                        <MySlot />
+                    </NotificationProvider>
                 </QueryClientProvider>
             </ClerkSupabaseProvider>
         </ClerkProvider>

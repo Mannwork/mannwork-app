@@ -1,68 +1,70 @@
 {
-  "expo": {
-    "name": "mannwork",
-    "slug": "mannwork",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "mannwork",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.dillmanncode.mannwork",
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyCSq-wIJqaMFT2ZBV_Oz8IplUrE29mtfXU"
+    "expo": {
+        "name": "mannwork",
+        "slug": "mannwork",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/images/icon.png",
+        "scheme": "mannwork",
+        "userInterfaceStyle": "automatic",
+        "newArchEnabled": true,
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.dillmanncode.mannwork",
+            "config": {
+                "googleMaps": {
+                    "apiKey": "AIzaSyCSq-wIJqaMFT2ZBV_Oz8IplUrE29mtfXU"
+                }
+            }
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "edgeToEdgeEnabled": true,
+            "package": "com.dillmanncode.mannwork",
+            "config": {
+                "googleMaps": {
+                    "apiKey": "AIzaSyCSq-wIJqaMFT2ZBV_Oz8IplUrE29mtfXU"
+                }
+            },
+            "googleServicesFile": "./google-services.json"
+        },
+        "web": {
+            "bundler": "metro",
+            "output": "static",
+            "favicon": "./assets/images/favicon.png"
+        },
+        "plugins": [
+            "expo-router",
+            [
+                "expo-splash-screen",
+                {
+                    "image": "./assets/images/splash-icon.png",
+                    "imageWidth": 200,
+                    "resizeMode": "contain",
+                    "backgroundColor": "#ffffff"
+                }
+            ],
+            "expo-web-browser",
+            [
+                "expo-document-picker",
+                {
+                    "iCloudContainerEnvironment": "Production"
+                }
+            ],
+            "expo-font",
+            "expo-notifications"
+        ],
+        "experiments": {
+            "typedRoutes": true
+        },
+        "extra": {
+            "router": {},
+            "eas": {
+                "projectId": "ba42f55f-f743-402f-bc73-13aea55d70bc"
+            }
         }
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true,
-      "package": "com.dillmanncode.mannwork",
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyCSq-wIJqaMFT2ZBV_Oz8IplUrE29mtfXU"
-        }
-      }
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ],
-      "expo-web-browser",
-      [
-        "expo-document-picker",
-        {
-          "iCloudContainerEnvironment": "Production"
-        }
-      ],
-      "expo-font"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "ba42f55f-f743-402f-bc73-13aea55d70bc"
-      }
     }
-  }
 }
