@@ -125,7 +125,7 @@ export default function NotificationProvider({ children }: PropsWithChildren) {
                 return;
             }
 
-            if (user && user.push_token === token) {
+            if (user && user.push_token !== token) {
                 const { error } = await supabase
                     .from("users")
                     .update({ push_token: token })
