@@ -50,7 +50,6 @@ export interface ProfileReviewsProps {
   userName: string;
   averageRating: number;
   profileImage?: string;
-  totalReviews: number;
   ratingDistribution: {
     [key: number]: number; // 1-5 stars -> count
   };

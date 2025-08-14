@@ -1,7 +1,8 @@
-import { ProfileReviewsProps } from "@/features/reviews/interfaces/review.interface";
+import { Review } from "@/features/reviews/interfaces/review.interface";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Image, Pressable, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 
 const MONTHS_ES = [
   "enero",
@@ -30,14 +31,60 @@ function formatDateEs(dateStr: string) {
   return `${parseInt(day, 10)} de ${monthName} del ${year}`;
 }
 
+interface ProfileReviewsProps {
+  userName: string;
+  reviews: Review[];
+  totalReviews: number;
+  onViewMoreReviews?: () => void;
+  averageRating: number;
+  ratingDistribution: { [key: number]: number };
+  isLoadingMore?: boolean;
+  hasMore?: boolean;
+}
+
 const ProfileReviews = ({
   userName,
-  averageRating,
-  ratingDistribution,
+  totalReviews,
   reviews,
   onViewMoreReviews,
+  averageRating,
+  ratingDistribution,
   isLoadingMore = false,
+  hasMore = false,
 }: ProfileReviewsProps) => {
+  // Estado para manejar si se muestran todas las reseñas o solo 3
+  const [showAll, setShowAll] = useState(false);
+  const [displayedReviews, setDisplayedReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Actualizar las reseñas mostradas cuando cambian las reseñas o showAll
+  useEffect(() => {
+    if (showAll) {
+      setDisplayedReviews(reviews);
+    } else {
+      setDisplayedReviews(reviews.slice(0, 3));
+    }
+  }, [reviews, showAll]);
+
+  // Cargar más reseñas cuando se muestran todas
+  useEffect(() => {
+    if (showAll && hasMore && !isLoadingMore) {
+      onViewMoreReviews?.();
+    }
+  }, [showAll, hasMore, isLoadingMore, onViewMoreReviews]);
+
+  // Manejar la carga de todas las reseñas
+  const handleLoadAll = async () => {
+    if (onViewMoreReviews) {
+      setIsLoading(true);
+      try {
+        await onViewMoreReviews();
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   const renderStars = (rating: number, size: number = 16) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -55,10 +102,10 @@ const ProfileReviews = ({
 
   const handleProfilePicPress = (userId: string) => {
     router.push({
-        pathname: "/(protected)/users/[userId]",
-        params: { userId },
+      pathname: "/(protected)/users/[userId]",
+      params: { userId },
     });
-};
+  };
 
   const getMaxCount = () => {
     return Math.max(...Object.values(ratingDistribution));
@@ -112,16 +159,18 @@ const ProfileReviews = ({
       </View>
 
       <View className="space-y-6">
-        {reviews.map((review) => {
+        {displayedReviews.map((review) => {
           const [firstName, ...lastNameParts] = review.reviewerName.split(" ");
-          const lastInitial =
-            lastNameParts.length > 0 ? lastNameParts[0][0] + "." : "";
+          const lastInitial = lastNameParts.length > 0 ? lastNameParts[0][0] + "." : "";
           const displayName = `${firstName} ${lastInitial}`;
-
+          
           return (
             <View key={review.id} className="pb-5">
               <View className="flex-row items-start">
-                <Pressable onPress={() => handleProfilePicPress(review.reviewerId)} className="w-14 h-14 bg-gray-200 rounded-full mr-4 items-center justify-center">
+                <Pressable
+                  onPress={() => handleProfilePicPress(review.reviewerId)}
+                  className="w-14 h-14 bg-gray-200 rounded-full mr-4 items-center justify-center"
+                >
                   {review.reviewerImage ? (
                     <Image
                       source={{ uri: review.reviewerImage }}
@@ -138,7 +187,7 @@ const ProfileReviews = ({
                       {displayName}
                     </Text>
                     {review.reviewerMembershipJson?.isPro && (
-                        <FontAwesome name="diamond" size={18} color="#2D7A3E" />
+                      <FontAwesome name="diamond" size={18} color="#2D7A3E" />
                     )}
                   </View>
                   <Text className="text-xs text-gray-500 mb-2 mt-0.5">
@@ -159,18 +208,24 @@ const ProfileReviews = ({
             </View>
           );
         })}
-      </View>
+        {isLoadingMore && (
+          <View className="py-4">
+            <ActivityIndicator size="small" color="#3B82F6" />
+          </View>
+        )}
 
-      {reviews.length > 3 && onViewMoreReviews && (
-        <Pressable
-          onPress={onViewMoreReviews}
-          className="mt-4 bg-green-mannwork-light rounded-lg py-3"
-        >
-          <Text className="text-primary-600 font-semibold">
-            {isLoadingMore ? 'Cargando...' : 'Ver más opiniones'}
-          </Text>
-        </Pressable>
-      )}
+        {!showAll && totalReviews > 3 && (
+          <TouchableOpacity
+            onPress={() => setShowAll(true)}
+            className="mt-4 py-3 px-4 bg-green-mannwork-light rounded-lg border border-green-mannwork items-center"
+            disabled={isLoadingMore}
+          >
+            <Text className="text-green-mannwork font-semibold">
+              Ver las {totalReviews - 3} reseñas restantes
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };

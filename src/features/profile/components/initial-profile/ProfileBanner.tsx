@@ -17,11 +17,13 @@ interface ProfileBannerProps {
       startingDate: Date | null;
     };
   };
+  totalReviews?: number;
   isOwnProfile?: boolean;
 }
 
 const ProfileBanner = ({
   user,
+  totalReviews,
   isOwnProfile = false,
 }: ProfileBannerProps) => {
   const insets = useSafeAreaInsets();
@@ -88,7 +90,7 @@ const ProfileBanner = ({
           <View className="flex-row items-center mb-4">
             {renderStars(user.rating)}
             <Text className="text-white text-sm ml-2">
-              ({user.reviewCount} valoraciones)
+              ({totalReviews} valoraciones)
             </Text>
           </View>
           {user.membership_json?.isPro && user.role === "professional" && (

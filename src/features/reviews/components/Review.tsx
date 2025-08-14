@@ -1,10 +1,11 @@
+import { useAlertStore } from "@/common/store/alert.store";
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import StarRating from "react-native-star-rating-widget";
 
@@ -27,19 +28,20 @@ const Review = () => {
   const [comment, setComment] = useState("");
   const insets = useSafeAreaInsets();
   const { userId } = useAuth();
+  const { show } = useAlertStore();
   
 
   const handleSubmit = useCallback(async () => {
     if (!userId) {
-      Alert.alert("Error", "Debes estar autenticado para calificar.");
+      show("Debes estar autenticado para calificar.", "error");
       return;
     }
-  
+
     if (rating === 0) {
-      Alert.alert("Calificación requerida", "Por favor selecciona una calificación.");
+      show("Por favor selecciona una calificación.", "error");
       return;
     }
-  
+
     try {
       const response = await fetch("https://erkaukgzkzgtpuymatnp.supabase.co/functions/v1/create-review", {
         method: "POST",
@@ -54,21 +56,24 @@ const Review = () => {
           calification: rating,
         }),
       });
-  
+
       const result = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(result.error || "Error al enviar la calificación.");
       }
-  
-      Alert.alert("¡Gracias!", "Tu calificación ha sido enviada correctamente.", [
-        { text: "Aceptar", onPress: () => router.replace("/(protected)/(mainTabs)/requests") },
-      ]);
+
+      show("¡Gracias! Tu calificación ha sido enviada.", "success");
+      router.replace("/(protected)/(mainTabs)/requests");
+
     } catch (error) {
       console.error("Error al enviar review:", error);
-      Alert.alert("Error", error instanceof Error ? error.message : "Algo salió mal.");
+      const errorMessage = error instanceof Error ? error.message : "Algo salió mal.";
+      show(errorMessage, "error");
+      router.back();
     }
-  }, [rating, comment, requestId, id, router]);
+  }, [rating, comment, requestId, id, userId]);
+
 
   const initialLastName = lastName?.charAt(0) || '';
 
@@ -77,13 +82,6 @@ const Review = () => {
       <View className="flex-row justify-between bg-green-mannwork items-center px-4 py-2">
         <Pressable onPress={() => navigation.goBack()}>
           <MaterialIcons name="close" size={28} color="#FFFFFF" />
-        </Pressable>
-
-        <Pressable 
-          onPress={() => navigation.goBack()}
-          className="px-3 py-1"
-        >
-          <Text className="text-white font-medium">Omitir</Text>
         </Pressable>
       </View>
 
