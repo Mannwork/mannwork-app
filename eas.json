@@ -3,13 +3,16 @@
         "appVersionSource": "remote"
     },
     "build": {
-      "development": {
-        "developmentClient": true,
-        "distribution": "internal"
-      },
-      "preview": {
-        "distribution": "internal"
-      },
-      "production": {}
+        "development": {
+            "developmentClient": true,
+            "distribution": "internal",
+            "env": {
+                "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON_BASE64"
+            }
+        },
+        "preview": {
+            "distribution": "internal"
+        },
+        "production": {}
     }
-  }
+}
