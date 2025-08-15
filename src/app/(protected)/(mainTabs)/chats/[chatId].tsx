@@ -1,3 +1,4 @@
+import { useUsersOnline } from "@/common/providers/UsersOnlineProvider";
 import ChatHeader from "@/features/chats/components/ChatHeader";
 import ChatInput from "@/features/chats/components/ChatInput";
 import MessageItem from "@/features/chats/components/MessageItem";
@@ -20,6 +21,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ChatScreen = () => {
+    const { onlineUsers } = useUsersOnline();
+
     const { chatId, client } = useLocalSearchParams();
     const { userId } = useAuth();
     const {
@@ -76,7 +79,7 @@ const ChatScreen = () => {
             keyboardVerticalOffset={Platform.OS === "ios" ? insets.top + 60 : 0}
         >
             <View className="flex-1 bg-gray-50">
-                <ChatHeader />
+                <ChatHeader onlineUsers={onlineUsers} />
 
                 <FlatList
                     data={messages}

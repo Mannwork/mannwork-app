@@ -11,6 +11,7 @@ import NotificationProvider from "@/common/providers/PushNotificationProvider";
 import MySlot from "@/common/components/MySlot";
 
 import "@/common/lib/nativewind/global.css";
+import { UsersOnlineProvider } from "@/common/providers/UsersOnlineProvider";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,9 @@ export default function RootLayout() {
             <ClerkSupabaseProvider>
                 <QueryClientProvider client={queryClient}>
                     <NotificationProvider>
-                        <MySlot />
+                        <UsersOnlineProvider>
+                            <MySlot />
+                        </UsersOnlineProvider>
                     </NotificationProvider>
                 </QueryClientProvider>
             </ClerkSupabaseProvider>
