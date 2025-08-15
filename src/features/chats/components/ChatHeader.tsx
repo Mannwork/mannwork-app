@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
@@ -5,10 +6,13 @@ import { Image, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useChatStore } from "../store/chat.store";
 
-const ChatHeader = () => {
+const ChatHeader = ({ onlineUsers }: { onlineUsers: string[] }) => {
+    const { userId } = useAuth();
     const { actualChatData } = useChatStore();
     const insets = useSafeAreaInsets();
     const router = useRouter();
+
+    console.log("onlineUsers", onlineUsers);
 
     // Formatear el nombre para mostrar solo la primera letra del apellido
     const formatName = (fullName: string) => {
@@ -21,16 +25,21 @@ const ChatHeader = () => {
         return fullName;
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "active":
+    const getStatusColor = () => {
+        if (userId === actualChatData.professional_id) {
+            if (onlineUsers.includes(actualChatData.client_id as string)) {
                 return "bg-green-500";
-            case "completed":
+            } else {
                 return "bg-gray-500";
-            case "pending":
-                return "bg-yellow-500";
-            default:
+            }
+        } else {
+            if (
+                onlineUsers.includes(actualChatData.professional_id as string)
+            ) {
+                return "bg-green-500";
+            } else {
                 return "bg-gray-500";
+            }
         }
     };
 
@@ -89,9 +98,7 @@ const ChatHeader = () => {
                         </View>
 
                         <View
-                            className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${getStatusColor(
-                                actualChatData.status
-                            )}`}
+                            className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${getStatusColor()}`}
                         />
                     </View>
 
@@ -101,9 +108,7 @@ const ChatHeader = () => {
                         </Text>
                         <View className="flex-row items-center mt-1">
                             <View
-                                className={`w-2 h-2 rounded-full mr-2 ${getStatusColor(
-                                    actualChatData.status
-                                )}`}
+                                className={`w-2 h-2 rounded-full mr-2 ${getStatusColor()}`}
                             />
                             <Text className="text-white/80 text-sm">
                                 {getStatusText(actualChatData.status)}

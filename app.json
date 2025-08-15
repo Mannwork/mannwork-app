@@ -57,6 +57,10 @@
             "expo-font",
             "expo-notifications"
         ],
+        "notification": {
+            "icon": "./assets/images/push-notification-icon.png",
+            "color": "#ffffff"
+        },
         "experiments": {
             "typedRoutes": true
         },
