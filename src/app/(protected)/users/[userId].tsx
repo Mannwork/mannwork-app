@@ -9,7 +9,7 @@ import {
 import SectionDivider from "@/features/profile/components/initial-profile/SectionDivider";
 import { useUserReviews } from "@/features/profile/hooks/useUserReviews";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
 const UserProfileScreen = () => {
@@ -18,51 +18,106 @@ const UserProfileScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Traer reviews reales del usuario visitado
-  const { reviews, loading: loadingReviews } = useUserReviews(userId as string);
+  const { 
+    allReviews,          // Todas las reseñas (para estadísticas)
+    paginatedReviews,    // Reseñas paginadas (para la lista)
+    loading: loadingReviews, 
+    loadingMore, 
+    hasMore, 
+    totalReviews,
+    loadMoreReviews,
+    refreshReviews
+  } = useUserReviews(userId as string);
 
   useEffect(() => {
     const fetchUser = async () => {
       setIsLoading(true);
       setError(null);
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      if (error) {
-        setError("No se pudo cargar el usuario");
+      try {
+        // Trae los datos básicos del usuario
+        const { data: user, error: userError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", userId)
+          .single();
+
+        if (userError) {
+          throw userError;
+        }
+
+        // Trae las profesiones del usuario
+        const { data: professionsData, error: professionsError } = await supabase
+          .from("user_professional_services")
+          .select("category_id, subcategory_id")
+          .eq("user_id", userId);
+
+        if (professionsError) {
+          throw professionsError;
+        }
+
+        // Combina los datos del usuario con sus profesiones
+        const userWithProfessions = {
+          ...user,
+          professions: professionsData || [],
+        };
+
+        setUser(userWithProfessions as any);
+      } catch (error) {
+        setError("No se pudo cargar el perfil del usuario");
         setUser(null);
-      } else {
-        setUser(data);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
-    if (userId) fetchUser();
+
+    if (userId) {
+      fetchUser();
+    }
   }, [userId]);
 
-  const averageRating =
-    reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + (r.calification || 0), 0) /
-        reviews.length
-      : 0;
+ // Calcular estadísticas con todas las reseñas
+ const { averageRating, ratingDistribution } = useMemo(() => {
+  const avg = allReviews.length > 0
+    ? allReviews.reduce((sum: number, r: any) => sum + (r.calification || 0), 0) / allReviews.length
+    : 0;
 
-  const ratingDistribution = [1, 2, 3, 4, 5].reduce((acc, star) => {
-    acc[star] = reviews.filter(
-      (r) => Math.round(r.calification) === star
-    ).length;
+  const dist = [1, 2, 3, 4, 5].reduce((acc, star) => {
+    acc[star] = allReviews.filter((r: any) => Math.round(r.calification) === star).length;
     return acc;
   }, {} as { [key: number]: number });
 
-  const mappedReviews = reviews.map((r) => ({
-    id: r.id,
-    reviewerName: r.reviewer_name || "Usuario",
-    reviewerImage: r.reviewer_image,
-    rating: r.calification,
-    comment: r.commentary,
-    reviewerMembershipJson: r.reviewer_membership_json,
-    date: r.created_at,
-  }));
+  return { averageRating: avg, ratingDistribution: dist };
+}, [allReviews]);
+
+
+  const mappedReviews = useMemo(() => paginatedReviews.map((r) => {
+    // Si es una respuesta de Supabase con la estructura reviewer
+    if ('reviewer' in r && r.reviewer) {
+      return {
+        id: r.id,
+        reviewerId: r.reviewer_id,
+        reviewerName: `${r.reviewer.name} ${r.reviewer.last_name || ''}`.trim() || "Usuario",
+        reviewerImage: r.reviewer.profile_pic,
+        rating: r.calification,
+        comment: r.commentary,
+        date: r.created_at,
+        reviewerMembershipJson: r.reviewer.membership_json,
+      };
+    }
+    
+    // Si es un objeto plano con las propiedades directamente
+    return {
+      id: r.id,
+      reviewerId: r.reviewer_id,
+      reviewerName: r.reviewer_name || "Usuario",
+      reviewerImage: r.reviewer_image,
+      rating: r.calification,
+      comment: r.commentary,
+      date: r.created_at,
+      reviewerMembershipJson: r.reviewer_membership_json,
+    };
+  }), [paginatedReviews]);
+
 
   // Loading state
   if (isLoading || loadingReviews) {
@@ -73,6 +128,7 @@ const UserProfileScreen = () => {
       </View>
     );
   }
+
 
   // Error state
   if (error) {
@@ -105,8 +161,9 @@ const UserProfileScreen = () => {
     lastName: user.last_name,
     profileImage: user.profile_pic || undefined,
     rating: averageRating,
-    reviewCount: reviews.length,
+    reviewCount: allReviews.length,
     role: user.rol as "professional" | "client",
+    membership_json: user.membership_json || undefined,
   };
 
   const profileInfo = {
@@ -119,7 +176,7 @@ const UserProfileScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ProfileBanner
           user={userData}
-
+          totalReviews={totalReviews}
           isOwnProfile={false}
         />
         <SectionDivider />
@@ -145,19 +202,23 @@ const UserProfileScreen = () => {
 
         <ProfileReviews
           userName={
-            userData.lastName
-              ? `${userData.firstName} ${userData.lastName.charAt(0)}.`
-              : userData.firstName
+            userData?.lastName
+              ? `${userData?.firstName || ''} ${userData.lastName.charAt(0)}.`
+              : userData?.firstName || 'Usuario'
           }
           averageRating={averageRating}
-          totalReviews={reviews.length}
+          totalReviews={totalReviews}
           ratingDistribution={ratingDistribution}
           reviews={mappedReviews}
-          onViewMoreReviews={() => {}}
+          onViewMoreReviews={hasMore ? loadMoreReviews : undefined}
+          hasMore={hasMore}
+          isLoadingMore={loadingMore}
         />
       </ScrollView>
     </View>
   );
 };
 
+
 export default UserProfileScreen;
+

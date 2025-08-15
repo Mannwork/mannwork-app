@@ -1,97 +1,181 @@
 import { supabase } from "@/common/lib/supabase/supabaseClient";
-import { SupabaseReview, UserReview } from "@/features/reviews/interfaces/review.interface";
-import { useCallback, useEffect, useState } from "react";
+import { SupabaseReview } from "@/features/reviews/interfaces/review.interface";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useMemo, useState, useEffect } from "react";
 
 const PAGE_SIZE = 3; // Número de reseñas por página
 
-export function useUserReviews(userId: string, filter: 'received' | 'given' = 'received') {
-  const [reviews, setReviews] = useState<UserReview[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(0);
+interface UseUserReviewsOptions {
+  initialPageSize?: number;
+}
 
-  const fetchReviews = useCallback(async (isLoadingMore = false) => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
+interface FetchReviewsParams {
+  pageParam?: number;
+  userId: string;
+  filter: 'received' | 'given';
+  pageSize?: number;
+}
 
-    try {
-      const currentPage = isLoadingMore ? page : 0;
-      const from = currentPage * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+async function fetchReviewsPage({ pageParam = 1, userId, filter, pageSize = PAGE_SIZE }: FetchReviewsParams) {
+  const from = (pageParam - 1) * pageSize;
+  const to = from + pageSize - 1;
 
-      if (isLoadingMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
-      
-      setError(null);
+  const query = supabase
+    .from("reviews")
+    .select(`*, reviewer:reviewer_id (id, name, last_name, profile_pic, membership_json)`, { count: 'exact' })
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
-      const query = supabase
-        .from("reviews")
-        .select(`*, reviewer:reviewer_id (id, name, last_name, profile_pic, membership_json)`, { count: 'exact' })
-        .order("created_at", { ascending: false })
-        .range(from, to);
+  // Filtrar por reseñas recibidas o dadas
+  const filteredQuery = filter === 'received' 
+    ? query.eq("reviewed_id", userId)
+    : query.eq("reviewer_id", userId);
 
-      // Filtrar por reseñas recibidas o dadas
-      const filteredQuery = filter === 'received' 
-        ? query.eq("reviewed_id", userId)
-        : query.eq("reviewer_id", userId);
+  const { data, error, count } = await filteredQuery;
 
-      const { data, error: queryError, count } = await filteredQuery;
+  if (error) {
+    throw error;
+  }
 
-      if (queryError) {
-        throw queryError;
-      }
+  // Mapear los datos para incluir el nombre y la imagen del revisor
+  const formattedData = (data as unknown as SupabaseReview[]).map(review => ({
+    ...review,
+    reviewer_name: review.reviewer ? `${review.reviewer.name} ${review.reviewer.last_name}` : 'Usuario anónimo',
+    reviewer_image: review.reviewer?.profile_pic || undefined,
+    reviewer_membership_json: review.reviewer?.membership_json || undefined,
+  }));
 
-      // Verificar si hay más páginas
-      setHasMore((count || 0) > to + 1);
-
-      // Mapear los datos para incluir el nombre y la imagen del revisor
-      const formattedData = (data as unknown as SupabaseReview[]).map(review => ({
-        ...review,
-        reviewer_name: review.reviewer ? `${review.reviewer.name} ${review.reviewer.last_name}` : 'Usuario anónimo',
-        reviewer_image: review.reviewer?.profile_pic || undefined,
-        reviewer_membership_json: review.reviewer?.membership_json || undefined,
-      }));
-
-      if (isLoadingMore) {
-        setReviews(prev => [...prev, ...formattedData]);
-      } else {
-        setReviews(formattedData);
-      }
-      
-      setPage(currentPage + 1);
-    } catch (err) {
-      console.error('Error al cargar las reseñas:', err);
-      setError('Error al cargar las reseñas. Por favor, inténtalo de nuevo.');
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [userId, filter, page]);
-
-  useEffect(() => {
-    fetchReviews(false);
-  }, [fetchReviews]);
-
-  // Función para cargar más reseñas
-  const loadMoreReviews = () => {
-    if (!loading && !loadingMore && hasMore) {
-      fetchReviews(true);
-    }
+  return {
+    data: formattedData,
+    nextPage: (count || 0) > to + 1 ? pageParam + 1 : undefined,
+    count
   };
+}
 
-  return { 
-    reviews, 
-    loading, 
-    loadingMore, 
-    error, 
-    hasMore, 
-    loadMoreReviews 
+export function useUserReviews(userId: string, filter: 'received' | 'given' = 'received', options: UseUserReviewsOptions = {}) {
+  const { initialPageSize = PAGE_SIZE } = options;
+  const [showAll, setShowAll] = useState(false);
+  const [allReviews, setAllReviews] = useState<Array<any>>([]);
+  const [allReviewsLoaded, setAllReviewsLoaded] = useState(false);
+  const queryClient = useQueryClient();
+  const queryKey = useMemo(() => ['user-reviews', userId, filter, showAll], [userId, filter, showAll]);
+
+  const fetchAllPages = useCallback(async () => {
+    if (!showAll) return;
+    
+    let allData: any[] = [];
+    let currentPage = 1;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const result = await fetchReviewsPage({ pageParam: currentPage, userId, filter });
+      allData = [...allData, ...result.data];
+      hasMore = !!result.nextPage;
+      currentPage++;
+    }
+    
+    setAllReviews(allData);
+    return allData;
+  }, [userId, filter, showAll]);
+
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey,
+    queryFn: ({ pageParam = 1 }) => fetchReviewsPage({ 
+      pageParam, 
+      userId, 
+      filter,
+      pageSize: showAll ? 50 : initialPageSize // Aumentamos el tamaño de página si es necesario
+    }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    enabled: !!userId,
+  });
+
+  // Cargar todas las reseñas para estadísticas
+  const loadAllReviewsForStats = useCallback(async () => {
+    if (allReviewsLoaded || !userId) return;
+    
+    let allData: any[] = [];
+    let currentPage = 1;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const result = await fetchReviewsPage({ 
+        pageParam: currentPage, 
+        userId, 
+        filter,
+        pageSize: 50 // Tamaño grande para obtener todas las reseñas rápidamente
+      });
+      
+      allData = [...allData, ...result.data];
+      hasMore = !!result.nextPage && result.data.length > 0;
+      currentPage++;
+      
+      // Si ya tenemos suficientes reseñas para estadísticas, podemos parar
+      if (allData.length >= 100) break;
+    }
+    
+    setAllReviews(allData);
+    setAllReviewsLoaded(true);
+    return allData;
+  }, [userId, filter, allReviewsLoaded]);
+
+  // Cargar todas las reseñas cuando se monta el componente
+  useEffect(() => {
+    loadAllReviewsForStats();
+  }, [loadAllReviewsForStats]);
+
+  // Reseñas paginadas para la lista
+  const paginatedReviews = useMemo(() => {
+    return data?.pages.flatMap(page => page.data) || [];
+  }, [data]);
+
+  // Función para cargar más reseñas paginadas
+  const loadMorePaginatedReviews = useCallback(async () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      await fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Función para recargar las reseñas
+  const refreshReviews = useCallback(() => {
+    setAllReviews([]);
+    return queryClient.invalidateQueries({ queryKey });
+  }, [queryClient, queryKey]);
+  
+  // Función para cargar todas las reseñas
+  const loadAllReviews = useCallback(async () => {
+    if (showAll) return;
+    setShowAll(true);
+  }, [showAll]);
+
+  // Calcular el total de reseñas basado en el conteo de la primera página
+  const totalReviews = data?.pages[0]?.count || 0;
+  
+  return {
+    // Todas las reseñas (para estadísticas)
+    allReviews,
+    // Reseñas paginadas (para la lista)
+    paginatedReviews,
+    // Metadatos
+    totalReviews,
+    loading: status === 'pending',
+    loadingMore: isFetchingNextPage,
+    loadingAll: showAll && isFetchingNextPage,
+    error: error ? 'Error al cargar las reseñas. Por favor, inténtalo de nuevo.' : null,
+    hasMore: hasNextPage,
+    // Funciones
+    loadMoreReviews: loadMorePaginatedReviews,
+    refreshReviews,
+    refetch,
   };
 }

@@ -8,33 +8,39 @@ import {
 } from "@/features/profile";
 import SectionDivider from "@/features/profile/components/initial-profile/SectionDivider";
 import { useUserReviews } from "@/features/profile/hooks/useUserReviews";
+import { useMemo } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
 const ProfileScreen = () => {
   const { data: user, isLoading, error } = useCurrentUser();
   // Traer reviews reales del usuario logueado con paginación
   const { 
-    reviews, 
+    allReviews,          // Todas las reseñas (para estadísticas)
+    paginatedReviews,    // Reseñas paginadas (para la lista)
     loading: loadingReviews, 
     loadingMore, 
     hasMore, 
-    loadMoreReviews 
+    totalReviews,
+    loadMoreReviews,
+    refreshReviews
   } = useUserReviews(user?.id || "");
 
-  const averageRating =
-    reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + (r.calification || 0), 0) /
-        reviews.length
+  // Calcular estadísticas con todas las reseñas
+  const { averageRating, ratingDistribution } = useMemo(() => {
+    const avg = allReviews.length > 0
+      ? allReviews.reduce((sum: number, r: any) => sum + (r.calification || 0), 0) / allReviews.length
       : 0;
 
-  const ratingDistribution = [1, 2, 3, 4, 5].reduce((acc, star) => {
-    acc[star] = reviews.filter(
-      (r) => Math.round(r.calification) === star
-    ).length;
-    return acc;
-  }, {} as { [key: number]: number });
+    const dist = [1, 2, 3, 4, 5].reduce((acc, star) => {
+      acc[star] = allReviews.filter((r: any) => Math.round(r.calification) === star).length;
+      return acc;
+    }, {} as { [key: number]: number });
 
-  const mappedReviews = reviews.map((r: any) => {
+    return { averageRating: avg, ratingDistribution: dist };
+  }, [allReviews]);
+
+  // Mapear las reseñas paginadas para la lista
+  const mappedReviews = useMemo(() => paginatedReviews.map((r) => {
     // Si es una respuesta de Supabase con la estructura reviewer
     if ('reviewer' in r && r.reviewer) {
       return {
@@ -60,13 +66,8 @@ const ProfileScreen = () => {
       date: r.created_at,
       reviewerMembershipJson: r.reviewer_membership_json,
     };
-  });
+  }), [paginatedReviews]);
 
-  const handleViewMoreReviews = () => {
-    if (hasMore && !loadingMore) {
-      loadMoreReviews();
-    }
-  };
 
   // Loading state
   if (isLoading || loadingReviews) {
@@ -109,7 +110,7 @@ const ProfileScreen = () => {
     lastName: user.last_name,
     profileImage: user.profile_pic || undefined,
     rating: averageRating,
-    reviewCount: reviews.length,
+    reviewCount: allReviews.length, // Usar allReviews en lugar de reviews
     role: user.rol as "professional" | "client",
     membership_json: user.membership_json || undefined,
   };
@@ -124,7 +125,8 @@ const ProfileScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ProfileBanner
             user={userData}
-          isOwnProfile={true}
+            totalReviews={totalReviews}
+            isOwnProfile={true}
         />
         <SectionDivider />
         <ProfileInfo description={profileInfo.description} />
@@ -149,12 +151,12 @@ const ProfileScreen = () => {
 
         <ProfileReviews 
           userName={`${userData.firstName} ${userData.lastName}`}
-          profileImage={userData.profileImage}
-          totalReviews={reviews.length}
+          totalReviews={totalReviews}
           reviews={mappedReviews} 
-          onViewMoreReviews={hasMore ? handleViewMoreReviews : undefined} 
+          onViewMoreReviews={hasMore ? loadMoreReviews : undefined}
           averageRating={averageRating}
           ratingDistribution={ratingDistribution}
+          hasMore={hasMore}
           isLoadingMore={loadingMore}
         />
       </ScrollView>

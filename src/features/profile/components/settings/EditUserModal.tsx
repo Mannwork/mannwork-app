@@ -3,9 +3,9 @@ import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
+import { useAlertStore } from "@/common/store/alert.store";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Platform,
   Pressable,
@@ -35,6 +35,7 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
   const [serviceRadius, setServiceRadius] = useState(
     user?.service_radius || 15
   );
+  const { show } = useAlertStore();
 
   const { userId } = useAuth();
 
@@ -56,7 +57,7 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
 
   const handleSave = () => {
     if (!name.trim() || !lastName.trim()) {
-      Alert.alert("Error", "El nombre y apellido son obligatorios");
+      show("El nombre y apellido son obligatorios", "error");
       return;
     }
 
@@ -74,12 +75,13 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
 
     updateProfile(updateData, {
       onSuccess: () => {
-        Alert.alert("Éxito", "Perfil actualizado correctamente");
+        show("Perfil actualizado correctamente", "success");
         onClose();
       },
       onError: (error) => {
-        Alert.alert("Error", "No se pudo actualizar el perfil");
+        show("No se pudo actualizar el perfil", "error");
         console.error("Error updating profile:", error);
+        onClose();
       },
     });
   };
