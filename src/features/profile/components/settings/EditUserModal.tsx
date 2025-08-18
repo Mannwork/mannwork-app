@@ -1,9 +1,9 @@
 import useSupabaseStorage from "@/common/hooks/useSupabaseStorage";
+import { useAlertStore } from "@/common/store/alert.store";
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { useAlertStore } from "@/common/store/alert.store";
 import {
   ActivityIndicator,
   Image,
@@ -244,6 +244,21 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
             >
               <Text className="text-white text-base font-semibold text-center">
                 Editar oficios
+              </Text>
+            </Pressable>
+            <Text className="text-base font-bold text-gray-800 mb-3 mt-6">
+              Ubicacion
+            </Text>
+            <Pressable
+              onPress={() =>
+                router.push(
+                  "/(protected)/(mainTabs)/profile/update-ubication-modal"
+                )
+              }
+              className="bg-green-mannwork py-3 px-4 rounded-xl"
+            >
+              <Text className="text-white text-base font-semibold text-center">
+                Editar ubicacion
               </Text>
             </Pressable>
           </View>
