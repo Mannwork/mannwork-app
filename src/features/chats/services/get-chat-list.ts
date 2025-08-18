@@ -1,5 +1,6 @@
 import { supabase } from "@/common/lib/supabase/supabaseClient";
 
+// TUS INTERFACES ORIGINALES - SIN CAMBIOS
 interface ChatListItem {
     id: string;
     request_id: string;
@@ -12,33 +13,46 @@ interface ChatListItem {
     status: "active" | "completed" | "pending";
 }
 
-interface ChatData {
-    id: string;
-    request_id: string;
-    client_id: string;
-    professional_id: string;
-    status: string;
-    requests: {
-        category: string;
-        subcategory: string;
-        categories: { name: string };
-        subcategories: { name: string };
-    };
-}
+// interface ChatData { // Esta interfaz ya no se usa directamente, pero la mantenemos por referencia
+//     id: string;
+//     request_id: string;
+//     client_id: string;
+//     professional_id: string;
+//     status: string;
+//     requests: {
+//         category: string;
+//         subcategory: string;
+//         categories: { name: string };
+//         subcategories: { name: string };
+//     };
+// }
 
+// Interfaz de parámetros actualizada para aceptar la búsqueda
 interface GetChatListParams {
     userId: string;
     page: number;
     pageSize: number;
     statusSelected: string;
+    searchText?: string; // Parámetro nuevo y necesario para la búsqueda
 }
 
-export async function getUserChats({ userId, page, pageSize, statusSelected }: GetChatListParams): Promise<ChatListItem[]> {
+// --- INICIO DE LA FUNCIÓN MODIFICADA ---
+
+export async function getUserChats({
+    userId,
+    page,
+    pageSize,
+    statusSelected,
+    searchText,
+}: GetChatListParams): Promise<ChatListItem[]> {
+    console.log("s", searchText);
+    
+
     const offset = (page - 1) * pageSize;
 
     try {
-        // First, fetch the basic chat information with related request data
-        const { data: chatsData, error: chatsError } = await supabase
+        // Primero obtenemos todos los chats del usuario con el status seleccionado
+        let query = supabase
             .from('chats')
             .select(`
                 id,
@@ -46,18 +60,19 @@ export async function getUserChats({ userId, page, pageSize, statusSelected }: G
                 client_id,
                 professional_id,
                 status,
-                requests!chats_request_id_fkey (
-                    category,
-                    subcategory,
-                    categories!inner ( name ),
-                    subcategories!inner ( name )
+                updated_at,
+                requests!inner (
+                    categories ( name ),
+                    subcategories ( name )
                 ),
-                updated_at
+                client:users!chats_client_id_fkey ( name, last_name, profile_pic ),
+                professional:users!chats_professional_id_fkey ( name, last_name, profile_pic )
             `)
             .or(`client_id.eq.${userId},professional_id.eq.${userId}`)
-            .eq('status', statusSelected)
-            .order('updated_at', { ascending: false })
-            .range(offset, offset + pageSize - 1);
+            .eq('status', statusSelected);
+
+        const { data: chatsData, error: chatsError } = await query
+            .order('updated_at', { ascending: false });
 
         if (chatsError) {
             console.error('Error fetching chats:', chatsError);
@@ -68,46 +83,48 @@ export async function getUserChats({ userId, page, pageSize, statusSelected }: G
             return [];
         }
 
-        // Transform the data to match the ChatListItem interface
-        const chatListItems: ChatListItem[] = await Promise.all(
-            (chatsData as unknown as ChatData[]).map(async (chat) => {
-                // Determine the other user's ID (the one who is not the current user)
-                const otherUserId = chat.client_id === userId ? chat.professional_id : chat.client_id;
+        // Filtramos en el cliente si hay texto de búsqueda
+        let filteredData = chatsData;
+        if (searchText && searchText.trim() !== '') {
+            const searchLower = searchText.toLowerCase().trim();
+            filteredData = chatsData.filter((chat: any) => {
+                const categoryName = chat.requests?.categories?.name?.toLowerCase() || '';
+                const subcategoryName = chat.requests?.subcategories?.name?.toLowerCase() || '';
+                const clientName = `${chat.client?.name || ''} ${chat.client?.last_name || ''}`.toLowerCase();
+                const professionalName = `${chat.professional?.name || ''} ${chat.professional?.last_name || ''}`.toLowerCase();
+                
+                return categoryName.includes(searchLower) ||
+                       subcategoryName.includes(searchLower) ||
+                       clientName.includes(searchLower) ||
+                       professionalName.includes(searchLower);
+            });
+        }
 
-                // Get the other user's profile information
-                const { data: otherUserData, error: userError } = await supabase
-                    .from('users')
-                    .select('name, last_name, profile_pic')
-                    .eq('id', otherUserId)
-                    .single();
+        // Aplicamos paginación después del filtrado
+        const paginatedData = filteredData.slice(offset, offset + pageSize);
 
-                if (userError) {
-                    console.error(`Error fetching user details for ID ${otherUserId}:`, userError);
-                }
+        const chatListItems: ChatListItem[] = paginatedData.map((chat: any) => {
+            const isUserTheClient = chat.client_id === userId;
+            const otherUser = isUserTheClient ? chat.professional : chat.client;
 
-                const request = chat.requests;
-                const mainCategory = request?.categories?.name || 'Sin categoría';
-                const subCategory = request?.subcategories?.name || 'Sin subcategoría';
-
-                return {
-                    id: chat.id,
-                    request_id: chat.request_id,
-                    client_id: chat.client_id,
-                    professional_id: chat.professional_id,
-                    professionalName: otherUserData 
-                        ? `${otherUserData.name} ${otherUserData.last_name}`.trim() 
-                        : 'Usuario',
-                    professionalImage: otherUserData?.profile_pic,
-                    mainCategory,
-                    subCategory,
-                    status: chat.status as "active" | "completed" | "pending"
-                };
-            })
-        );
+            return {
+                id: chat.id,
+                request_id: chat.request_id,
+                client_id: chat.client_id,
+                professional_id: chat.professional_id,
+                professionalName: otherUser
+                    ? `${otherUser.name} ${otherUser.last_name}`.trim()
+                    : 'Usuario',
+                professionalImage: otherUser?.profile_pic,
+                mainCategory: chat.requests?.categories?.name || 'Sin categoría',
+                subCategory: chat.requests?.subcategories?.name || 'Sin subcategoría',
+                status: chat.status as "active" | "completed" | "pending",
+            };
+        });
 
         return chatListItems;
     } catch (error) {
         console.error('Error in getUserChats:', error);
         throw error;
     }
-}    
+}

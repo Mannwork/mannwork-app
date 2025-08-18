@@ -14,6 +14,8 @@ interface ActualChatData {
 interface ChatStore {
     actualChatData: ActualChatData;
     setActualChatData: (data: ActualChatData) => void;
+    searchText: string;
+    setSearchText: (text: string) => void;
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
@@ -29,5 +31,9 @@ export const useChatStore = create<ChatStore>((set) => ({
     },
     setActualChatData: (data: ActualChatData) => {
         set({ actualChatData: data });
+    },
+    searchText: "",
+    setSearchText: (text: string) => {
+        set({ searchText: text });
     },
 }))

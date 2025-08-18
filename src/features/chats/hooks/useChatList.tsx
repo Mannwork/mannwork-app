@@ -3,6 +3,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { getUserChats } from "../services/get-chat-list";
+import { useChatStore } from "../store/chat.store";
 
 const PAGE_SIZE = 10; // Number of items per page
 
@@ -18,9 +19,10 @@ export function useChatList({
 }: UseChatListOptions) {
     const { userId } = useAuth();
     const queryClient = useQueryClient();
+    const { searchText } = useChatStore();
 
     const query = useInfiniteQuery({
-        queryKey: ["chats", userId, statusSelected],
+        queryKey: ["chats", userId, statusSelected, searchText],
         queryFn: async ({ pageParam = 1 }) => {
             if (!userId) return [];
             const page = typeof pageParam === "number" ? pageParam : 1;
@@ -30,6 +32,7 @@ export function useChatList({
                 page,
                 pageSize,
                 statusSelected,
+                searchText,
             });
         },
         getNextPageParam: (lastPage, allPages) => {

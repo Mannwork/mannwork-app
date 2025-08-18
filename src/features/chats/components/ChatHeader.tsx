@@ -117,12 +117,12 @@ const ChatHeader = ({ onlineUsers }: { onlineUsers: string[] }) => {
                     </View>
                 </View>
 
-                <Pressable
+                {/* <Pressable
                     // onPress={onOptionsPress}
                     className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
                 >
                     <MaterialIcons name="more-vert" size={24} color="#FFFFFF" />
-                </Pressable>
+                </Pressable> */}
             </View>
 
             <View className="mt-3 bg-white/10 rounded-lg px-3 py-2">
