@@ -23,16 +23,6 @@ const ChatsScreen = () => {
 
     if (isLoading || !userRole) return null;
 
-    const handleSearch = () => {
-        // Implementar búsqueda de chats
-        console.log("Buscar chats");
-    };
-
-    const handleFilter = () => {
-        // Implementar filtros de chats
-        console.log("Filtrar chats");
-    };
-
     const handleStartChat = () => {
         // Navegar a buscar profesionales o solicitudes
         router.push("/(protected)/(mainTabs)/requests");
@@ -44,11 +34,7 @@ const ChatsScreen = () => {
 
     return (
         <View className="flex-1 bg-gray-50">
-            <ChatsHeader
-                userRole={userRole}
-                onSearch={handleSearch}
-                onFilter={handleFilter}
-            />
+            <ChatsHeader userRole={userRole} />
 
             <ChatsTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
