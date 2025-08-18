@@ -1,4 +1,5 @@
 import { supabase } from "@/common/lib/supabase/supabaseClient";
+import { Ubication } from "@/common/types/ubication.interface";
 import { useAuth } from "@clerk/clerk-expo";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -14,6 +15,7 @@ interface UpdateProfileData {
     subcategory_name: string;
   }[]; // Solo para profesionales
   service_radius?: number;
+  ubication_json?: Ubication;
 }
 
 export const useUpdateProfile = () => {
@@ -30,6 +32,7 @@ export const useUpdateProfile = () => {
         profile_pic: data.profile_pic,
         description: data.description,
         ...(data.service_radius !== undefined && { service_radius: data.service_radius }),
+        ...(data.ubication_json !== undefined && { ubication_json: data.ubication_json }),
       };
 
       // Si hay profesiones, actualiza la tabla intermedia user_professional_services
