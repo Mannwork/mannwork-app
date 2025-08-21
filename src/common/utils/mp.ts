@@ -7,10 +7,15 @@ export const getAuthMpUrl = async (userId: string) => {
       });
 
     if (error) {
+      console.log("error", error);
+      
       throw new Error('Error al invocar la función: ' + error.message);
     }
 
     if (data && data.url) {
+
+      console.log("data", data);
+      
 
       return data.url;
     } else {

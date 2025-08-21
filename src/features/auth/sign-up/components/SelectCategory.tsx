@@ -4,7 +4,7 @@ import {
     FlatList,
     Pressable,
     Text,
-    View
+    View,
 } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
@@ -49,9 +49,13 @@ const CategoryItem = ({
         <View className="mb-4 mx-4">
             <Pressable
                 onPress={() => handleCategoryToggle(item)}
-                className={`flex-row items-center p-4 rounded-xl border-2 ${isSelected ? 'border-green-600 bg-green-50' : 'border-gray-200 bg-white'} ${isDisabled && !isSelected ? 'opacity-60' : 'opacity-100'}`}
+                className={`flex-row items-center p-4 rounded-xl border-2 ${
+                    isSelected
+                        ? "border-green-600 bg-green-50"
+                        : "border-gray-200 bg-white"
+                } ${isDisabled && !isSelected ? "opacity-60" : "opacity-100"}`}
                 style={{
-                    shadowColor: isSelected ? '#2D7A3E' : '#000',
+                    shadowColor: isSelected ? "#2D7A3E" : "#000",
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: isSelected ? 0.1 : 0.05,
                     shadowRadius: 4,
@@ -59,7 +63,11 @@ const CategoryItem = ({
                 }}
                 disabled={isDisabled && !isSelected}
             >
-                <View className={`p-3 rounded-lg mr-4 ${isSelected ? 'bg-green-100' : 'bg-gray-100'}`}>
+                <View
+                    className={`p-3 rounded-lg mr-4 ${
+                        isSelected ? "bg-green-100" : "bg-gray-100"
+                    }`}
+                >
                     <MaterialIcons
                         name={(categoryIcons[item.name] as any) || "category"}
                         size={28}
@@ -67,16 +75,29 @@ const CategoryItem = ({
                     />
                 </View>
                 <View className="flex-1">
-                    <Text className={`text-lg font-bold ${isSelected ? 'text-green-800' : 'text-gray-800'}`}>
+                    <Text
+                        className={`text-lg font-bold ${
+                            isSelected ? "text-green-800" : "text-gray-800"
+                        }`}
+                    >
                         {item.name}
                     </Text>
-                    {isSelected && selectedCategory && selectedCategory.selectedSubcategories.length > 0 && (
-                        <Text className="text-xs text-green-600 mt-1">
-                            {selectedCategory.selectedSubcategories.length} seleccionadas
-                        </Text>
-                    )}
+                    {isSelected &&
+                        selectedCategory &&
+                        selectedCategory.selectedSubcategories.length > 0 && (
+                            <Text className="text-xs text-green-600 mt-1">
+                                {selectedCategory.selectedSubcategories.length}{" "}
+                                seleccionadas
+                            </Text>
+                        )}
                 </View>
-                <View className={`w-6 h-6 rounded-full border-2 ${isSelected ? 'bg-green-600 border-green-600' : 'border-gray-300'} items-center justify-center`}>
+                <View
+                    className={`w-6 h-6 rounded-full border-2 ${
+                        isSelected
+                            ? "bg-green-600 border-green-600"
+                            : "border-gray-300"
+                    } items-center justify-center`}
+                >
                     {isSelected && (
                         <MaterialIcons name="check" size={16} color="white" />
                     )}
@@ -91,7 +112,10 @@ const CategoryItem = ({
                         </Text>
                         {isLoading ? (
                             <View className="py-4">
-                                <ActivityIndicator size="small" color="#2D7A3E" />
+                                <ActivityIndicator
+                                    size="small"
+                                    color="#2D7A3E"
+                                />
                             </View>
                         ) : subcategories && subcategories.length > 0 ? (
                             <View className="flex flex-col gap-y-2">
@@ -102,21 +126,45 @@ const CategoryItem = ({
                                         );
                                     return (
                                         <Pressable
-                                            key={String(item.id) + "-" + subcategory.id}
+                                            key={
+                                                String(item.id) +
+                                                "-" +
+                                                subcategory.id
+                                            }
                                             onPress={() =>
                                                 handleSubcategoryToggle(
                                                     String(item.id),
                                                     subcategory.id
                                                 )
                                             }
-                                            className={`flex-row items-center p-4 rounded-xl ${isSubcategorySelected ? 'bg-green-50 border-2 border-green-500' : 'bg-white border border-gray-200'}`}
+                                            className={`flex-row items-center p-4 rounded-xl ${
+                                                isSubcategorySelected
+                                                    ? "bg-green-50 border-2 border-green-500"
+                                                    : "bg-white border border-gray-200"
+                                            }`}
                                         >
-                                            <View className={`w-6 h-6 rounded-full border-2 ${isSubcategorySelected ? 'bg-green-500 border-green-500' : 'border-gray-300'} items-center justify-center mr-3`}>
+                                            <View
+                                                className={`w-6 h-6 rounded-full border-2 ${
+                                                    isSubcategorySelected
+                                                        ? "bg-green-500 border-green-500"
+                                                        : "border-gray-300"
+                                                } items-center justify-center mr-3`}
+                                            >
                                                 {isSubcategorySelected && (
-                                                    <MaterialIcons name="check" size={16} color="white" />
+                                                    <MaterialIcons
+                                                        name="check"
+                                                        size={16}
+                                                        color="white"
+                                                    />
                                                 )}
                                             </View>
-                                            <Text className={`text-base ${isSubcategorySelected ? 'text-green-800 font-medium' : 'text-gray-700'}`}>
+                                            <Text
+                                                className={`text-base ${
+                                                    isSubcategorySelected
+                                                        ? "text-green-800 font-medium"
+                                                        : "text-gray-700"
+                                                }`}
+                                            >
                                                 {subcategory.name}
                                             </Text>
                                         </Pressable>
@@ -142,9 +190,12 @@ export const SelectCategory = () => {
     const { data: categories, isLoading } = useCategories();
     const { setData } = useAuthStore();
 
-    const isDisabled = selectedCategories.length === 0 ||
-        selectedCategories.some(cat => cat.selectedSubcategories.length === 0);
-    
+    const isDisabled =
+        selectedCategories.length === 0 ||
+        selectedCategories.some(
+            (cat) => cat.selectedSubcategories.length === 0
+        );
+
     const MAX_CATEGORIES = 3;
 
     const handleCategoryToggle = (category: any) => {
@@ -225,7 +276,8 @@ export const SelectCategory = () => {
     const renderItem = ({ item }: { item: any }) => {
         const isSelected = isCategorySelected(item.id);
         const selectedCategory = getSelectedCategory(item.id);
-        const isDisabled = selectedCategories.length >= MAX_CATEGORIES && !isSelected;
+        const isDisabled =
+            selectedCategories.length >= MAX_CATEGORIES && !isSelected;
 
         return (
             <CategoryItem
@@ -251,11 +303,14 @@ export const SelectCategory = () => {
                     <Text className="text-gray-600">
                         Selecciona hasta {MAX_CATEGORIES} categorías principales
                     </Text>
-                    
+
                     {selectedCategories.length > 0 && (
                         <View className="mt-4 bg-green-50 p-3 rounded-lg border border-green-100">
                             <Text className="text-green-800 text-sm">
-                                <Text className="font-bold">{selectedCategories.length}</Text> de {MAX_CATEGORIES} categorías seleccionadas
+                                <Text className="font-bold">
+                                    {selectedCategories.length}
+                                </Text>{" "}
+                                de {MAX_CATEGORIES} categorías seleccionadas
                             </Text>
                             {selectedCategories.length === MAX_CATEGORIES && (
                                 <Text className="text-green-700 text-xs mt-1">
@@ -280,7 +335,7 @@ export const SelectCategory = () => {
                     />
                 )}
             </View>
-            
+
             <View className="p-5 border-t border-gray-200 bg-white">
                 <AuthButton
                     onPress={handleNext}
@@ -288,12 +343,19 @@ export const SelectCategory = () => {
                     className={isDisabled ? "opacity-50" : ""}
                 >
                     <Text className="font-semibold text-white text-center">
-                        {isDisabled ? "Selecciona al menos una subcategoría" : "Continuar"}
+                        {isDisabled
+                            ? "Selecciona al menos una subcategoría"
+                            : "Continuar"}
                     </Text>
                 </AuthButton>
                 {selectedCategories.length > 0 && (
                     <Text className="text-center text-sm text-gray-500 mt-3">
-                        {selectedCategories.reduce((acc, cat) => acc + (cat?.selectedSubcategories?.length || 0), 0)} especialidades seleccionadas
+                        {selectedCategories.reduce(
+                            (acc, cat) =>
+                                acc + (cat?.selectedSubcategories?.length || 0),
+                            0
+                        )}{" "}
+                        especialidades seleccionadas
                     </Text>
                 )}
             </View>

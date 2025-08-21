@@ -54,8 +54,16 @@ export const getChatData = async ({
     ]);
 
     // Manejo de errores de las consultas en paralelo
-    if (messagesResult.error) throw messagesResult.error;
-    if (quoteStatusResult.error) throw quoteStatusResult.error;
+    if (messagesResult.error) {
+        console.log("Error fetching messages:", messagesResult.error);
+        
+        throw messagesResult.error
+    };
+    if (quoteStatusResult.error) {
+        console.log("Error checking quote status:", quoteStatusResult.error);
+
+        throw quoteStatusResult.error
+    };
 
     // Determinar si existe una cotización activa.
     // El 'count' será > 0 si se encontró al menos una cotización.

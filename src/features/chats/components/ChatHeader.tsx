@@ -12,8 +12,6 @@ const ChatHeader = ({ onlineUsers }: { onlineUsers: string[] }) => {
     const insets = useSafeAreaInsets();
     const router = useRouter();
 
-    console.log("onlineUsers", onlineUsers);
-
     // Formatear el nombre para mostrar solo la primera letra del apellido
     const formatName = (fullName: string) => {
         const names = fullName.split(" ");
