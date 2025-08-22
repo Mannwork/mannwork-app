@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Modal,
+  Platform,
   Pressable,
   Text,
   TextInput,
@@ -12,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { envs } from "@/common/config/envs";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 interface LocationPickerModalProps {
   visible: boolean;
@@ -324,7 +325,9 @@ const LocationPickerModal = ({
               }}
             >
               <MapView
-                provider="google"
+                provider={
+                  Platform.OS === "android" ? PROVIDER_GOOGLE : undefined
+                }
                 style={{ width: "100%", height: "100%" }}
                 region={region}
                 onRegionChangeComplete={setRegion}
