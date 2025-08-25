@@ -12,7 +12,6 @@ import { useSubcategories } from "@/common/hooks/useSubcategories";
 import { categoryIcons } from "@/common/types/categories.interface";
 import { MaterialIcons } from "@expo/vector-icons";
 
-
 interface SelectedCategory {
   categoryId: string;
   categoryName: string;
@@ -59,14 +58,18 @@ const CategoryItem = ({
 }: CategoryItemProps) => {
   const { data: subcategories, isLoading } = useSubcategories(item.id);
   const isDisabled = selectedCategoriesCount >= 3 && !isSelected;
-  
+
   return (
     <View className="mb-4 mx-4">
       <Pressable
         onPress={() => handleCategoryToggle(item)}
-        className={`flex-row items-center p-4 rounded-xl border-2 ${isSelected ? 'border-green-600 bg-green-50' : 'border-gray-200 bg-white'} ${isDisabled ? 'opacity-60' : 'opacity-100'}`}
+        className={`flex-row items-center p-4 rounded-xl border-2 ${
+          isSelected
+            ? "border-green-600 bg-green-50"
+            : "border-gray-200 bg-white"
+        } ${isDisabled ? "opacity-60" : "opacity-100"}`}
         style={{
-          shadowColor: isSelected ? '#2D7A3E' : '#000',
+          shadowColor: isSelected ? "#2D7A3E" : "#000",
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: isSelected ? 0.1 : 0.05,
           shadowRadius: 4,
@@ -74,7 +77,11 @@ const CategoryItem = ({
         }}
         disabled={isDisabled}
       >
-        <View className={`p-3 rounded-lg mr-4 ${isSelected ? 'bg-green-100' : 'bg-gray-100'}`}>
+        <View
+          className={`p-3 rounded-lg mr-4 ${
+            isSelected ? "bg-green-100" : "bg-gray-100"
+          }`}
+        >
           <MaterialIcons
             name={(categoryIcons[item.name] as any) || "category"}
             size={28}
@@ -82,22 +89,30 @@ const CategoryItem = ({
           />
         </View>
         <View className="flex-1">
-          <Text className={`text-lg font-bold ${isSelected ? 'text-green-800' : 'text-gray-800'}`}>
+          <Text
+            className={`text-lg font-bold ${
+              isSelected ? "text-green-800" : "text-gray-800"
+            }`}
+          >
             {item.name}
           </Text>
-          {isSelected && selectedCategory && selectedCategory.selectedSubcategories.length > 0 && (
-            <Text className="text-xs text-green-600 mt-1">
-              {selectedCategory.selectedSubcategories.length} seleccionadas
-            </Text>
-          )}
+          {isSelected &&
+            selectedCategory &&
+            selectedCategory.selectedSubcategories.length > 0 && (
+              <Text className="text-xs text-green-600 mt-1">
+                {selectedCategory.selectedSubcategories.length} seleccionadas
+              </Text>
+            )}
         </View>
-        <View className={`w-6 h-6 rounded-full border-2 ${isSelected ? 'bg-green-600 border-green-600' : 'border-gray-300'} items-center justify-center`}>
-          {isSelected && (
-            <MaterialIcons name="check" size={16} color="white" />
-          )}
+        <View
+          className={`w-6 h-6 rounded-full border-2 ${
+            isSelected ? "bg-green-600 border-green-600" : "border-gray-300"
+          } items-center justify-center`}
+        >
+          {isSelected && <MaterialIcons name="check" size={16} color="white" />}
         </View>
       </Pressable>
-      
+
       {/* Subcategorías */}
       {isSelected && (
         <View className="mt-2 ml-12 mr-2">
@@ -122,14 +137,30 @@ const CategoryItem = ({
                       onPress={() =>
                         handleSubcategoryToggle(String(item.id), subcategory.id)
                       }
-                      className={`flex-row items-center p-4 rounded-xl ${isSubcategorySelected ? 'bg-green-50 border-2 border-green-500' : 'bg-white border border-gray-200'}`}
+                      className={`flex-row items-center p-4 rounded-xl ${
+                        isSubcategorySelected
+                          ? "bg-green-50 border-2 border-green-500"
+                          : "bg-white border border-gray-200"
+                      }`}
                     >
-                      <View className={`w-6 h-6 rounded-full border-2 ${isSubcategorySelected ? 'bg-green-500 border-green-500' : 'border-gray-300'} items-center justify-center mr-3`}>
+                      <View
+                        className={`w-6 h-6 rounded-full border-2 ${
+                          isSubcategorySelected
+                            ? "bg-green-500 border-green-500"
+                            : "border-gray-300"
+                        } items-center justify-center mr-3`}
+                      >
                         {isSubcategorySelected && (
                           <MaterialIcons name="check" size={16} color="white" />
                         )}
                       </View>
-                      <Text className={`text-base ${isSubcategorySelected ? 'text-green-800 font-medium' : 'text-gray-700'}`}>
+                      <Text
+                        className={`text-base ${
+                          isSubcategorySelected
+                            ? "text-green-800 font-medium"
+                            : "text-gray-700"
+                        }`}
+                      >
                         {subcategory.name}
                       </Text>
                     </Pressable>
@@ -251,11 +282,14 @@ export const EditProfessionsModal = ({
   const handleSave = () => {
     const professions = selectedCategories.flatMap((sc) =>
       sc.selectedSubcategories.map((subId) => {
-        const category = categories?.find((c) => String(c.id) === sc.categoryId);
+        const category = categories?.find(
+          (c) => String(c.id) === sc.categoryId
+        );
         const subcategory = category
           ? currentProfessions.find(
               (p) =>
-                String(p.category_id) === sc.categoryId && p.subcategory_id === subId
+                String(p.category_id) === sc.categoryId &&
+                p.subcategory_id === subId
             )
           : null;
 
@@ -275,8 +309,8 @@ export const EditProfessionsModal = ({
   if (!visible) return null;
 
   return (
-    <View className="flex-1 bg-gray-50 mt-14">
-      <View className="p-6  bg-green-mannwork border-b border-gray-100">
+    <View className="flex-1 bg-gray-50">
+      <View className="px-6 py-3 bg-green-mannwork border-b border-gray-100">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="text-2xl font-bold text-white">
             Editar profesiones
@@ -292,7 +326,8 @@ export const EditProfessionsModal = ({
         {selectedCategories.length > 0 && (
           <View className="mt-4 bg-green-50 p-3 rounded-lg border border-green-100">
             <Text className="text-green-800 text-sm">
-              <Text className="font-bold">{selectedCategories.length}</Text> de 3 categorías seleccionadas
+              <Text className="font-bold">{selectedCategories.length}</Text> de
+              3 categorías seleccionadas
             </Text>
             {selectedCategories.length === 3 && (
               <Text className="text-green-700 text-xs mt-1">
@@ -339,7 +374,9 @@ export const EditProfessionsModal = ({
         <Pressable
           onPress={handleSave}
           disabled={isDisabled}
-          className={`py-4 rounded-xl ${isDisabled ? 'bg-gray-300' : 'bg-green-600'}`}
+          className={`py-4 rounded-xl ${
+            isDisabled ? "bg-gray-300" : "bg-green-600"
+          }`}
         >
           <Text className="text-white font-semibold text-lg text-center">
             Guardar cambios

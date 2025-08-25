@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mannwork",
+    "name": "Mannwork",
     "slug": "mannwork",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,13 +17,19 @@
         }
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationWhenInUseUsageDescription": "Necesitamos tu ubicación para mostrarte en el mapa."
       }
     },
     "android": {
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#2D7A3E"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.dillmanncode.mannwork",
@@ -44,10 +50,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/adaptive-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#2D7A3E"
         }
       ],
       "expo-web-browser",

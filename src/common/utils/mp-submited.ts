@@ -18,6 +18,8 @@ import { supabase } from '@/common/lib/supabase/supabaseClient';
     if (error) {
         throw new Error('Error al invocar la función: ' + error.message);
     }
+    console.log(data, "data");
+    
     if (data && data.url) {
         return data.url;
     }

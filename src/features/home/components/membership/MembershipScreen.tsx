@@ -1,6 +1,7 @@
 import { getSubscriptionUrl } from "@/common/utils/mp-subscription-redirect";
 import { useCurrentUser } from "@/features/profile";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 
 const benefits = [
@@ -14,16 +15,29 @@ const benefits = [
 ];
 
 const MembershipScreen = () => {
-  const {data: user} = useCurrentUser();
+  const { data: user } = useCurrentUser();
+  const router = useRouter();
 
+  const handleSubscription = async () => {
+    const url = await getSubscriptionUrl(10, user?.email as string);
+    Linking.openURL(url);
+  };
 
-const handleSubscription = async () => {
-      const url = await getSubscriptionUrl(10, user?.email as string);
-      Linking.openURL(url);
-}
+  const handleClose = () => {
+    router.replace("/(protected)/(mainTabs)/home");
+  };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-100">
+      <View className="bg-green-mannwork flex-row items-center justify-between px-4 py-4">
+        <View className="w-10" />
+        <Text className="text-xl font-bold text-white">
+          Activa tu membresía
+        </Text>
+        <Pressable onPress={handleClose} className="w-10">
+          <MaterialIcons name="close" size={24} color="white" />
+        </Pressable>
+      </View>
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
         showsVerticalScrollIndicator={false}
