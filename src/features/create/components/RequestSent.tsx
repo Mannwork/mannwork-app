@@ -25,7 +25,13 @@ export default function RequestSent() {
       <View className="flex-1 ">
         <LinearGradient
           colors={["#f0fdf4", "#dcfce7", "#bbf7d0"]}
-          className="flex-1 rounded-3xl p-8 items-center justify-center"
+          style={{
+            flex: 1,
+            borderRadius: 24, // rounded-3xl
+            padding: 32, // p-8
+            alignItems: "center", // items-center
+            justifyContent: "center", // justify-center
+          }}
         >
           {/* Icono de éxito con animación */}
           <View className="flex-row justify-center mb-8">

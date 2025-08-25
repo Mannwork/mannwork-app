@@ -9,6 +9,7 @@ const ChatsLayout = () => {
         name="quote-modal"
         options={{ presentation: "fullScreenModal" }}
       />
+
       <Stack.Screen
         name="see-quote-modal"
         options={{ presentation: "modal" }}

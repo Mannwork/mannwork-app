@@ -1,5 +1,4 @@
 import RequestSent from "@/features/create/components/RequestSent";
-
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

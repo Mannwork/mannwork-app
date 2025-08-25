@@ -3,12 +3,15 @@ import { useCurrentUser } from "@/features/profile/hooks/useCurrentUser";
 import { useUpdateProfile } from "@/features/profile/hooks/useUpdateProfile";
 import { useProfessionsStore } from "@/features/profile/store/professions.store";
 import { router } from "expo-router";
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ModalProfessionsEdit = () => {
   const professions = useProfessionsStore((state) => state.professions);
   const setProfessions = useProfessionsStore((state) => state.setProfessions);
   const { data: user } = useCurrentUser();
   const { mutate: updateProfile } = useUpdateProfile();
+  const insets = useSafeAreaInsets();
 
   const handleSave = (newProfessions: any[]) => {
     setProfessions(newProfessions);
@@ -32,12 +35,17 @@ const ModalProfessionsEdit = () => {
   };
 
   return (
-    <EditProfessionsModal
-      visible={true}
-      onClose={() => router.back()}
-      onSave={handleSave}
-      currentProfessions={professions}
-    />
+    <View
+      className="flex-1 bg-green-mannwork"
+      style={{ paddingTop: insets.top }}
+    >
+      <EditProfessionsModal
+        visible={true}
+        onClose={() => router.back()}
+        onSave={handleSave}
+        currentProfessions={professions}
+      />
+    </View>
   );
 };
 
