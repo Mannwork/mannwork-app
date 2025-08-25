@@ -145,7 +145,7 @@ const ReviewData = () => {
   }
 
   return (
-    <View className="flex-1 bg-white pt-14">
+    <View className="flex-1 bg-white">
       <HeaderRegisterSteps />
       <View className="flex-1">
         <ScrollView

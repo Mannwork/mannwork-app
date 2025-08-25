@@ -230,7 +230,7 @@ const RequestDetailModal = ({
           color: "bg-green-mannwork",
           onPress: async () => {
             // await updateRequestStatus("completed", request.id);
-            await putFinalizeRequest(request.id);
+            await putFinalizeRequest(request.id, userId);
             router.replace("/(protected)/(mainTabs)/requests");
           },
         });
