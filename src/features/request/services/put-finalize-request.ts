@@ -1,13 +1,7 @@
 import { supabase } from '@/common/lib/supabase/supabaseClient';
 
-  export const putFinalizeRequest = async (request_id: string) => {
-    try {
-    const {data: billingData , error: billingError}  = await supabase.from("billing").select().eq("request_id", request_id).single();
-
-    if (billingError) {
-        throw new Error('Error al invocar la función: ' + billingError.message);
-    }
-
+  export const putFinalizeRequest = async (request_id: string, client_id: string) => {
+    try {    
     const {data: quoteData, error: quoteError} = await supabase.from("quotes").select().eq("request_id", request_id).single();
 
     if (quoteError) {
@@ -19,7 +13,7 @@ import { supabase } from '@/common/lib/supabase/supabaseClient';
       body: {
         name: 'Functions',
         quote_id: quoteData.id,
-        payment_id: billingData.mp_payment_id,
+        client_id,
       },
     });
 

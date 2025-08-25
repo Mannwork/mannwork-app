@@ -44,7 +44,7 @@ const Review = () => {
 
     try {
       const response = await fetch(
-        "https://erkaukgzkzgtpuymatnp.supabase.co/functions/v1/create-review",
+        "https://iuufdqgudfrkisywsnuc.supabase.co/functions/v1/create-review",
         {
           method: "POST",
           headers: {
