@@ -14,7 +14,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useUpdateProfile } from "../../hooks/useUpdateProfile";
 import { useProfessionsStore } from "../../store/professions.store";
@@ -27,7 +26,7 @@ interface EditUserModalProps {
 const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
   const { data: user, isLoading } = useCurrentUser();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
-  const insets = useSafeAreaInsets();
+
   const [name, setName] = useState(user?.name || "");
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [description, setDescription] = useState(user?.description || "");
@@ -102,9 +101,9 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
   }
 
   return (
-    <View style={{ paddingTop: insets.top }} className="flex-1 bg-white">
+    <View className="flex-1 bg-white">
       {/* Header */}
-      <View className="bg-green-mannwork px-4 py-4">
+      <View className="bg-green-mannwork px-4 pb-4">
         <View className="flex-row items-center justify-between">
           <Pressable onPress={onClose} className="w-6">
             <MaterialIcons name="close" size={24} color="white" />

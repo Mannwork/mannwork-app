@@ -1,3 +1,4 @@
+import { categoryIcons } from "@/common/types/categories.interface";
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -11,8 +12,14 @@ const ChatHeader = ({ onlineUsers }: { onlineUsers: string[] }) => {
     const { actualChatData } = useChatStore();
     const insets = useSafeAreaInsets();
     const router = useRouter();
+    const getCategoryIcon = (categoryName: string) => {
+        return categoryIcons[categoryName] || "category";
+    };
 
-    // Formatear el nombre para mostrar solo la primera letra del apellido
+    const categoryIcon = getCategoryIcon(
+        (actualChatData.mainCategory as string) || ""
+    );
+
     const formatName = (fullName: string) => {
         const names = fullName.split(" ");
         if (names.length >= 2) {
@@ -41,16 +48,19 @@ const ChatHeader = ({ onlineUsers }: { onlineUsers: string[] }) => {
         }
     };
 
-    const getStatusText = (status: string) => {
-        switch (status) {
-            case "active":
-                return "Activo";
-            case "completed":
-                return "Completado";
-            case "pending":
-                return "Pendiente";
-            default:
-                return "Desconocido";
+    const getStatusText = () => {
+        // Si el usuario actual es el profesional
+        if (userId === actualChatData.professional_id) {
+            return onlineUsers.includes(actualChatData.client_id as string)
+                ? "Activo"
+                : "Desconectado";
+        } else {
+            // Si el usuario actual es el cliente
+            return onlineUsers.includes(
+                actualChatData.professional_id as string
+            )
+                ? "Activo"
+                : "Desconectado";
         }
     };
 
@@ -105,11 +115,11 @@ const ChatHeader = ({ onlineUsers }: { onlineUsers: string[] }) => {
                             {formatName(actualChatData.professionalName)}
                         </Text>
                         <View className="flex-row items-center mt-1">
-                            <View
-                                className={`w-2 h-2 rounded-full mr-2 ${getStatusColor()}`}
-                            />
-                            <Text className="text-white/80 text-sm">
-                                {getStatusText(actualChatData.status)}
+                            {/* <View
+                className={`w-2 h-2 rounded-full mr-2 ${getStatusColor()}`}
+              /> */}
+                            <Text className="text-white/80 text-sm ml-1">
+                                {getStatusText()}
                             </Text>
                         </View>
                     </View>
@@ -133,7 +143,11 @@ const ChatHeader = ({ onlineUsers }: { onlineUsers: string[] }) => {
                             {actualChatData.subCategory}
                         </Text>
                     </View>
-                    <MaterialIcons name="work" size={16} color="#FFFFFF" />
+                    <MaterialIcons
+                        name={categoryIcon}
+                        size={16}
+                        color="#FFFFFF"
+                    />
                 </View>
             </View>
         </View>

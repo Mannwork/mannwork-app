@@ -7,9 +7,10 @@ export default function ReviewModal() {
 
   return (
     <View
-      className="flex-1"
+      className="flex-1 bg-green-mannwork"
+      style={{ paddingTop: insets.top }}
     >
-      <Review/>
+      <Review />
     </View>
   );
 }

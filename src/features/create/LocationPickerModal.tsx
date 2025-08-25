@@ -208,7 +208,12 @@ const LocationPickerModal = ({
       animationType="fade"
       onRequestClose={handleClose}
     >
-      <View style={{ flex: 1, backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+      <View
+        style={{
+          flex: 1,
+          paddingTop: Platform.OS === "android" ? undefined : insets.top,
+        }}
+      >
         <View
           style={{
             flex: 1,

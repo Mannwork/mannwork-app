@@ -3,10 +3,13 @@ import EditUbicationData from "@/features/profile/components/settings/EditUbicat
 import { useCurrentUser } from "@/features/profile/hooks/useCurrentUser";
 import { useUpdateProfile } from "@/features/profile/hooks/useUpdateProfile";
 import { router } from "expo-router";
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const UpdateUbicationModal = () => {
   const { data: user } = useCurrentUser();
   const { mutate: updateProfile } = useUpdateProfile();
+  const insets = useSafeAreaInsets();
 
   const handleSave = (data: Ubication) => {
     if (!user) return;
@@ -30,10 +33,15 @@ const UpdateUbicationModal = () => {
   };
 
   return (
-    <EditUbicationData
-      initialData={user?.ubication_json || undefined}
-      onSubmit={handleSave}
-    />
+    <View
+      className="flex-1 bg-green-mannwork"
+      style={{ paddingTop: insets.top }}
+    >
+      <EditUbicationData
+        initialData={user?.ubication_json || undefined}
+        onSubmit={handleSave}
+      />
+    </View>
   );
 };
 

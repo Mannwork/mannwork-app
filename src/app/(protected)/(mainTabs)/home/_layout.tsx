@@ -11,8 +11,7 @@ const HomeLayout = () => {
       <Stack.Screen
         name="membership"
         options={{
-          headerShown: true,
-          title: "Membresía",
+          headerShown: false,
           headerStyle: { backgroundColor: "#2D7A3E" },
           headerTintColor: "#fff",
         }}
@@ -38,16 +37,16 @@ const HomeLayout = () => {
         name="request-sent"
         options={{
           headerShown: false,
-          presentation: "card",
+          presentation: "fullScreenModal",
           animation: "slide_from_right",
         }}
       />
       <Stack.Screen
         name="professional-stats"
         options={{
-          headerShown: false ,
-  }}
-/>
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };

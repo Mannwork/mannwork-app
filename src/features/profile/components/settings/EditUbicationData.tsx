@@ -1,6 +1,5 @@
 import { envs } from "@/common/config/envs";
 import { Ubication } from "@/common/types/ubication.interface";
-import HeaderRegisterSteps from "@/features/auth/sign-up/components/HeaderRegisterSteps";
 import { MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Location from "expo-location";
@@ -15,7 +14,6 @@ import {
   View,
 } from "react-native";
 import GooglePlacesTextInput from "react-native-google-places-textinput";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 import AuthButton from "../../../auth/components/AuthButton";
 import UserUbicationMap from "../../../auth/sign-up/components/UserUbicationMap";
@@ -59,7 +57,6 @@ const EditUbicationData = ({ initialData, onSubmit }: UbicationDataProps) => {
   const serviceRange = watch("serviceRange");
   const latitude = watch("latitude");
   const longitude = watch("longitude");
-  const insets = useSafeAreaInsets();
   useFocusEffect(
     useCallback(() => {
       if (initialData) {
@@ -114,8 +111,7 @@ const EditUbicationData = ({ initialData, onSubmit }: UbicationDataProps) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
-        <HeaderRegisterSteps />
+      <View className="flex-1 bg-white">
         <View className="relative mb-4 bg-green-mannwork h-14">
           <TouchableOpacity
             onPress={() => router.back()}
