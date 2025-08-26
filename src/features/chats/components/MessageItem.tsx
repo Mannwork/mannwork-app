@@ -12,6 +12,7 @@ interface MessageItemProps {
     message: Message;
     onQuoteRequest?: () => void;
     isQuoted?: boolean;
+    requestId?: string;
 }
 
 const MessageItem = ({
@@ -19,6 +20,7 @@ const MessageItem = ({
     message,
     onQuoteRequest,
     isQuoted = false,
+    requestId,
 }: MessageItemProps) => {
     const formattedTime = formatTime(message.created_at);
 
@@ -45,6 +47,7 @@ const MessageItem = ({
                     <QuoteCard
                         quoteId={message.content}
                         timestamp={formattedTime}
+                        requestId={requestId || ""}
                     />
                 );
 

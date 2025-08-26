@@ -73,5 +73,6 @@ export const getChatData = async ({
     return {
         messages: messagesResult.data,
         hasActiveQuote: hasActiveQuote,
+        requestId
     };
 };

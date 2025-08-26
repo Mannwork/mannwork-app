@@ -7,9 +7,10 @@ import { useQuote } from "../hooks/useQuotes";
 interface QuoteCardProps {
     quoteId: string;
     timestamp: string;
+    requestId: string;
 }
 
-const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
+const QuoteCard = ({ quoteId, timestamp, requestId }: QuoteCardProps) => {
     const { chatId } = useLocalSearchParams();
 
     const { userId } = useAuth();
@@ -27,6 +28,7 @@ const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
                 quoteProfessionalName: quote.professionalName || "",
                 quoteProfessionalAvatar: quote.professionalAvatar || "",
                 professionalAccessToken: quote.professionalAccessToken || "",
+                requestId: requestId,
             },
         });
     };
@@ -127,7 +129,7 @@ const QuoteCard = ({ quoteId, timestamp }: QuoteCardProps) => {
                             fontSize: 16,
                         }}
                     >
-                        Pagar cotización
+                        Ver cotización
                     </Text>
                 </Pressable>
             )}

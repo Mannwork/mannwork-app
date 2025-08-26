@@ -1,13 +1,14 @@
 import { supabase } from '@/common/lib/supabase/supabaseClient';
 
-  export const getSubscriptionUrl = async (usdAmount: number, email: string) => {
-    
+  export const getSubscriptionUrl = async (usdAmount: number, email: string, userId: string) => {
+
   try {
     const { data, error } = await supabase.functions.invoke('mp-subscribe', {
         body: {
             name: 'Functions',
             usdAmount,
-            email: "test_user_521046080@testuser.com"
+            email: email,
+            userId
           }
     });
 
@@ -20,5 +21,5 @@ import { supabase } from '@/common/lib/supabase/supabaseClient';
   } catch (e) {
     console.error('Falló la conexión con Mercado Pago:', e);
     alert("Error al conectar con Mercado Pago.");
-  }     
+  }
 }
