@@ -9,7 +9,10 @@ export const postImageToSupabase = async (
     bucket: string
 ) => {
     try {
-        const base64 = await ReactNativeBlobUtil.fs.readFile(imageUri, 'base64');
+        const path = imageUri.replace('file://', '');
+
+
+        const base64 = await ReactNativeBlobUtil.fs.readFile(path, 'base64');
 
         const byteCharacters = atob(base64);
         const byteNumbers = new Array(byteCharacters.length);
