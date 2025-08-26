@@ -1,172 +1,174 @@
-import { getPaymentMpUrl } from '@/common/utils/mp-submited';
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
-import { ActivityIndicator, Image, Linking, Pressable, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Image, Pressable, Text, View } from "react-native";
+import { updateAcceptQuote } from "../services/update-accept-quote";
 
 interface PaymentModalProps {
-  visible: boolean;
-  onClose: () => void;
-  quote: {
-    quoteId: string;
-    chatId: string;
-    amount: number;
-    description: string;
-    professionalName: string;
-    professionalAvatar?: string;
-  };
-  professionalAccessToken: string;
-  onConfirm: () => void;
+    onClose: () => void;
+    quote: {
+        quoteId: string;
+        chatId: string;
+        amount: number;
+        description: string;
+        professionalName: string;
+        professionalAvatar?: string;
+    };
+    requestId?: string;
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
-  visible,
-  onClose,
-  quote,
-  professionalAccessToken,
-  onConfirm,
+    onClose,
+    quote,
+    requestId,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+    const handlePay = async () => {
+        await updateAcceptQuote(requestId as string);
 
-  const handlePay = async () => {
-    setIsLoading(true);
-    try {
-      const url = await getPaymentMpUrl(quote, professionalAccessToken);
-      Linking.openURL(url);
-    } catch (error) {
-      console.error('Error al obtener URL de pago:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* Header/fondo verde */}
-      <LinearGradient
-        colors={["#2D7A3E", "#4BB96F"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          paddingBottom: 32,
-          paddingTop: 36,
-          borderBottomLeftRadius: 32,
-          borderBottomRightRadius: 32,
-        }}
-      >
-        <Pressable
-          onPress={onClose}
-          style={{ position: "absolute", top: 18, left: 18, zIndex: 10 }}
-        >
-          <MaterialIcons name="arrow-back" size={28} color="#fff" />
-        </Pressable>
-        <Text
-          style={{
-            color: "#fff",
-            fontSize: 18,
-            fontWeight: "bold",
-            textAlign: "center",
-            marginBottom: 8,
-          }}
-        >
-          Pagar
-        </Text>
-        <Text
-          style={{
-            color: "#fff",
-            fontSize: 38,
-            fontWeight: "bold",
-            textAlign: "center",
-            marginBottom: 8,
-          }}
-        >
-          ${quote.amount.toLocaleString()}
-        </Text>
-        <Text
-          style={{
-            color: "#fff",
-            fontSize: 15,
-            textAlign: "center",
-            marginBottom: 8,
-          }}
-        >
-          Pagarás por tu solicitud
-        </Text>
-        <Text
-          style={{
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: 17,
-            textAlign: "center",
-            marginBottom: 8,
-          }}
-        >
-          {quote.description}
-        </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: 8,
-          }}
-        >
-          {quote.professionalAvatar && (
-            <Image
-              source={{ uri: quote.professionalAvatar }}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 18,
-                marginRight: 8,
-                borderWidth: 2,
-                borderColor: "#fff",
-              }}
-            />
-          )}
-          <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>
-            Pagarás a {quote.professionalName}
-          </Text>
+        router.push({
+            pathname: "/(protected)/(mainTabs)/requests/[requestId]",
+            params: {
+                requestId: requestId as string,
+            },
+        });
+    };
+
+    return (
+        <View style={{ flex: 1, backgroundColor: "#fff" }}>
+            {/* Header/fondo verde */}
+            <LinearGradient
+                colors={["#2D7A3E", "#4BB96F"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                    paddingBottom: 32,
+                    paddingTop: 36,
+                    borderBottomLeftRadius: 32,
+                    borderBottomRightRadius: 32,
+                }}
+            >
+                <Pressable
+                    onPress={onClose}
+                    style={{
+                        position: "absolute",
+                        top: 18,
+                        left: 18,
+                        zIndex: 10,
+                    }}
+                >
+                    <MaterialIcons name="arrow-back" size={28} color="#fff" />
+                </Pressable>
+                <Text
+                    style={{
+                        color: "#fff",
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        marginBottom: 8,
+                    }}
+                >
+                    Pagar
+                </Text>
+                <Text
+                    style={{
+                        color: "#fff",
+                        fontSize: 38,
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        marginBottom: 8,
+                    }}
+                >
+                    ${quote.amount.toLocaleString()}
+                </Text>
+                <Text
+                    style={{
+                        color: "#fff",
+                        fontSize: 15,
+                        textAlign: "center",
+                        marginBottom: 8,
+                    }}
+                >
+                    Pagarás por tu solicitud
+                </Text>
+                <Text
+                    style={{
+                        color: "#fff",
+                        fontWeight: "bold",
+                        fontSize: 17,
+                        textAlign: "center",
+                        marginBottom: 8,
+                    }}
+                >
+                    {quote.description}
+                </Text>
+                <View
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: 8,
+                    }}
+                >
+                    {quote.professionalAvatar && (
+                        <Image
+                            source={{ uri: quote.professionalAvatar }}
+                            style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: 18,
+                                marginRight: 8,
+                                borderWidth: 2,
+                                borderColor: "#fff",
+                            }}
+                        />
+                    )}
+                    <Text
+                        style={{
+                            color: "#fff",
+                            fontWeight: "bold",
+                            fontSize: 16,
+                        }}
+                    >
+                        Pagarás a {quote.professionalName}
+                    </Text>
+                </View>
+            </LinearGradient>
+
+            {/* Espaciador flexible para empujar el botón abajo */}
+            <View style={{ flex: 1 }} />
+
+            {/* Botón fijo abajo */}
+            <View
+                style={{
+                    paddingHorizontal: 24,
+                    paddingBottom: 32,
+                    backgroundColor: "#fff",
+                }}
+            >
+                <Pressable
+                    style={{
+                        backgroundColor: "#2D7A3E",
+                        borderRadius: 24,
+                        paddingVertical: 16,
+                        alignItems: "center",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                    }}
+                    onPress={handlePay}
+                >
+                    <Text
+                        style={{
+                            color: "#fff",
+                            fontWeight: "bold",
+                            fontSize: 18,
+                        }}
+                    >
+                        Aceptar cotización
+                    </Text>
+                </Pressable>
+            </View>
         </View>
-      </LinearGradient>
-
-      {/* Espaciador flexible para empujar el botón abajo */}
-      <View style={{ flex: 1 }} />
-
-      {/* Botón fijo abajo */}
-      <View
-        style={{
-          paddingHorizontal: 24,
-          paddingBottom: 32,
-          backgroundColor: "#fff",
-        }}
-      >
-        <Pressable
-          style={{
-            backgroundColor: isLoading ? "#9CA3AF" : "#2D7A3E",
-            borderRadius: 24,
-            paddingVertical: 16,
-            alignItems: "center",
-            flexDirection: "row",
-            justifyContent: "center",
-          }}
-          onPress={handlePay}
-          disabled={isLoading}
-        >
-          {isLoading && (
-            <ActivityIndicator 
-              size="small" 
-              color="#fff" 
-              style={{ marginRight: 8 }} 
-            />
-          )}
-          <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 18 }}>
-            {isLoading ? "Procesando..." : "Pagar"}
-          </Text>
-        </Pressable>
-      </View>
-    </View>
-  );
+    );
 };
 
 export default PaymentModal;

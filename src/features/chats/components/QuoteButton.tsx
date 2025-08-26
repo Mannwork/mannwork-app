@@ -7,6 +7,7 @@ import { postNewMessage } from "../services/post-new-message";
 
 interface QuoteButtonProps {
     chatId: string;
+    requestId?: string;
     onViewQuote?: () => void;
     userRole: "client" | "professional";
     hasQuote?: boolean;
@@ -17,6 +18,7 @@ const QuoteButton = ({
     userRole,
     hasQuote = false,
     chatId,
+    requestId,
 }: QuoteButtonProps) => {
     const { userId } = useAuth();
 
@@ -36,7 +38,7 @@ const QuoteButton = ({
         if (hasQuote) {
             // Buscar el último mensaje tipo 'quote' para este chat
             const quote = await getQuote("", chatId);
-            
+
             if (quote) {
                 router.push({
                     pathname: "/(protected)/(mainTabs)/chats/see-quote-modal",
@@ -46,7 +48,9 @@ const QuoteButton = ({
                         quoteDescription: quote.descriptionservice || "",
                         quoteProfessionalName: quote.professionalName || "",
                         quoteProfessionalAvatar: quote.professionalAvatar || "",
-                        professionalAccessToken: quote.professionalAccessToken || "",
+                        professionalAccessToken:
+                            quote.professionalAccessToken || "",
+                        requestId: requestId,
                     },
                 });
             }

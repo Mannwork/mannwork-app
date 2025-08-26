@@ -52,7 +52,6 @@ export const UsersOnlineProvider = ({
 
             // Evento 'join': Se dispara cuando un nuevo usuario se une al canal
             channel.on("presence", { event: "join" }, ({ newPresences }) => {
-                console.log("newPresences", newPresences);
                 setOnlineUsers((prevUsers) => {
                     const newIds = newPresences.map((p: any) => p.user_id);
                     // Evitar duplicados y añadir los nuevos usuarios
@@ -62,7 +61,6 @@ export const UsersOnlineProvider = ({
 
             // Evento 'leave': Se dispara cuando un usuario se desconecta
             channel.on("presence", { event: "leave" }, ({ leftPresences }) => {
-                console.log("leftPresences", leftPresences);
                 setOnlineUsers((prevUsers) => {
                     const leftIds = leftPresences.map((p: any) => p.user_id);
                     // Filtrar y quitar los usuarios que se fueron

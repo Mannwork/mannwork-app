@@ -33,16 +33,16 @@ export const postCompleteUserData = async ({
     let index = 0;
 
     for await (const category_id of categories) {
-        const {error: intermediateTableError} = await supabase.from("user_professional_services").insert(
-            selected_subcategories[index].map(subcategory =>({
+        const dataForInsertion = selected_subcategories[index].map(subcategory =>({
                 user_id: userId,
                 category_id: category_id,
                 subcategory_id: subcategory
             }))
-        );
+
+        const {error: intermediateTableError} = await supabase.from("user_professional_services").insert(dataForInsertion);
 
         if (intermediateTableError) {
-            console.log(intermediateTableError);
+            console.log("error en la intermedia", intermediateTableError);
             throw new Error("Error insertar los datos relacionados a la categoria: " + intermediateTableError.message);
         }
 
@@ -50,7 +50,7 @@ export const postCompleteUserData = async ({
     }
 
     if (error) {
-        console.log(error);
+        console.log("error en la tabla users", error);
         throw new Error("Error al completar los datos: " + error.message);
     }
 

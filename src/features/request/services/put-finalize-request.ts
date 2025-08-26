@@ -1,28 +1,24 @@
 import { supabase } from '@/common/lib/supabase/supabaseClient';
 
-  export const putFinalizeRequest = async (request_id: string, client_id: string) => {
-    try {    
-    const {data: quoteData, error: quoteError} = await supabase.from("quotes").select().eq("request_id", request_id).single();
+export const putFinalizeRequest = async (request_id: string) => {
+  try {
+      const { data, error } = await supabase.functions.invoke('mp-submited', {
+        body: {
+          name: 'Functions',
+          requestId: request_id,
+        },
+      });
 
-    if (quoteError) {
-        throw new Error('Error al invocar la función: ' + quoteError.message);
-    }
-
-
-    const { error } = await supabase.functions.invoke('mp-release-payment', {
-      body: {
-        name: 'Functions',
-        quote_id: quoteData.id,
-        client_id,
-      },
-    });
-
-    if (error) {
-        throw new Error('Error al invocar la función: ' + error.message);
-    }
- 
+      if (error) {
+          throw new Error('Error al invocar la función: ' + error.message);
+      }
+      console.log(data, "data");
+      
+      if (data && data.url) {
+          return data.url;
+      }
   } catch (e) {
     console.error('Falló la conexión con Mercado Pago:', e);
     alert("Error al conectar con Mercado Pago.");
-  }     
+  }      
 }

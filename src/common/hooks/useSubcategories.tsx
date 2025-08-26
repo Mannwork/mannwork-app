@@ -10,34 +10,30 @@ export interface Subcategory {
 async function getSubcategoriesByCategory(
     categoryId: number
 ): Promise<Subcategory[]> {
-    // 1. Buscar los subcategory_id asociados a la categoría
-    const { data: rels, error: relsError } = await supabase
+    const { data, error } = await supabase
         .from("category_subcategory")
-        .select("subcategory_id")
+        .select("subcategories(id, name, created_at)")
         .eq("category_id", categoryId);
 
-    if (relsError) throw relsError;
-    if (!rels || rels.length === 0) return [];
+    if (error) {
+        console.error("Error fetching subcategories:", error);
+        throw error;
+    }
 
-    const subcategoryIds = rels.map((r) => r.subcategory_id);
+    // Extraer los datos de subcategorías del resultado anidado
+    const subcategories: any[] = data
+        .map((item) => item.subcategories)
+        .filter(Boolean);
 
-    // 2. Buscar las subcategorías por esos IDs
-    const { data: subcategories, error: subError } = await supabase
-        .from("subcategories")
-        .select("id, name, created_at")
-        .in("id", subcategoryIds);
-
-    if (subError) throw subError;
-    return subcategories || [];
+    return subcategories;
 }
 
 export { getSubcategoriesByCategory };
 
-export function useSubcategories(categoryId?: number) {
+export function useSubcategories(categoryId: number) {
     return useQuery({
         queryKey: ["subcategories", categoryId],
         queryFn: () => {
-            if (!categoryId) return Promise.resolve([]);
             return getSubcategoriesByCategory(categoryId);
         },
         enabled: !!categoryId,

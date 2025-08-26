@@ -21,5 +21,5 @@ import { supabase } from '@/common/lib/supabase/supabaseClient';
   } catch (e) {
     console.error('Falló la conexión con Mercado Pago:', e);
     alert("Error al conectar con Mercado Pago.");
-  }     
+  }
 }
