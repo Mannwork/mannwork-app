@@ -1,6 +1,5 @@
 import { supabase } from "@/common/lib/supabase/supabaseClient";
 
-// TUS INTERFACES ORIGINALES - SIN CAMBIOS
 interface ChatListItem {
     id: string;
     request_id: string;
@@ -12,22 +11,6 @@ interface ChatListItem {
     subCategory: string;
     status: "active" | "completed" | "pending";
 }
-
-// interface ChatData { // Esta interfaz ya no se usa directamente, pero la mantenemos por referencia
-//     id: string;
-//     request_id: string;
-//     client_id: string;
-//     professional_id: string;
-//     status: string;
-//     requests: {
-//         category: string;
-//         subcategory: string;
-//         categories: { name: string };
-//         subcategories: { name: string };
-//     };
-// }
-
-// Interfaz de parámetros actualizada para aceptar la búsqueda
 interface GetChatListParams {
     userId: string;
     page: number;
@@ -36,8 +19,6 @@ interface GetChatListParams {
     searchText?: string; // Parámetro nuevo y necesario para la búsqueda
 }
 
-// --- INICIO DE LA FUNCIÓN MODIFICADA ---
-
 export async function getUserChats({
     userId,
     page,
@@ -45,9 +26,6 @@ export async function getUserChats({
     statusSelected,
     searchText,
 }: GetChatListParams): Promise<ChatListItem[]> {
-    console.log("s", searchText);
-    
-
     const offset = (page - 1) * pageSize;
 
     try {
