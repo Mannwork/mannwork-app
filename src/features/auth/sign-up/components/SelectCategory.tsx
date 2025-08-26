@@ -7,12 +7,10 @@ import {
     View,
 } from "react-native";
 
-import { MaterialIcons } from "@expo/vector-icons";
-
-import MyView from "@/common/components/MyView";
 import { useCategories } from "@/common/hooks/useCategories";
 import { useSubcategories } from "@/common/hooks/useSubcategories";
 import { categoryIcons } from "@/common/types/categories.interface";
+import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import AuthButton from "../../components/AuthButton";
 import { useAuthStore } from "../store/auth.store";
@@ -293,72 +291,77 @@ export const SelectCategory = () => {
     };
 
     return (
-        <MyView className="flex-1 bg-gray-50">
+        <View className="flex-1 bg-green-mannwork">
             <HeaderRegisterSteps />
-            <View className="flex-1">
-                <View className="p-6 bg-white border-b border-gray-100">
-                    <Text className="text-2xl font-bold text-gray-900 mb-2">
-                        ¿En qué te especializas?
-                    </Text>
-                    <Text className="text-gray-600">
-                        Selecciona hasta {MAX_CATEGORIES} categorías principales
-                    </Text>
+            <View className="flex-1 bg-gray-50">
+                <View className="flex-1">
+                    <View className="p-6 bg-white border-b border-gray-100">
+                        <Text className="text-2xl font-bold text-gray-900 mb-2">
+                            ¿En qué te especializas?
+                        </Text>
+                        <Text className="text-gray-600">
+                            Selecciona hasta {MAX_CATEGORIES} categorías
+                            principales
+                        </Text>
 
-                    {selectedCategories.length > 0 && (
-                        <View className="mt-4 bg-green-50 p-3 rounded-lg border border-green-100">
-                            <Text className="text-green-800 text-sm">
-                                <Text className="font-bold">
-                                    {selectedCategories.length}
-                                </Text>{" "}
-                                de {MAX_CATEGORIES} categorías seleccionadas
-                            </Text>
-                            {selectedCategories.length === MAX_CATEGORIES && (
-                                <Text className="text-green-700 text-xs mt-1">
-                                    Has alcanzado el máximo de categorías
+                        {selectedCategories.length > 0 && (
+                            <View className="mt-4 bg-green-50 p-3 rounded-lg border border-green-100">
+                                <Text className="text-green-800 text-sm">
+                                    <Text className="font-bold">
+                                        {selectedCategories.length}
+                                    </Text>{" "}
+                                    de {MAX_CATEGORIES} categorías seleccionadas
                                 </Text>
-                            )}
+                                {selectedCategories.length ===
+                                    MAX_CATEGORIES && (
+                                    <Text className="text-green-700 text-xs mt-1">
+                                        Has alcanzado el máximo de categorías
+                                    </Text>
+                                )}
+                            </View>
+                        )}
+                    </View>
+
+                    {isLoading ? (
+                        <View className="flex-1 items-center justify-center">
+                            <ActivityIndicator size="large" color="#2D7A3E" />
                         </View>
+                    ) : (
+                        <FlatList
+                            data={categories}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => String(item.id)}
+                            contentContainerStyle={{ paddingVertical: 16 }}
+                            showsVerticalScrollIndicator={false}
+                        />
                     )}
                 </View>
 
-                {isLoading ? (
-                    <View className="flex-1 items-center justify-center">
-                        <ActivityIndicator size="large" color="#2D7A3E" />
-                    </View>
-                ) : (
-                    <FlatList
-                        data={categories}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => String(item.id)}
-                        contentContainerStyle={{ paddingVertical: 16 }}
-                        showsVerticalScrollIndicator={false}
-                    />
-                )}
+                <View className="p-5 border-t border-gray-200 bg-white">
+                    <AuthButton
+                        onPress={handleNext}
+                        disabled={isDisabled}
+                        className={isDisabled ? "opacity-50" : ""}
+                    >
+                        <Text className="font-semibold text-white text-center">
+                            {isDisabled
+                                ? "Selecciona al menos una subcategoría"
+                                : "Continuar"}
+                        </Text>
+                    </AuthButton>
+                    {selectedCategories.length > 0 && (
+                        <Text className="text-center text-sm text-gray-500 mt-3">
+                            {selectedCategories.reduce(
+                                (acc, cat) =>
+                                    acc +
+                                    (cat?.selectedSubcategories?.length || 0),
+                                0
+                            )}{" "}
+                            especialidades seleccionadas
+                        </Text>
+                    )}
+                </View>
             </View>
-
-            <View className="p-5 border-t border-gray-200 bg-white">
-                <AuthButton
-                    onPress={handleNext}
-                    disabled={isDisabled}
-                    className={isDisabled ? "opacity-50" : ""}
-                >
-                    <Text className="font-semibold text-white text-center">
-                        {isDisabled
-                            ? "Selecciona al menos una subcategoría"
-                            : "Continuar"}
-                    </Text>
-                </AuthButton>
-                {selectedCategories.length > 0 && (
-                    <Text className="text-center text-sm text-gray-500 mt-3">
-                        {selectedCategories.reduce(
-                            (acc, cat) =>
-                                acc + (cat?.selectedSubcategories?.length || 0),
-                            0
-                        )}{" "}
-                        especialidades seleccionadas
-                    </Text>
-                )}
-            </View>
-        </MyView>
+        </View>
     );
 };

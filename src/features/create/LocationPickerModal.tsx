@@ -105,7 +105,20 @@ const LocationPickerModal = ({
 
   const handleSearchChange = (text: string) => {
     setSearchQuery(text);
-    searchPlaces(text);
+
+    // Limpiar predicciones si el texto está vacío
+    if (!text.trim()) {
+      setPredictions([]);
+      setShowPredictions(false);
+      return;
+    }
+
+    // Buscar lugares con un pequeño delay para evitar demasiadas llamadas
+    const timeoutId = setTimeout(() => {
+      searchPlaces(text);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
   };
 
   const selectPlace = async (prediction: PlacePrediction) => {
@@ -120,14 +133,17 @@ const LocationPickerModal = ({
 
       if (data.result && data.result.geometry) {
         const { lat, lng } = data.result.geometry.location;
-        setRegion({
-          latitude: lat,
-          longitude: lng,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        });
-        setMarker({ latitude: lat, longitude: lng });
+
+        // Forzar la actualización del mapa
+        forceMapUpdate(lat, lng);
+
+        // Actualizar la dirección
         setAddress(data.result.formatted_address || prediction.description);
+
+        // Asegurar que el mapa se actualice correctamente
+        setTimeout(() => {
+          forceMapUpdate(lat, lng);
+        }, 200);
       }
     } catch (error) {
       console.error("Error getting place details:", error);
@@ -188,6 +204,17 @@ const LocationPickerModal = ({
       setPredictions([]);
       setShowPredictions(false);
     }, 150);
+  };
+
+  // Función para forzar la actualización del mapa
+  const forceMapUpdate = (lat: number, lng: number) => {
+    setMarker({ latitude: lat, longitude: lng });
+    setRegion({
+      latitude: lat,
+      longitude: lng,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    });
   };
 
   const handleClose = () => {

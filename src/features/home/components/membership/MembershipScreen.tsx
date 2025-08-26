@@ -2,7 +2,14 @@ import { getSubscriptionUrl } from "@/common/utils/mp-subscription-redirect";
 import { useCurrentUser } from "@/features/profile";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Linking, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  Alert,
+  Linking,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
 const benefits = [
   { icon: "star", label: "Aparecé primero en las búsquedas" },
@@ -18,9 +25,62 @@ const MembershipScreen = () => {
   const { data: user } = useCurrentUser();
   const router = useRouter();
 
+  // Función para obtener el email de la cuenta de Mercado Pago
+  const getMpUserEmail = async (mpAccessToken: string) => {
+    try {
+      const response = await fetch("https://api.mercadopago.com/users/me", {
+        headers: {
+          Authorization: `Bearer ${mpAccessToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        return userData.email;
+      }
+    } catch (e) {
+      console.error("Error obteniendo email de MP:", e);
+    }
+    return null;
+  };
+
   const handleSubscription = async () => {
-    const url = await getSubscriptionUrl(10, user?.email as string);
-    Linking.openURL(url);
+    try {
+      let payerEmail = user?.email as string; // Email por defecto (registrado en la app)
+
+      // Si el usuario tiene access token de MP, obtener su email de MP
+      if (user?.mp_access_token) {
+        const mpEmail = await getMpUserEmail(user.mp_access_token);
+
+        if (mpEmail) {
+          payerEmail = mpEmail; // Usar el email de la cuenta de MP
+          console.log("Usando email de MP:", mpEmail);
+        } else {
+          console.warn(
+            "No se pudo obtener email de MP, usando email registrado"
+          );
+        }
+      } else {
+        console.log(
+          "Usuario no tiene access token de MP, usando email registrado"
+        );
+      }
+
+      const url = await getSubscriptionUrl(
+        10,
+        payerEmail, // Usar el email correcto (MP o registrado)
+        user?.id as string
+      );
+
+      if (url) {
+        Linking.openURL(url);
+      } else {
+        Alert.alert("Error", "No se pudo generar el enlace de pago");
+      }
+    } catch (error) {
+      console.error("Error en handleSubscription:", error);
+      Alert.alert("Error", "Hubo un problema al procesar la suscripción");
+    }
   };
 
   const handleClose = () => {

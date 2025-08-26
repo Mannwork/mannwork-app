@@ -1,25 +1,14 @@
 import { useAuth } from "@clerk/clerk-react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 
 interface SettingsModalProps {
-  visible: boolean;
   onClose: () => void;
-  onCustomerSupport?: () => void;
   onShare?: () => void;
-  onAboutMannwork?: () => void;
 }
 
-const SettingsModal = ({
-  visible,
-  onClose,
-  onCustomerSupport,
-  onShare,
-  onAboutMannwork,
-}: SettingsModalProps) => {
-  const insets = useSafeAreaInsets();
+const SettingsModal = ({ onClose, onShare }: SettingsModalProps) => {
   const { signOut } = useAuth();
 
   const handleOptionPress = (action?: () => void) => {
@@ -47,9 +36,22 @@ const SettingsModal = ({
     }
   };
 
-  // const handlePrivacy = () => {
-  //   router.push({ pathname: "/(protected)/(mainTabs)/profile/privacy-modal" });
-  // };
+  const openCustomerSupport = () => {
+    const email = "mannworkofficial@gmail.com";
+    const subject = "Soporte Mannwork"; // opcional
+    const body = "Hola equipo Mannwork, necesito ayuda con..."; // opcional
+    const mailto = `mailto:${email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+    Linking.openURL(mailto);
+  };
+
+  const openFAQ = () => Linking.openURL("https://www.mannwork.com/legal/faq");
+  const openAbout = () => Linking.openURL("https://www.mannwork.com/");
+  const openTerms = () =>
+    Linking.openURL("https://www.mannwork.com/legal/terms");
+  const openPrivacy = () =>
+    Linking.openURL("https://www.mannwork.com/legal/privacy");
 
   const renderSettingsOption = (
     icon: string,
@@ -109,12 +111,6 @@ const SettingsModal = ({
               "Configurar alertas y notificaciones",
               handleNotifications
             )}
-            {/* {renderSettingsOption(
-              "security",
-              "Privacidad y seguridad",
-              "Configurar privacidad de la cuenta",
-              handlePrivacy
-            )} */}
           </View>
 
           {/* Soporte */}
@@ -126,12 +122,13 @@ const SettingsModal = ({
               "support-agent",
               "Atención al cliente",
               "Contactar con soporte técnico",
-              onCustomerSupport
+              openCustomerSupport
             )}
             {renderSettingsOption(
               "help",
               "Centro de ayuda",
-              "Preguntas frecuentes y tutoriales"
+              "Preguntas frecuentes y tutoriales",
+              openFAQ
             )}
             {renderSettingsOption(
               "share",
@@ -150,17 +147,19 @@ const SettingsModal = ({
               "info",
               "Acerca de Mannwork",
               "Información sobre la aplicación",
-              onAboutMannwork
+              openAbout
             )}
             {renderSettingsOption(
               "description",
               "Términos y condiciones",
-              "Términos de uso y políticas"
+              "Términos de uso y políticas",
+              openTerms
             )}
             {renderSettingsOption(
               "privacy-tip",
               "Política de privacidad",
-              "Cómo protegemos tus datos"
+              "Cómo protegemos tus datos",
+              openPrivacy
             )}
             {renderSettingsOption(
               "star",

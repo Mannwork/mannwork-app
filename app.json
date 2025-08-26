@@ -18,7 +18,11 @@
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSLocationWhenInUseUsageDescription": "Necesitamos tu ubicación para mostrarte en el mapa."
+        "NSLocationWhenInUseUsageDescription": "Necesitamos tu ubicación para mostrarte en el mapa.",
+        "NSCameraUsageDescription": "Necesitamos acceso a la cámara para que puedas tomar fotos y enviarlas en el chat.",
+        "NSPhotoLibraryUsageDescription": "Necesitamos acceso a tu galería para que puedas compartir imágenes en el chat.",
+        "NSPhotoLibraryAddUsageDescription": "Necesitamos guardar fotos en tu galería.",
+        "NSDocumentsFolderUsageDescription": "Necesitamos acceso a tus archivos para que puedas compartir documentos en el chat."
       }
     },
     "android": {

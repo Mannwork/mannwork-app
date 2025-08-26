@@ -11,21 +11,9 @@ const SettingsModalScreen = () => {
     router.back();
   };
 
-  const handleCustomerSupport = () => {
-    // Navegar a la pantalla de soporte al cliente
-    // router.push("/(protected)/support");
-    console.log("Atención al cliente");
-  };
-
   const handleShare = () => {
     // Lógica para compartir la aplicación
     console.log("Compartir aplicación");
-  };
-
-  const handleAboutMannwork = () => {
-    // Navegar a la pantalla de información sobre Mannwork
-    // router.push("/(protected)/about");
-    console.log("Acerca de Mannwork");
   };
 
   return (
@@ -40,13 +28,7 @@ const SettingsModalScreen = () => {
           animation: "slide_from_bottom",
         }}
       />
-      <SettingsModal
-        visible={true}
-        onClose={handleClose}
-        onCustomerSupport={handleCustomerSupport}
-        onShare={handleShare}
-        onAboutMannwork={handleAboutMannwork}
-      />
+      <SettingsModal onClose={handleClose} onShare={handleShare} />
     </View>
   );
 };
