@@ -9,6 +9,7 @@ interface ActualChatData {
     request_id?: string;
     client_id?: string;
     professional_id?: string;
+    chatId?: string;
 }
 
 interface ChatStore {
