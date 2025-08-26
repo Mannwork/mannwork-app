@@ -1,6 +1,8 @@
 import { supabase } from '@/common/lib/supabase/supabaseClient';
 
 export const putFinalizeRequest = async (request_id: string) => {
+  console.log(request_id);
+  
   try {
       const { data, error } = await supabase.functions.invoke('mp-submited', {
         body: {
