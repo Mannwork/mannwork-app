@@ -19,7 +19,6 @@ export interface ProfessionalStatsProps {
     completionRate: number;
     cancellationRate: number;
     successRate: number;
-    profileViews: number;
     requestsReceived: number;
     topZones: string[];
     isPremium: boolean;
