@@ -4,9 +4,6 @@
     },
     "build": {
         "development": {
-            "ios": {
-                "simulator": true
-            },
             "developmentClient": true,
             "distribution": "internal",
             "env": {
