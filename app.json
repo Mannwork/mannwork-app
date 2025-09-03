@@ -11,7 +11,6 @@
         "ios": {
             "supportsTablet": true,
             "bundleIdentifier": "com.dillmanncode.mannwork",
-            "buildNumber": "2",
             "config": {
                 "googleMaps": {
                     "apiKey": "AIzaSyCSq-wIJqaMFT2ZBV_Oz8IplUrE29mtfXU"
@@ -43,8 +42,7 @@
                     "apiKey": "AIzaSyCSq-wIJqaMFT2ZBV_Oz8IplUrE29mtfXU"
                 }
             },
-            "googleServicesFile": "./google-services.json",
-            "versionCode": 2
+            "googleServicesFile": "./google-services.json"
         },
         "web": {
             "bundler": "metro",
