@@ -1,19 +1,4 @@
-import { ClerkProvider } from "@clerk/clerk-expo";
-import { tokenCache } from "@clerk/clerk-expo/token-cache";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-import { envs } from "@/common/config/envs";
-
-import { ClerkSupabaseProvider } from "@/common/providers/ClerkSupabaseProvider";
-import NotificationProvider from "@/common/providers/PushNotificationProvider";
-
-import GlobalAlert from "@/common/components/GlobalAlert";
-import MySlot from "@/common/components/MySlot";
-
-import "@/common/lib/nativewind/global.css";
-import { UsersOnlineProvider } from "@/common/providers/UsersOnlineProvider";
-
+/* eslint-disable import/first */
 import * as Sentry from "@sentry/react-native";
 
 Sentry.init({
@@ -34,6 +19,22 @@ Sentry.init({
     // uncomment the line below to enable Spotlight (https://spotlightjs.com)
     // spotlight: __DEV__,
 });
+
+import { ClerkProvider } from "@clerk/clerk-expo";
+import { tokenCache } from "@clerk/clerk-expo/token-cache";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+import { envs } from "@/common/config/envs";
+
+import { ClerkSupabaseProvider } from "@/common/providers/ClerkSupabaseProvider";
+import NotificationProvider from "@/common/providers/PushNotificationProvider";
+
+import GlobalAlert from "@/common/components/GlobalAlert";
+import MySlot from "@/common/components/MySlot";
+
+import "@/common/lib/nativewind/global.css";
+import { UsersOnlineProvider } from "@/common/providers/UsersOnlineProvider";
 
 const queryClient = new QueryClient();
 
