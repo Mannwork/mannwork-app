@@ -1,3 +1,25 @@
+/* eslint-disable import/first */
+import * as Sentry from "@sentry/react-native";
+
+Sentry.init({
+    dsn: "https://31c4ea1b9764b60404c31a44db09f4df@o4509945560694784.ingest.us.sentry.io/4509945563709440",
+
+    // Adds more context data to events (IP address, cookies, user, etc.)
+    // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+    sendDefaultPii: true,
+
+    // Configure Session Replay
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1,
+    integrations: [
+        Sentry.mobileReplayIntegration(),
+        Sentry.feedbackIntegration(),
+    ],
+
+    // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+    // spotlight: __DEV__,
+});
+
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 
@@ -16,7 +38,7 @@ import { UsersOnlineProvider } from "@/common/providers/UsersOnlineProvider";
 
 const queryClient = new QueryClient();
 
-export default function RootLayout() {
+function RootLayout() {
     return (
         <ClerkProvider
             tokenCache={tokenCache}
@@ -35,3 +57,5 @@ export default function RootLayout() {
         </ClerkProvider>
     );
 }
+
+export default Sentry.wrap(RootLayout);
