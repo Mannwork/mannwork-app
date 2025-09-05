@@ -11,11 +11,7 @@
         "ios": {
             "supportsTablet": true,
             "bundleIdentifier": "com.dillmanncode.mannwork",
-            "config": {
-                "googleMaps": {
-                    "apiKey": "AIzaSyCSq-wIJqaMFT2ZBV_Oz8IplUrE29mtfXU"
-                }
-            },
+            "config": {},
             "infoPlist": {
                 "ITSAppUsesNonExemptEncryption": false,
                 "NSLocationWhenInUseUsageDescription": "Necesitamos tu ubicación para mostrarte en el mapa.",
@@ -27,6 +23,9 @@
         },
         "android": {
             "permissions": [
+                "ACCESS_COARSE_LOCATION",
+                "ACCESS_FINE_LOCATION",
+                "FOREGROUND_SERVICE",
                 "ACCESS_COARSE_LOCATION",
                 "ACCESS_FINE_LOCATION",
                 "FOREGROUND_SERVICE"
@@ -76,7 +75,8 @@
                     "project": "react-native",
                     "organization": "mannwork"
                 }
-            ]
+            ],
+            "expo-secure-store"
         ],
         "notification": {
             "icon": "./assets/images/push-notification-icon.png",
@@ -90,6 +90,12 @@
             "eas": {
                 "projectId": "ba42f55f-f743-402f-bc73-13aea55d70bc"
             }
+        },
+        "runtimeVersion": {
+            "policy": "appVersion"
+        },
+        "updates": {
+            "url": "https://u.expo.dev/ba42f55f-f743-402f-bc73-13aea55d70bc"
         }
     }
 }
