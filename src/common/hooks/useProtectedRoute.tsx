@@ -15,75 +15,12 @@ export const useProtectedRoute = () => {
 
     const segmentsStr = useMemo(() => segments.join("/"), [segments]);
 
-    const {
-        data: isOnboardingComplete,
-        isLoading: isOnboardingLoading,
-        isError,
-    } = useQuery({
-        queryKey: ["onboarding-status", userId],
-        queryFn: () => getOnboardingStatus(userId!),
-        enabled: isClerkLoaded && !!userId,
-    });
-
-    // useEffect(() => {
-    //     if (!isClerkLoaded) {
-    //         return;
-    //     }
-
-    //     const inAuthGroup = segments[0] === "(auth)";
-    //     const inSignInModalGroup =
-    //         segments[0] === "(auth)" && segments[1] === "sign-in-modal";
-    //     const inSignUpIndex =
-    //         segments.length === 2 &&
-    //         segments[0] === "(auth)" &&
-    //         segments[1] === "sign-up";
-    //     const inForgotPassIndex =
-    //         segments.length === 2 &&
-    //         segments[0] === "(auth)" &&
-    //         segments[1] === "forgot-pass";
-
-    //     if (
-    //         !isSignedIn &&
-    //         !inSignInModalGroup &&
-    //         !inSignUpIndex &&
-    //         !inForgotPassIndex
-    //     ) {
-    //         router.replace("/(auth)/sign-in");
-    //         return;
-    //     }
-
-    //     if (isOnboardingLoading) {
-    //         return;
-    //     }
-
-    //     if (isError) {
-    //         router.replace("/(auth)/sign-in");
-    //         return;
-    //     }
-
-    //     if (isOnboardingComplete === false) {
-    //         const inOnboardingFlow =
-    //             segments[0] === "(auth)" && segments[1] === "sign-up";
-
-    //         if (!inOnboardingFlow) {
-    //             router.replace("/(auth)/sign-up/rol-select");
-    //             return;
-    //         }
-    //     } else if (isOnboardingComplete === true && inAuthGroup) {
-    //         router.replace("/(protected)/(mainTabs)/home");
-    //         return;
-    //     }
-    // }, [
-    //     isClerkLoaded,
-    //     isSignedIn,
-    //     isOnboardingLoading,
-    //     isOnboardingComplete,
-    //     isError,
-    //     segmentsStr,
-    // ]);
-
-    // El layout principal está listo para mostrarse solo cuando Clerk ha cargado
-    // y, si el usuario está autenticado, la consulta de onboarding también ha finalizado.
+    const { data: isOnboardingComplete, isLoading: isOnboardingLoading } =
+        useQuery({
+            queryKey: ["onboarding-status", userId],
+            queryFn: () => getOnboardingStatus(userId!),
+            enabled: isClerkLoaded && !!userId,
+        });
 
     useEffect(() => {
         // Si Clerk o la consulta de onboarding están cargando, no hagas nada todavía.
