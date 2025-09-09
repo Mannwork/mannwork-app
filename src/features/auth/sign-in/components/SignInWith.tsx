@@ -28,14 +28,14 @@ export const useWarmUpBrowser = () => {
 
 WebBrowser.maybeCompleteAuthSession();
 
-type Variant = 'primary' | 'secondary' | 'outline' | 'ghost';
+type Variant = "primary" | "secondary" | "outline" | "ghost";
 
 interface SignInWithProps {
     strategy: "oauth_google" | "oauth_facebook";
     variant?: Variant;
 }
 
-const SignInWith = ({ strategy, variant = 'primary' }: SignInWithProps) => {
+const SignInWith = ({ strategy, variant = "primary" }: SignInWithProps) => {
     useWarmUpBrowser();
 
     const { startSSOFlow } = useSSO();
@@ -43,11 +43,14 @@ const SignInWith = ({ strategy, variant = 'primary' }: SignInWithProps) => {
     const onPress = useCallback(async () => {
         try {
             const redirectUrl = AuthSession.makeRedirectUri({
-                path: "/oauth-callback",
+                path: "oauth-callback",
             });
 
             const { createdSessionId, setActive } = await startSSOFlow({
-                strategy,
+                strategy:
+                    strategy === "oauth_google"
+                        ? "oauth_google"
+                        : "oauth_facebook",
                 redirectUrl,
             });
 
