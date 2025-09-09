@@ -47,7 +47,7 @@ export function useNotifications() {
 }
 
 function handleRegistrationError(errorMessage: string) {
-    alert(errorMessage);
+    console.error(errorMessage);
     throw new Error(errorMessage);
 }
 
