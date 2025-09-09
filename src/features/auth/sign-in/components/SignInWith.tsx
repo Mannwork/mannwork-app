@@ -43,15 +43,17 @@ const SignInWith = ({ strategy, variant = "primary" }: SignInWithProps) => {
     const onPress = useCallback(async () => {
         try {
             const redirectUrl = AuthSession.makeRedirectUri({
-                path: "oauth-callback",
+                path: "home",
             });
+
+            console.log("Redirect URL:", redirectUrl);
 
             const { createdSessionId, setActive } = await startSSOFlow({
                 strategy:
                     strategy === "oauth_google"
                         ? "oauth_google"
                         : "oauth_facebook",
-                redirectUrl,
+                redirectUrl: redirectUrl,
             });
 
             if (createdSessionId) {
