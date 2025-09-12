@@ -68,10 +68,6 @@ const SignIn = () => {
                 >
                     <View className="flex-1 gap-y-2">
                         <SignInWith strategy="oauth_google" variant="outline" />
-                        <SignInWith
-                            strategy="oauth_facebook"
-                            variant="outline"
-                        />
 
                         <View className="flex-row items-center my-4">
                             <View className="flex-1 h-px bg-gray-200" />
