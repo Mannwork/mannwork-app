@@ -5,6 +5,7 @@ import MessageItem from "@/features/chats/components/MessageItem";
 import QuoteButton from "@/features/chats/components/QuoteButton";
 import { useChatMessages } from "@/features/chats/hooks/useChatMessages";
 import { updateMessagesReadStatus } from "@/features/chats/services/update-messages-read-status";
+import { useChatStore } from "@/features/chats/store/chat.store";
 import { useUserRole } from "@/features/request";
 import { useAuth } from "@clerk/clerk-expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -23,6 +24,7 @@ const ChatScreen = () => {
     const { onlineUsers } = useUsersOnline();
 
     const { chatId, client } = useLocalSearchParams();
+
     const { userId } = useAuth();
     const {
         data: messagesPage,
@@ -32,6 +34,8 @@ const ChatScreen = () => {
         hasNextPage,
         fetchNextPage,
     } = useChatMessages(chatId as string);
+    const { actualChatData } = useChatStore();
+
     const router = useRouter();
     const { data: userRole } = useUserRole();
 
@@ -78,7 +82,10 @@ const ChatScreen = () => {
             keyboardVerticalOffset={0}
         >
             <View className="flex-1 bg-gray-50">
-                <ChatHeader onlineUsers={onlineUsers} />
+                <ChatHeader
+                    onlineUsers={onlineUsers}
+                    actualChatData={actualChatData}
+                />
 
                 <FlatList
                     data={messages}
@@ -113,6 +120,11 @@ const ChatScreen = () => {
                 <ChatInput
                     chatId={chatId as string}
                     senderId={userId as string}
+                    receptorId={
+                        userId === client
+                            ? actualChatData.professional_id!
+                            : actualChatData.client_id!
+                    }
                 />
             </View>
         </KeyboardAvoidingView>

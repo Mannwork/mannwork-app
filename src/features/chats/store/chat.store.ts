@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface ActualChatData {
+export interface ActualChatData {
     professionalName: string;
     professionalImage: string;
     mainCategory: string;

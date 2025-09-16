@@ -99,6 +99,24 @@ export function useCreateRequest(): UseCreateRequestReturn {
         console.warn('La solicitud se creó pero no se pudieron relacionar los profesionales');
       }
 
+      const notificationProfessionalsData = data.professionals.map(professionalId => ({
+         user_id: professionalId,
+        title: "Nueva solicitud",
+        body:  data.name,
+        type: "new_request",
+        redirect_id: newRequest.id,
+        creator_id: newRequest.client,
+      }));
+
+          const { error: notificationError } = await supabase.from("notifications").insert(notificationProfessionalsData);
+
+    if (notificationError) {
+        console.error("Error al crear notificación:", notificationError);
+        console.error("Notificación de error:", notificationError.message);
+        
+        throw notificationError
+    };
+
       return true;
 
     } catch (err) {
