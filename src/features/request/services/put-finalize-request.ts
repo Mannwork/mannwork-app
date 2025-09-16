@@ -1,8 +1,6 @@
 import { supabase } from '@/common/lib/supabase/supabaseClient';
 
-export const putFinalizeRequest = async (request_id: string) => {
-  console.log(request_id);
-  
+export const putFinalizeRequest = async (request_id: string) => {  
   try {
       const { data, error } = await supabase.functions.invoke('mp-submited', {
         body: {
@@ -14,7 +12,6 @@ export const putFinalizeRequest = async (request_id: string) => {
       if (error) {
           throw new Error('Error al invocar la función: ' + error.message);
       }
-      console.log(data, "data");
       
       if (data && data.url) {
           return data.url;

@@ -14,8 +14,7 @@ export const useChatMessages = (chatId: string) => {
     const { data, isLoading, error, fetchNextPage, hasNextPage, refetch } =
         useInfiniteQuery({
             queryKey: queryKey,
-            queryFn: ({ pageParam = 1 }) =>
-                getChatData({ chatId, pageParam }),
+            queryFn: ({ pageParam = 1 }) => getChatData({ chatId, pageParam }),
             initialPageParam: 1,
             getNextPageParam: (lastPage, allPages) => {
                 if (!lastPage || lastPage.messages.length < MESSAGES_PER_PAGE) {
@@ -46,15 +45,22 @@ export const useChatMessages = (chatId: string) => {
                         // Si el caché está vacío, no hagas nada
                         if (!oldData) return oldData;
 
-                        // Creá una nueva copia de los datos para no mutar el original
+                        // Creá una nueva copia de los datos actualizando solo la primera página
                         const newData = {
                             ...oldData,
-                            pages: [...oldData.pages],
+                            pages: oldData.pages.map(
+                                (page: any, index: number) =>
+                                    index === 0
+                                        ? {
+                                              ...page,
+                                              messages: [
+                                                  newMessage,
+                                                  ...page.messages,
+                                              ],
+                                          }
+                                        : page
+                            ),
                         };
-
-                        // Agregá el nuevo mensaje al principio de la primera página
-                        // Esto funciona porque tus mensajes se cargan en orden descendente
-                        newData.pages[0] = [newMessage, ...newData.pages[0]];
 
                         return newData;
                     });
