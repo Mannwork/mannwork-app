@@ -4,196 +4,226 @@ import { router } from "expo-router";
 import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 
 interface SettingsModalProps {
-  onClose: () => void;
-  onShare?: () => void;
+    onClose: () => void;
+    onShare?: () => void;
 }
 
 const SettingsModal = ({ onClose, onShare }: SettingsModalProps) => {
-  const { signOut } = useAuth();
+    const { signOut } = useAuth();
 
-  const handleOptionPress = (action?: () => void) => {
-    onClose();
-    if (action) {
-      action();
-    }
-  };
+    const handleOptionPress = (action?: () => void) => {
+        onClose();
+        if (action) {
+            action();
+        }
+    };
 
-  const handleEditProfile = () => {
-    router.push("/(protected)/(mainTabs)/profile/update-data-modal");
-  };
+    const handleEditProfile = () => {
+        router.push("/(protected)/(mainTabs)/profile/update-data-modal");
+    };
 
-  const handleNotifications = () => {
-    router.push({
-      pathname: "/(protected)/(mainTabs)/profile/notifications-modal",
-    });
-  };
+    const handleNotifications = () => {
+        router.push({
+            pathname: "/(protected)/(mainTabs)/profile/notifications-modal",
+        });
+    };
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  };
+    const handleLogout = async () => {
+        try {
+            await signOut();
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+        }
+    };
 
-  const openCustomerSupport = () => {
-    const email = "mannworkofficial@gmail.com";
-    const subject = "Soporte Mannwork"; // opcional
-    const body = "Hola equipo Mannwork, necesito ayuda con..."; // opcional
-    const mailto = `mailto:${email}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
-    Linking.openURL(mailto);
-  };
+    const openCustomerSupport = () => {
+        const email = "mannworkofficial@gmail.com";
+        const subject = "Soporte Mannwork"; // opcional
+        const body = "Hola equipo Mannwork, necesito ayuda con..."; // opcional
+        const mailto = `mailto:${email}?subject=${encodeURIComponent(
+            subject
+        )}&body=${encodeURIComponent(body)}`;
+        Linking.openURL(mailto);
+    };
 
-  const openFAQ = () => Linking.openURL("https://www.mannwork.com/legal/faq");
-  const openAbout = () => Linking.openURL("https://www.mannwork.com/");
-  const openTerms = () =>
-    Linking.openURL("https://www.mannwork.com/legal/terms");
-  const openPrivacy = () =>
-    Linking.openURL("https://www.mannwork.com/legal/privacy");
+    const openFAQ = () => Linking.openURL("https://www.mannwork.com/legal/faq");
+    const openAbout = () => Linking.openURL("https://www.mannwork.com/");
+    const openTerms = () =>
+        Linking.openURL("https://www.mannwork.com/legal/terms");
+    const openPrivacy = () =>
+        Linking.openURL("https://www.mannwork.com/legal/privacy");
+    const openDeleteAccountRequest = () =>
+        Linking.openURL("https://www.mannwork.com/delete-account");
 
-  const renderSettingsOption = (
-    icon: string,
-    title: string,
-    subtitle?: string,
-    onPress?: () => void
-  ) => (
-    <Pressable
-      onPress={() => handleOptionPress(onPress)}
-      className="flex-row items-center py-4 px-4 border-b border-gray-200"
-    >
-      <View className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center mr-4">
-        <MaterialIcons name={icon as any} size={20} color="#2D7A3E" />
-      </View>
-      <View className="flex-1">
-        <Text className="text-gray-900 font-medium text-base">{title}</Text>
-        {subtitle && (
-          <Text className="text-gray-500 text-sm mt-1">{subtitle}</Text>
-        )}
-      </View>
-      <MaterialIcons name="chevron-right" size={20} color="#9CA3AF" />
-    </Pressable>
-  );
-
-  return (
-    <View className="flex-1 bg-white">
-      {/* Header del modal */}
-      <View className="flex-row items-center bg-green-mannwork justify-between px-4 py-4 border-b border-gray-200">
-        <View className="flex-1" />
-        <Text className="text-2xl font-bold text-white text-center">
-          Configuración
-        </Text>
-        <View className="flex-1 items-end">
-          <Pressable onPress={onClose}>
-            <MaterialIcons name="close" size={24} color="#ffff" />
-          </Pressable>
-        </View>
-      </View>
-
-      {/* Contenido del modal */}
-      <ScrollView className="flex-1">
-        <View className="py-2">
-          {/* Perfil */}
-          <View className="mb-4">
-            <Text className="text-gray-500 text-sm font-medium px-4 py-2 bg-gray-50">
-              PERFIL
-            </Text>
-            {renderSettingsOption(
-              "edit",
-              "Editar perfil",
-              "Modificar información personal",
-              handleEditProfile
-            )}
-            {renderSettingsOption(
-              "notifications",
-              "Notificaciones",
-              "Configurar alertas y notificaciones",
-              handleNotifications
-            )}
-          </View>
-
-          {/* Soporte */}
-          <View className="mb-4">
-            <Text className="text-gray-500 text-sm font-medium px-4 py-2 bg-gray-50">
-              SOPORTE
-            </Text>
-            {renderSettingsOption(
-              "support-agent",
-              "Atención al cliente",
-              "Contactar con soporte técnico",
-              openCustomerSupport
-            )}
-            {renderSettingsOption(
-              "help",
-              "Centro de ayuda",
-              "Preguntas frecuentes y tutoriales",
-              openFAQ
-            )}
-            {renderSettingsOption(
-              "share",
-              "Compartir aplicación",
-              "Invitar amigos a usar Mannwork",
-              onShare
-            )}
-          </View>
-
-          {/* Información */}
-          <View className="mb-4">
-            <Text className="text-gray-500 text-sm font-medium px-4 py-2 bg-gray-50">
-              INFORMACIÓN
-            </Text>
-            {renderSettingsOption(
-              "info",
-              "Acerca de Mannwork",
-              "Información sobre la aplicación",
-              openAbout
-            )}
-            {renderSettingsOption(
-              "description",
-              "Términos y condiciones",
-              "Términos de uso y políticas",
-              openTerms
-            )}
-            {renderSettingsOption(
-              "privacy-tip",
-              "Política de privacidad",
-              "Cómo protegemos tus datos",
-              openPrivacy
-            )}
-            {renderSettingsOption(
-              "star",
-              "Calificar aplicación",
-              "Deja tu opinión en la tienda"
-            )}
-          </View>
-
-          {/* Cuenta */}
-          <View className="mb-4">
-            <Text className="text-gray-500 text-sm font-medium px-4 py-2 bg-gray-50">
-              CUENTA
-            </Text>
-            <Pressable
-              onPress={() => handleOptionPress(handleLogout)}
-              className="flex-row items-center py-4 px-4 border-b border-gray-200"
-            >
-              <View className="w-10 h-10 bg-red-100 rounded-full items-center justify-center mr-4">
-                <MaterialIcons name="logout" size={20} color="#DC2626" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-red-600 font-medium text-base">
-                  Cerrar sesión
+    const renderSettingsOption = (
+        icon: string,
+        title: string,
+        subtitle?: string,
+        onPress?: () => void
+    ) => (
+        <Pressable
+            onPress={() => handleOptionPress(onPress)}
+            className="flex-row items-center py-4 px-4 border-b border-gray-200"
+        >
+            <View className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center mr-4">
+                <MaterialIcons name={icon as any} size={20} color="#2D7A3E" />
+            </View>
+            <View className="flex-1">
+                <Text className="text-gray-900 font-medium text-base">
+                    {title}
                 </Text>
-                <Text className="text-gray-500 text-sm mt-1">
-                  Salir de tu cuenta
+                {subtitle && (
+                    <Text className="text-gray-500 text-sm mt-1">
+                        {subtitle}
+                    </Text>
+                )}
+            </View>
+            <MaterialIcons name="chevron-right" size={20} color="#9CA3AF" />
+        </Pressable>
+    );
+
+    return (
+        <View className="flex-1 bg-white">
+            {/* Header del modal */}
+            <View className="flex-row items-center bg-green-mannwork justify-between px-4 py-4 border-b border-gray-200">
+                <View className="flex-1" />
+                <Text className="text-2xl font-bold text-white text-center">
+                    Configuración
                 </Text>
-              </View>
-            </Pressable>
-          </View>
+                <View className="flex-1 items-end">
+                    <Pressable onPress={onClose}>
+                        <MaterialIcons name="close" size={24} color="#ffff" />
+                    </Pressable>
+                </View>
+            </View>
+
+            {/* Contenido del modal */}
+            <ScrollView className="flex-1">
+                <View className="py-2">
+                    {/* Perfil */}
+                    <View className="mb-4">
+                        <Text className="text-gray-500 text-sm font-medium px-4 py-2 bg-gray-50">
+                            PERFIL
+                        </Text>
+                        {renderSettingsOption(
+                            "edit",
+                            "Editar perfil",
+                            "Modificar información personal",
+                            handleEditProfile
+                        )}
+                        {renderSettingsOption(
+                            "notifications",
+                            "Notificaciones",
+                            "Configurar alertas y notificaciones",
+                            handleNotifications
+                        )}
+                    </View>
+
+                    {/* Soporte */}
+                    <View className="mb-4">
+                        <Text className="text-gray-500 text-sm font-medium px-4 py-2 bg-gray-50">
+                            SOPORTE
+                        </Text>
+                        {renderSettingsOption(
+                            "support-agent",
+                            "Atención al cliente",
+                            "Contactar con soporte técnico",
+                            openCustomerSupport
+                        )}
+                        {renderSettingsOption(
+                            "help",
+                            "Centro de ayuda",
+                            "Preguntas frecuentes y tutoriales",
+                            openFAQ
+                        )}
+                        {renderSettingsOption(
+                            "share",
+                            "Compartir aplicación",
+                            "Invitar amigos a usar Mannwork",
+                            onShare
+                        )}
+                    </View>
+
+                    {/* Información */}
+                    <View className="mb-4">
+                        <Text className="text-gray-500 text-sm font-medium px-4 py-2 bg-gray-50">
+                            INFORMACIÓN
+                        </Text>
+                        {renderSettingsOption(
+                            "info",
+                            "Acerca de Mannwork",
+                            "Información sobre la aplicación",
+                            openAbout
+                        )}
+                        {renderSettingsOption(
+                            "description",
+                            "Términos y condiciones",
+                            "Términos de uso y políticas",
+                            openTerms
+                        )}
+                        {renderSettingsOption(
+                            "privacy-tip",
+                            "Política de privacidad",
+                            "Cómo protegemos tus datos",
+                            openPrivacy
+                        )}
+                        {renderSettingsOption(
+                            "star",
+                            "Calificar aplicación",
+                            "Deja tu opinión en la tienda"
+                        )}
+                    </View>
+
+                    {/* Cuenta */}
+                    <View className="mb-4">
+                        <Text className="text-gray-500 text-sm font-medium px-4 py-2 bg-gray-50">
+                            CUENTA
+                        </Text>
+                        <Pressable
+                            onPress={openDeleteAccountRequest}
+                            className="flex-row items-center py-4 px-4 border-b border-gray-200"
+                        >
+                            <View className="w-10 h-10 bg-red-100 rounded-full items-center justify-center mr-4">
+                                <MaterialIcons
+                                    name="delete"
+                                    size={20}
+                                    color="#DC2626"
+                                />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="text-red-600 font-medium text-base">
+                                    Eliminar mi cuenta
+                                </Text>
+                                <Text className="text-gray-500 text-sm mt-1">
+                                    Esta acción eliminará tu cuenta de mannwork
+                                </Text>
+                            </View>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => handleOptionPress(handleLogout)}
+                            className="flex-row items-center py-4 px-4 border-b border-gray-200"
+                        >
+                            <View className="w-10 h-10 bg-red-100 rounded-full items-center justify-center mr-4">
+                                <MaterialIcons
+                                    name="logout"
+                                    size={20}
+                                    color="#DC2626"
+                                />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="text-red-600 font-medium text-base">
+                                    Cerrar sesión
+                                </Text>
+                                <Text className="text-gray-500 text-sm mt-1">
+                                    Salir de tu cuenta
+                                </Text>
+                            </View>
+                        </Pressable>
+                    </View>
+                </View>
+            </ScrollView>
         </View>
-      </ScrollView>
-    </View>
-  );
+    );
 };
 
 export default SettingsModal;
