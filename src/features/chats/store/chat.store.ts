@@ -29,6 +29,7 @@ export const useChatStore = create<ChatStore>((set) => ({
         request_id: "",
         client_id: "",
         professional_id: "",
+        chatId: "",
     },
     setActualChatData: (data: ActualChatData) => {
         set({ actualChatData: data });
