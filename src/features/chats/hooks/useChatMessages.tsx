@@ -45,24 +45,30 @@ export const useChatMessages = (chatId: string) => {
                         // Si el caché está vacío, no hagas nada
                         if (!oldData) return oldData;
 
-                        // Creá una nueva copia de los datos actualizando solo la primera página
-                        const newData = {
-                            ...oldData,
-                            pages: oldData.pages.map(
-                                (page: any, index: number) =>
-                                    index === 0
-                                        ? {
-                                              ...page,
-                                              messages: [
-                                                  newMessage,
-                                                  ...page.messages,
-                                              ],
-                                          }
-                                        : page
-                            ),
-                        };
+                        console.log("Nuevo mensaje recibido:", newMessage);
 
-                        return newData;
+                        if (newMessage.type === "quote") {
+                            refetch();
+                        } else {
+                            // Creá una nueva copia de los datos actualizando solo la primera página
+                            const newData = {
+                                ...oldData,
+                                pages: oldData.pages.map(
+                                    (page: any, index: number) =>
+                                        index === 0
+                                            ? {
+                                                  ...page,
+                                                  messages: [
+                                                      newMessage,
+                                                      ...page.messages,
+                                                  ],
+                                              }
+                                            : page
+                                ),
+                            };
+
+                            return newData;
+                        }
                     });
                 }
             )
@@ -72,7 +78,7 @@ export const useChatMessages = (chatId: string) => {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [chatId, queryClient, queryKey]);
+    }, [chatId, queryClient, queryKey, refetch]);
 
     return {
         data,

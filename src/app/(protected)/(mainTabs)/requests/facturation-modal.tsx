@@ -1,11 +1,4 @@
-import {
-    ActivityIndicator,
-    Alert,
-    Linking,
-    Pressable,
-    Text,
-    View,
-} from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { MaterialIcons } from "@expo/vector-icons";
@@ -41,17 +34,6 @@ const FacturationModal = () => {
             </View>
         );
     }
-
-    const handleDownload = async () => {
-        // Verificar si el enlace se puede abrir
-        const supported = await Linking.canOpenURL(data.invoice_url);
-
-        if (supported) {
-            await Linking.openURL(data.invoice_url);
-        } else {
-            Alert.alert(`No se puede abrir el enlace: ${data.invoice_url}`);
-        }
-    };
 
     return (
         <View className="flex-1 bg-white">

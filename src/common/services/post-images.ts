@@ -1,4 +1,3 @@
-import { Alert } from "react-native";
 import ReactNativeBlobUtil from 'react-native-blob-util'; // Importa RNFetchBlob
 import { supabase } from "../lib/supabase/supabaseClient";
 
@@ -54,7 +53,6 @@ export const postImagesToSupabase = async (
         return publicUrls;
     } catch (error: any) {
         console.error("Error en el proceso de subida de imágenes:", error);
-        Alert.alert("Error", `Ocurrió un problema al subir las imágenes: ${error.message}`);
         return [];
     }
 };

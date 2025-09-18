@@ -1,4 +1,3 @@
-import { Alert } from "react-native";
 import ReactNativeBlobUtil from 'react-native-blob-util'; // Importa RNFetchBlob
 import { supabase } from "../lib/supabase/supabaseClient";
 
@@ -35,7 +34,6 @@ export const postImageToSupabase = async (
 
         if (error) {
             console.error("Error al subir la imagen:", error);
-            Alert.alert("Error", "No se pudo subir la imagen: " + error.message);
             return "";
         }
 
@@ -46,12 +44,11 @@ export const postImageToSupabase = async (
         if (publicUrlData && publicUrlData.publicUrl) {
             return publicUrlData.publicUrl;
         } else {
-            Alert.alert("Error", "No se pudo obtener la URL pública de la imagen.");
+            console.error("Error", "No se pudo obtener la URL pública de la imagen.");
             return "";
         }
     } catch (uploadError: any) {
         console.error("Error en el proceso de subida:", uploadError);
-        Alert.alert("Error Interno", "Ocurrió un problema al procesar la imagen: " + uploadError.message);
         return "";
     }
 };

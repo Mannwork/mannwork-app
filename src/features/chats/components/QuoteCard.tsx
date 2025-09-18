@@ -15,6 +15,7 @@ const QuoteCard = ({ quoteId, timestamp, requestId }: QuoteCardProps) => {
 
     const { userId } = useAuth();
     const { data: quote } = useQuote(quoteId);
+
     const isFromMe = quote?.professional_id === userId;
     const handlePay = () => {
         if (!quote) return;
@@ -23,11 +24,6 @@ const QuoteCard = ({ quoteId, timestamp, requestId }: QuoteCardProps) => {
             params: {
                 quoteId: quoteId,
                 chatId: chatId,
-                quoteAmount: quote.price?.toString() || "0",
-                quoteDescription: quote.descriptionservice || "",
-                quoteProfessionalName: quote.professionalName || "",
-                quoteProfessionalAvatar: quote.professionalAvatar || "",
-                professionalAccessToken: quote.professionalAccessToken || "",
                 requestId: requestId,
             },
         });
@@ -133,7 +129,7 @@ const QuoteCard = ({ quoteId, timestamp, requestId }: QuoteCardProps) => {
                     </Text>
                 </Pressable>
             )}
-            {quote?.status === "paid" && (
+            {quote?.status === "accepted" && (
                 <Text
                     style={{
                         color: "#4BB96F",
@@ -142,7 +138,19 @@ const QuoteCard = ({ quoteId, timestamp, requestId }: QuoteCardProps) => {
                         marginTop: 8,
                     }}
                 >
-                    Pagada
+                    Cotización aceptada
+                </Text>
+            )}
+            {quote?.status === "refused" && (
+                <Text
+                    className="text-red-600"
+                    style={{
+                        fontWeight: "bold",
+                        fontSize: 15,
+                        marginTop: 8,
+                    }}
+                >
+                    Cotización rechazada
                 </Text>
             )}
             <Text

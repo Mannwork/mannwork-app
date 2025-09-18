@@ -6,7 +6,6 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
     ActivityIndicator,
-    Alert,
     Pressable,
     StyleSheet,
     Text,
@@ -132,10 +131,6 @@ const ForgotPass = () => {
             setCurrentStep("code");
         } catch (err: any) {
             console.error("Password reset error:", err);
-            Alert.alert(
-                "Error",
-                "No se pudo enviar el correo de recuperación. Por favor, verifica tu correo electrónico e inténtalo de nuevo."
-            );
         } finally {
             setIsLoading(false);
         }
@@ -157,10 +152,6 @@ const ForgotPass = () => {
             setCurrentStep("reset");
         } catch (err: any) {
             console.error("Verification error:", err);
-            Alert.alert(
-                "Error",
-                "El código de verificación es incorrecto o ha expirado. Por favor, inténtalo de nuevo."
-            );
         } finally {
             setIsLoading(false);
         }
@@ -182,10 +173,6 @@ const ForgotPass = () => {
             setCurrentStep("success");
         } catch (err: any) {
             console.error("Password reset error:", err);
-            Alert.alert(
-                "Error",
-                "No se pudo restablecer la contraseña. Por favor, inténtalo de nuevo."
-            );
         } finally {
             setIsLoading(false);
         }
