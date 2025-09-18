@@ -7,15 +7,15 @@ import { postNewMessage } from "../services/post-new-message";
 
 interface QuoteButtonProps {
     chatId: string;
+    refetch: () => void;
     receptorId: string;
     requestId?: string;
-    onViewQuote?: () => void;
     userRole: "client" | "professional";
     hasQuote?: boolean;
 }
 
 const QuoteButton = ({
-    onViewQuote,
+    refetch,
     receptorId,
     userRole,
     hasQuote = false,
@@ -57,13 +57,14 @@ const QuoteButton = ({
                 });
             }
         } else {
-            postNewMessage({
+            await postNewMessage({
                 content: "",
                 chat_id: chatId,
                 sender_id: userId as string,
                 type: "quote_request",
                 receptor_id: receptorId,
             });
+            refetch();
         }
     };
 

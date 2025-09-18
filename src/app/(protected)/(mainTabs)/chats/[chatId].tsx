@@ -125,6 +125,7 @@ const ChatScreen = () => {
                                 ? actualChatData.professional_id!
                                 : actualChatData.client_id!
                         }
+                        refetch={refetch}
                     />
                 ) : null}
 
