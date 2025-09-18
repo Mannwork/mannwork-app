@@ -14,25 +14,31 @@ import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 const ProfileScreen = () => {
   const { data: user, isLoading, error } = useCurrentUser();
   // Traer reviews reales del usuario logueado con paginación
-  const { 
-    allReviews,          // Todas las reseñas (para estadísticas)
-    paginatedReviews,    // Reseñas paginadas (para la lista)
-    loading: loadingReviews, 
-    loadingMore, 
-    hasMore, 
+  const {
+    allReviews, // Todas las reseñas (para estadísticas)
+    paginatedReviews, // Reseñas paginadas (para la lista)
+    loading: loadingReviews,
+    loadingMore,
+    hasMore,
     totalReviews,
     loadMoreReviews,
-    refreshReviews
+    refreshReviews,
   } = useUserReviews(user?.id || "");
 
   // Calcular estadísticas con todas las reseñas
   const { averageRating, ratingDistribution } = useMemo(() => {
-    const avg = allReviews.length > 0
-      ? allReviews.reduce((sum: number, r: any) => sum + (r.calification || 0), 0) / allReviews.length
-      : 0;
+    const avg =
+      allReviews.length > 0
+        ? allReviews.reduce(
+            (sum: number, r: any) => sum + (r.calification || 0),
+            0
+          ) / allReviews.length
+        : 0;
 
     const dist = [1, 2, 3, 4, 5].reduce((acc, star) => {
-      acc[star] = allReviews.filter((r: any) => Math.round(r.calification) === star).length;
+      acc[star] = allReviews.filter(
+        (r: any) => Math.round(r.calification) === star
+      ).length;
       return acc;
     }, {} as { [key: number]: number });
 
@@ -40,34 +46,39 @@ const ProfileScreen = () => {
   }, [allReviews]);
 
   // Mapear las reseñas paginadas para la lista
-  const mappedReviews = useMemo(() => paginatedReviews.map((r) => {
-    // Si es una respuesta de Supabase con la estructura reviewer
-    if ('reviewer' in r && r.reviewer) {
-      return {
-        id: r.id,
-        reviewerId: r.reviewer_id,
-        reviewerName: `${r.reviewer.name} ${r.reviewer.last_name || ''}`.trim() || "Usuario",
-        reviewerImage: r.reviewer.profile_pic,
-        rating: r.calification,
-        comment: r.commentary,
-        date: r.created_at,
-        reviewerMembershipJson: r.reviewer.membership_json,
-      };
-    }
-    
-    // Si es un objeto plano con las propiedades directamente
-    return {
-      id: r.id,
-      reviewerId: r.reviewer_id,
-      reviewerName: r.reviewer_name || "Usuario",
-      reviewerImage: r.reviewer_image,
-      rating: r.calification,
-      comment: r.commentary,
-      date: r.created_at,
-      reviewerMembershipJson: r.reviewer_membership_json,
-    };
-  }), [paginatedReviews]);
+  const mappedReviews = useMemo(
+    () =>
+      paginatedReviews.map((r) => {
+        // Si es una respuesta de Supabase con la estructura reviewer
+        if ("reviewer" in r && r.reviewer) {
+          return {
+            id: r.id,
+            reviewerId: r.reviewer_id,
+            reviewerName:
+              `${r.reviewer.name} ${r.reviewer.last_name || ""}`.trim() ||
+              "Usuario",
+            reviewerImage: r.reviewer.profile_pic,
+            rating: r.calification,
+            comment: r.commentary,
+            date: r.created_at,
+            reviewerMembershipJson: r.reviewer.membership_json,
+          };
+        }
 
+        // Si es un objeto plano con las propiedades directamente
+        return {
+          id: r.id,
+          reviewerId: r.reviewer_id,
+          reviewerName: r.reviewer_name || "Usuario",
+          reviewerImage: r.reviewer_image,
+          rating: r.calification,
+          comment: r.commentary,
+          date: r.created_at,
+          reviewerMembershipJson: r.reviewer_membership_json,
+        };
+      }),
+    [paginatedReviews]
+  );
 
   // Loading state
   if (isLoading || loadingReviews) {
@@ -124,9 +135,9 @@ const ProfileScreen = () => {
     <View className="flex-1 bg-white">
       <ScrollView showsVerticalScrollIndicator={false}>
         <ProfileBanner
-            user={userData}
-            totalReviews={totalReviews}
-            isOwnProfile={true}
+          user={userData}
+          totalReviews={totalReviews}
+          isOwnProfile={true}
         />
         <SectionDivider />
         <ProfileInfo description={profileInfo.description} />
@@ -149,10 +160,10 @@ const ProfileScreen = () => {
             </>
           )}
 
-        <ProfileReviews 
+        <ProfileReviews
           userName={`${userData.firstName} ${userData.lastName}`}
           totalReviews={totalReviews}
-          reviews={mappedReviews} 
+          reviews={mappedReviews}
           onViewMoreReviews={hasMore ? loadMoreReviews : undefined}
           averageRating={averageRating}
           ratingDistribution={ratingDistribution}

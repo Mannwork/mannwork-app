@@ -72,17 +72,9 @@ const EditUserModal = ({ visible, onClose }: EditUserModalProps) => {
       updateData.professions = professions;
     }
 
-    updateProfile(updateData, {
-      onSuccess: () => {
-        show("Perfil actualizado correctamente", "success");
-        onClose();
-      },
-      onError: (error) => {
-        show("No se pudo actualizar el perfil", "error");
-        console.error("Error updating profile:", error);
-        onClose();
-      },
-    });
+    updateProfile(updateData);
+
+    onClose();
   };
 
   const handleAddPhoto = async () => {
