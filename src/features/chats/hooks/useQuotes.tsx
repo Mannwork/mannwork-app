@@ -10,18 +10,12 @@ export interface Quote {
     professional_id: string;
     request_id: string;
     client_id: string;
-    status:
-        | "pending"
-        | "accepted"
-        | "rejected"
-        | "paid"
-        | "completed"
-        | "cancelled";
+    status: "pending" | "accepted" | "refused";
     createdat: string;
     updatedat: string;
     professionalAvatar: string;
     professionalName: string;
-    professionalAccessToken: string;    
+    professionalAccessToken: string;
 }
 
 export const useQuote = (quoteId: string | undefined) => {

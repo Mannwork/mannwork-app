@@ -41,7 +41,13 @@ const ChatScreen = () => {
 
     // Profesional abre modal de cotización
     const handleQuoteRequest = () => {
-        router.push(`/chats/quote-modal?chatId=${chatId}`);
+        router.push(
+            `/chats/quote-modal?chatId=${chatId}&receptorId=${
+                userId === client
+                    ? actualChatData.professional_id!
+                    : actualChatData.client_id!
+            }`
+        );
     };
 
     useEffect(() => {
@@ -106,7 +112,7 @@ const ChatScreen = () => {
                 />
 
                 {/* Botón de cotización */}
-                {userId === client && userRole && (
+                {userId === client && userRole && !hasActiveQuote ? (
                     <QuoteButton
                         chatId={chatId as string}
                         requestId={messagesPage?.pages[0].requestId as string}
@@ -120,7 +126,7 @@ const ChatScreen = () => {
                                 : actualChatData.client_id!
                         }
                     />
-                )}
+                ) : null}
 
                 <ChatInput
                     chatId={chatId as string}

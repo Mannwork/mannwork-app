@@ -81,7 +81,7 @@ export const getQuote = async (quoteId: string, chatId?: string) => {
                 )
             `)
             .eq("id", quoteId)
-            .in("status", ["pending", "accepted"])
+            .in("status", ["pending", "accepted", "refused"]) // Aquí permitimos 'refused' también
             .single();
 
         if (quoteError) {
