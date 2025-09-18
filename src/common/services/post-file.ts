@@ -1,4 +1,3 @@
-import { Alert } from "react-native";
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import { supabase } from "../lib/supabase/supabaseClient";
 
@@ -31,7 +30,6 @@ export const postFileToSupabase = async (
 
     if (error) {
       console.error("Error al subir el archivo:", error);
-      Alert.alert("Error", "No se pudo subir el archivo: " + error.message);
       return "";
     }
 
@@ -42,12 +40,11 @@ export const postFileToSupabase = async (
     if (publicUrlData && publicUrlData.publicUrl) {
       return publicUrlData.publicUrl;
     } else {
-      Alert.alert("Error", "No se pudo obtener la URL pública del archivo.");
+      console.error("Error", "No se pudo obtener la URL pública del archivo.");
       return "";
     }
   } catch (uploadError: any) {
     console.error("Error en el proceso de subida:", uploadError);
-    Alert.alert("Error Interno", "Ocurrió un problema al procesar el archivo: " + uploadError.message);
     return "";
   }
 };

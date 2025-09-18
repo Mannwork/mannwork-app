@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 
 import { router, useLocalSearchParams } from "expo-router";
 
@@ -67,7 +67,7 @@ const ReselectProfessionalsScreen = () => {
 
             router.replace(`/(protected)/(mainTabs)/requests/${requestId}`);
         } catch (error: any) {
-            Alert.alert(`Error ${error?.message}`);
+            console.error(`Error ${error?.message}`);
         } finally {
             setIsLoadingUpdate(false);
         }

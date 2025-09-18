@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Alert } from "react-native";
 
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
@@ -17,7 +16,7 @@ const useSupabaseStorage = (bucket: string) => {
             await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (status !== "granted") {
-            Alert.alert(
+            console.error(
                 "Permisos",
                 "Necesitamos acceso a tu galería para subir fotos."
             );
@@ -89,7 +88,6 @@ const useSupabaseStorage = (bucket: string) => {
             return uploadedImageUrls;
         } catch (error) {
             console.log("Error al subir las imágenes:", error);
-            Alert.alert("Error", "Ocurrió un problema al subir las imágenes.");
         } finally {
             setIsLoading(false);
         }
@@ -127,7 +125,6 @@ const useSupabaseStorage = (bucket: string) => {
                 return newFileUrl;
             }
         } catch (error) {
-            Alert.alert("Error", "No se pudo subir el archivo.");
             console.error("Error al subir el archivo:", error);
         } finally {
             setIsLoading(false);

@@ -18,6 +18,5 @@ export const putFinalizeRequest = async (request_id: string) => {
       }
   } catch (e) {
     console.error('Falló la conexión con Mercado Pago:', e);
-    alert("Error al conectar con Mercado Pago.");
   }      
 }

@@ -24,6 +24,5 @@ export const getAuthMpUrl = async (userId: string) => {
 
   } catch (err) {
     console.error('Falló la conexión con Mercado Pago:', err);
-    alert('No se pudo conectar con Mercado Pago. Inténtalo de nuevo.');
   }
 }
