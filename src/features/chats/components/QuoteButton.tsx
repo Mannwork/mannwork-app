@@ -7,6 +7,7 @@ import { postNewMessage } from "../services/post-new-message";
 
 interface QuoteButtonProps {
     chatId: string;
+    receptorId: string;
     requestId?: string;
     onViewQuote?: () => void;
     userRole: "client" | "professional";
@@ -15,6 +16,7 @@ interface QuoteButtonProps {
 
 const QuoteButton = ({
     onViewQuote,
+    receptorId,
     userRole,
     hasQuote = false,
     chatId,
@@ -60,6 +62,7 @@ const QuoteButton = ({
                 chat_id: chatId,
                 sender_id: userId as string,
                 type: "quote_request",
+                receptor_id: receptorId,
             });
         }
     };

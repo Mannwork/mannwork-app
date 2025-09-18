@@ -114,6 +114,11 @@ const ChatScreen = () => {
                         hasQuote={messagesPage?.pages.some(
                             (page) => page.hasActiveQuote
                         )}
+                        receptorId={
+                            userId === client
+                                ? actualChatData.professional_id!
+                                : actualChatData.client_id!
+                        }
                     />
                 )}
 
