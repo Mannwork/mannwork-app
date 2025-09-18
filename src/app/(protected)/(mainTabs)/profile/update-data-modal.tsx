@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const UpdateDataModal = () => {
   const insets = useSafeAreaInsets();
   const handleClose = () => {
-    router.back();
+    router.replace("/(protected)/(mainTabs)/profile");
   };
 
   return (

@@ -1,7 +1,7 @@
 import { supabase } from "@/common/lib/supabase/supabaseClient";
 import { SupabaseReview } from "@/features/reviews/interfaces/review.interface";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const PAGE_SIZE = 3; // Número de reseñas por página
 
@@ -55,7 +55,7 @@ async function fetchReviewsPage({ pageParam = 1, userId, filter, pageSize = PAGE
 export function useUserReviews(userId: string, filter: 'received' | 'given' = 'received', options: UseUserReviewsOptions = {}) {
   const { initialPageSize = PAGE_SIZE } = options;
   const [showAll, setShowAll] = useState(false);
-  const [allReviews, setAllReviews] = useState<Array<any>>([]);
+  const [allReviews, setAllReviews] = useState<any[]>([]);
   const [allReviewsLoaded, setAllReviewsLoaded] = useState(false);
   const queryClient = useQueryClient();
   const queryKey = useMemo(() => ['user-reviews', userId, filter, showAll], [userId, filter, showAll]);
