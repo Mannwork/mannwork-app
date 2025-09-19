@@ -16,6 +16,7 @@ import * as Notifications from "expo-notifications";
 import { useAuth } from "@clerk/clerk-expo";
 
 import { supabase } from "@/common/lib/supabase/supabaseClient";
+import { router } from "expo-router";
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -151,14 +152,35 @@ export default function NotificationProvider({ children }: PropsWithChildren) {
         })();
 
         const notificationListener =
-            Notifications.addNotificationReceivedListener((n) =>
-                setNotification(n)
-            );
+            Notifications.addNotificationReceivedListener((n) => {
+                setNotification(n);
+            });
 
         const responseListener =
             Notifications.addNotificationResponseReceivedListener(
                 (response) => {
-                    console.log("Notification response:", response);
+                    const notificationData =
+                        response.notification.request.content.data;
+
+                    if (
+                        notificationData.type === "new_message" ||
+                        notificationData.type === "created_chat"
+                    ) {
+                        router.navigate(
+                            `/(protected)/(mainTabs)/chats/${notificationData.redirect_id}`
+                        );
+                    }
+
+                    if (
+                        notificationData.type === "new_request" ||
+                        notificationData.type === "request_completed" ||
+                        notificationData.type === "request_cancelled" ||
+                        notificationData.type === "request_refused"
+                    ) {
+                        router.navigate(
+                            `/(protected)/(mainTabs)/requests/${notificationData.redirect_id}`
+                        );
+                    }
                 }
             );
 

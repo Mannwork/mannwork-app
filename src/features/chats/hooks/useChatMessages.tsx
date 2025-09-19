@@ -45,8 +45,6 @@ export const useChatMessages = (chatId: string) => {
                         // Si el caché está vacío, no hagas nada
                         if (!oldData) return oldData;
 
-                        console.log("Nuevo mensaje recibido:", newMessage);
-
                         if (newMessage.type === "quote") {
                             refetch();
                         } else {
