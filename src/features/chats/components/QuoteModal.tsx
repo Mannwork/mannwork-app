@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
+    ActivityIndicator,
     Image,
     KeyboardAvoidingView,
     Platform,
@@ -32,6 +33,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [mode, setMode] = useState<"date" | "time" | "datetime">("date");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     function formatName(fullName: string) {
         const parts = fullName.trim().split(" ");
@@ -55,6 +57,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
         }
 
         try {
+            setLoading(true);
             const quote = await postNewQuote({
                 request_id: actualChatData?.request_id || "",
                 client_id: actualChatData?.client_id || "",
@@ -82,6 +85,8 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
         } catch (error) {
             console.error("Error al crear cotización:", error);
             setError("Error al crear cotización");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -386,16 +391,21 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
                             marginBottom: 32,
                         }}
                         onPress={handleSend}
+                        disabled={loading}
                     >
-                        <Text
-                            style={{
-                                color: "#fff",
-                                fontWeight: "bold",
-                                fontSize: 18,
-                            }}
-                        >
-                            Enviar cotización
-                        </Text>
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text
+                                style={{
+                                    color: "#fff",
+                                    fontWeight: "bold",
+                                    fontSize: 18,
+                                }}
+                            >
+                                Enviar cotización
+                            </Text>
+                        )}
                     </Pressable>
                 </View>
             </View>
