@@ -3,6 +3,18 @@ import type { Message } from "@/common/types/message.type";
 import { supabase } from "@/common/lib/supabase/supabaseClient";
 
 export const postNewMessage = async ({attachment_url, content, chat_id, sender_id, receptor_id, type}: Pick<Message, "content" | "chat_id" | "sender_id" | "type" | "attachment_url"> & {receptor_id: string} ) => {
+    // Verificar si hay un bloqueo entre los usuarios
+    const { data: isBlocked } = await supabase
+        .from('user_blocks')
+        .select('id')
+        .or(`blocker_id.eq.${sender_id},blocker_id.eq.${receptor_id}`)
+        .or(`blocked_id.eq.${sender_id},blocked_id.eq.${receptor_id}`)
+        .single();
+
+    if (isBlocked) {
+        throw new Error('No puedes enviar mensajes a este usuario');
+    }
+
     if (type === "quote" || type === "quote_request") {
         
     }

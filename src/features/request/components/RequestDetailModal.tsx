@@ -1,20 +1,21 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
-    Image,
-    Linking,
-    Pressable,
-    ScrollView,
-    Text,
-    View,
+  Image,
+  Linking,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import OptionsMenu from "@/common/components/OptionsMenu";
 import ReportModal from "@/common/components/ReportModal";
+import { supabase } from "@/common/lib/supabase/supabaseClient";
 import { categoryIcons } from "@/common/types/categories.interface";
 import { router } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useCreateChat } from "../hooks/useCreateChat";
 import { RequestItem } from "../interfaces/request.interface";
 import { putFinalizeRequest } from "../services/put-finalize-request";
@@ -23,571 +24,556 @@ import { updateRequestStatus } from "../services/update-request-status";
 import RequestStatusBadge from "./RequestStatusBadge";
 
 interface RequestDetail extends RequestItem {
-    professionalsCount: number;
+  professionalsCount: number;
 }
 
 interface RequestDetailModalProps {
-    request: RequestDetail;
-    currentUserRole: "client" | "professional";
-    isVisible: boolean;
-    onClose: () => void;
-    onProfessionalPress?: (userId: string) => void; // Nueva prop
-    activeTab?: string; // Nueva prop para distinguir entre enviada y recibida
+  request: RequestDetail;
+  currentUserRole: "client" | "professional";
+  isVisible: boolean;
+  onClose: () => void;
+  onProfessionalPress?: (userId: string) => void; // Nueva prop
+  activeTab?: string; // Nueva prop para distinguir entre enviada y recibida
 }
 
 const RequestDetailModal = ({
-    request,
-    currentUserRole,
-    isVisible,
-    onClose,
-    onProfessionalPress, // Nueva prop
+  request,
+  currentUserRole,
+  isVisible,
+  onClose,
+  onProfessionalPress, // Nueva prop
 }: RequestDetailModalProps) => {
-    const insets = useSafeAreaInsets();
-    const { userId } = useAuth();
-    const [isLoadingPay, setIsLoadingPay] = useState(false);
-    const [isMenuVisible, setMenuVisible] = useState(false);
-    const [isReportModalVisible, setReportModalVisible] = useState(false);
-    const { handleCreateChat, isLoading } = useCreateChat({ request });
+  const insets = useSafeAreaInsets();
+  const { userId } = useAuth();
+  const [isLoadingPay, setIsLoadingPay] = useState(false);
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const [isReportModalVisible, setReportModalVisible] = useState(false);
+  const [blockedUsers, setBlockedUsers] = useState<string[]>([]);
+  const [blockedByUsers, setBlockedByUsers] = useState<string[]>([]);
+  const { handleCreateChat, isLoading } = useCreateChat({ request });
 
-    // Determinar si es una solicitud enviada por profesional (no soy destinatario)
-    const isProSent =
-        currentUserRole === "professional" && userId === request.client.id;
+  // Obtener usuarios bloqueados y usuarios que me bloquearon
+  useEffect(() => {
+    const fetchBlockData = async () => {
+      if (!userId) return;
 
-    const handleReportSubmit = useCallback(
-        async (reason: string, details: string) => {
-            if (!userId) {
-                console.error(
-                    "Error",
-                    "Debes estar autenticado para enviar un reporte."
-                );
-                return;
-            }
+      try {
+        // Usuarios que yo bloqueé
+        const { data: blockedData } = await supabase
+          .from("user_blocks")
+          .select("blocked_id")
+          .eq("blocker_id", userId);
 
-            try {
-                const response = await fetch(
-                    "https://iuufdqgudfrkisywsnuc.supabase.co/functions/v1/create-report",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "x-user-id": userId,
-                        },
-                        body: JSON.stringify({
-                            // Al reportar la solicitud, reportamos al creador de la misma
-                            reportedUserId: request.client.id,
-                            reason: reason,
-                            details: details.trim() || null,
-                            reportedContentId: request.id,
-                            reportedContentType: "request",
-                        }),
-                    }
-                );
+        // Usuarios que me bloquearon
+        const { data: blockedByData } = await supabase
+          .from("user_blocks")
+          .select("blocker_id")
+          .eq("blocked_id", userId);
 
-                const result = await response.json();
-                if (!response.ok) {
-                    throw new Error(
-                        result.error || "Error al enviar el reporte."
-                    );
-                }
+        const blockedIds = blockedData?.map((block) => block.blocked_id) || [];
+        const blockedByIds =
+          blockedByData?.map((block) => block.blocker_id) || [];
 
-                alert("Reporte Enviado");
-            } catch (error) {
-                const errorMessage =
-                    error instanceof Error ? error.message : "Algo salió mal.";
-                console.error("Error", errorMessage);
-            }
-        },
-        [userId, request]
-    );
-
-    if (!isVisible) return null;
-
-    const formatDate = (dateString: Date) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("es-ES", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
+        setBlockedUsers(blockedIds);
+        setBlockedByUsers(blockedByIds);
+      } catch (error) {
+        console.error("Error fetching block data:", error);
+      }
     };
 
-    const getUsersDisplay = () => {
-        if (currentUserRole === "client") {
-            return request.professionals;
-        } else {
-            if (isProSent) {
-                // Profesional viendo su propia solicitud enviada: mostrar solo destinatarios
-                return request.professionals;
-            }
-            // Profesional destinatario: mostrar al cliente
-            const client = request.client;
-            return client ? [client] : [];
-        }
-    };
+    fetchBlockData();
+  }, [userId]);
 
-    const users = getUsersDisplay();
+  // Determinar si es una solicitud enviada por profesional (no soy destinatario)
+  const isProSent =
+    currentUserRole === "professional" && userId === request.client.id;
 
-    // Obtener el icono de la categoría
-    const getCategoryIcon = (categoryName: string) => {
-        return categoryIcons[categoryName] || "category";
-    };
+  const handleReportSubmit = useCallback(
+    async (reason: string, details: string) => {
+      if (!userId) {
+        console.error(
+          "Error",
+          "Debes estar autenticado para enviar un reporte."
+        );
+        return;
+      }
 
-    const getPaymentStatus = () => {
-        // Mock payment status - esto vendría de la API
-        switch (request.status) {
-            case "searching":
-                return {
-                    status: "searching",
-                    label: "Esperando presupuestos",
-                    color: "text-blue-600",
-                };
-            case "pending":
-                return {
-                    status: "pending",
-                    label: "Pendiente de pago",
-                    color: "text-yellow-600",
-                };
-            case "payed":
-                return {
-                    status: "payed",
-                    label: "Pagado",
-                    color: "text-green-600",
-                };
-            case "working":
-                return {
-                    status: "working",
-                    label: "Trabajo en progreso",
-                    color: "text-blue-600",
-                };
-            case "completed":
-                return {
-                    status: "completed",
-                    label: "Trabajo completado",
-                    color: "text-green-600",
-                };
-            case "cancelled":
-                return {
-                    status: "cancelled",
-                    label: "Cancelado",
-                    color: "text-red-600",
-                };
-            case "refunded":
-                return {
-                    status: "refunded",
-                    label: "Reembolsado",
-                    color: "text-red-600",
-                };
-            default:
-                return {
-                    status: "pending",
-                    label: "Pendiente",
-                    color: "text-gray-600",
-                };
-        }
-    };
-
-    const paymentStatus = getPaymentStatus();
-
-    // Determinar qué acciones mostrar según el rol y estado
-    const getAvailableActions = () => {
-        const actions = [];
-
-        if (
-            request.status === "cancelled" ||
-            request.status === "refunded" ||
-            (request.status === "completed" && userId === request.client.id)
-        ) {
-            return [];
-        }
-
-        if (userId !== request.client.id) {
-            // Profesionales pueden iniciar trabajo (solo si está pendiente) y cancelar
-            actions.push({
-                id: "start_work",
-                label: "Ir al chat",
-                color: "bg-green-mannwork",
-                onPress: handleCreateChat,
-            });
-
-            if (
-                request.status === "pending" ||
-                request.status === "searching"
-            ) {
-                actions.push({
-                    id: "cancel",
-                    label: "Rechazar solicitud",
-                    color: "bg-red-500",
-                    onPress: async () => {
-                        await updateRefuseRequest(request.id, userId as string);
-
-                        router.replace("/(protected)/(mainTabs)/requests");
-                    },
-                });
-            }
-
-            if (
-                request.status === "completed" ||
-                request.status === "working" ||
-                request.status === "payed"
-            ) {
-                actions.push({
-                    id: "facturation",
-                    label: "Ver facturación",
-                    color: "bg-green-mannwork",
-                    onPress: () => {
-                        router.push({
-                            pathname: "/requests/facturation-modal",
-                            params: {
-                                requestId: request.id,
-                                requestStatus: request.status,
-                            },
-                        });
-                    },
-                });
-            }
-        } else {
-            if (
-                request.status === "searching" ||
-                request.status === "pending"
-            ) {
-                actions.push({
-                    id: "cancel",
-                    label: "Cancelar solicitud",
-                    color: "bg-red-500",
-                    onPress: async () => {
-                        await updateRequestStatus("cancelled", request.id);
-
-                        router.replace(
-                            "/(protected)/(mainTabs)/requests?activeTab=completed"
-                        );
-                    },
-                });
-            }
-
-            if (
-                (request.status === "searching" ||
-                    request.status === "pending") &&
-                request.professionalsCount === 0
-            ) {
-                actions.push({
-                    id: "new-quotes",
-                    label: "Pedir nuevas cotizaciones",
-                    color: "bg-green-mannwork",
-                    onPress: async () => {
-                        router.push({
-                            pathname:
-                                "/(protected)/(mainTabs)/requests/reselect-professionals",
-                            params: {
-                                requestId: request.id,
-                                categoryName: request.category,
-                                subcategoryName: request.subcategory,
-                            },
-                        });
-                    },
-                });
-            }
-
-            if (request.status === "working" || request.status === "payed") {
-                actions.push({
-                    id: "complete_request",
-                    label: "Marcar trabajo como finalizado y pagar",
-                    color: "bg-green-mannwork",
-                    onPress: async () => {
-                        setIsLoadingPay(true);
-                        try {
-                            const url = await putFinalizeRequest(request.id);
-                            Linking.openURL(url);
-                        } catch (error) {
-                            console.error(
-                                "Error al obtener URL de pago:",
-                                error
-                            );
-                        } finally {
-                            setIsLoadingPay(false);
-                        }
-
-                        router.replace("/(protected)/(mainTabs)/requests");
-                    },
-                });
-            }
-        }
-
-        return actions;
-    };
-
-    const availableActions = getAvailableActions();
-
-    const menuActions = [
-        {
-            title: "Reportar solicitud",
-            icon: "alert-circle-outline" as const,
-            isDestructive: true,
-            onPress: () => {
-                setMenuVisible(false);
-                setReportModalVisible(true);
+      try {
+        const response = await fetch(
+          "https://iuufdqgudfrkisywsnuc.supabase.co/functions/v1/create-report",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-user-id": userId,
             },
-        },
-    ];
+            body: JSON.stringify({
+              // Al reportar la solicitud, reportamos al creador de la misma
+              reportedUserId: request.client.id,
+              reason: reason,
+              details: details.trim() || null,
+              reportedContentId: request.id,
+              reportedContentType: "request",
+            }),
+          }
+        );
 
-    return (
-        <>
-            <View className="flex-1 bg-white">
-                {/* Header */}
-                <View
-                    className="bg-green-mannwork flex-row items-center justify-between px-4 py-4"
-                    style={{ paddingTop: insets.top + 16 }}
-                >
-                    <Pressable onPress={onClose} className="p-2">
-                        <MaterialIcons
-                            name="arrow-back"
-                            size={24}
-                            color="white"
-                        />
-                    </Pressable>
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || "Error al enviar el reporte.");
+        }
 
-                    <Text className="text-xl font-semibold text-white">
-                        Detalle de Solicitud
-                    </Text>
+        alert("Reporte Enviado");
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Algo salió mal.";
+        console.error("Error", errorMessage);
+      }
+    },
+    [userId, request]
+  );
 
-                    <Pressable
-                        onPress={() => setMenuVisible(true)}
-                        className="p-2"
-                    >
-                        <MaterialIcons
-                            name="more-vert"
-                            size={24}
-                            color="white"
-                        />
-                    </Pressable>
-                </View>
+  if (!isVisible) return null;
 
-                <ScrollView
-                    className="flex-1"
-                    showsVerticalScrollIndicator={false}
-                >
-                    {/* Imágenes */}
-                    {request.images && request.images.length > 0 && (
-                        <View className="px-4 py-4">
-                            <Text className="text-lg font-semibold text-gray-900 mb-3">
-                                Fotos del trabajo
-                            </Text>
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                className="flex-row space-x-3"
-                            >
-                                {request.images.map((image, index) => (
-                                    <Image
-                                        key={index}
-                                        source={{ uri: image }}
-                                        className="w-80 h-60 rounded-lg"
-                                        resizeMode="cover"
-                                    />
-                                ))}
-                            </ScrollView>
-                        </View>
-                    )}
+  const formatDate = (dateString: Date) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
-                    {/* Información principal */}
-                    <View className="px-4 py-4">
-                        <View className="flex-row items-start justify-between mb-4">
-                            <Text className="text-2xl font-bold text-center text-gray-900 flex-1 mr-4">
-                                {request.title}
-                            </Text>
-                        </View>
+  const getUsersDisplay = () => {
+    if (currentUserRole === "client") {
+      return request.professionals;
+    } else {
+      if (isProSent) {
+        // Profesional viendo su propia solicitud enviada: mostrar solo destinatarios
+        return request.professionals;
+      }
+      // Profesional destinatario: mostrar al cliente
+      const client = request.client;
+      return client ? [client] : [];
+    }
+  };
 
-                        <Text className="text-gray-700 text-base leading-6 mb-6">
-                            {request.description}
-                        </Text>
+  const users = getUsersDisplay();
 
-                        {/* Categoría */}
-                        <View className="flex-row items-center mb-4">
-                            <MaterialIcons
-                                name={getCategoryIcon(request.category) as any}
-                                size={20}
-                                color="#6B7280"
-                            />
-                            <Text className="text-gray-600 ml-2 text-base">
-                                {request.category} • {request.subcategory}
-                            </Text>
-                        </View>
+  // Obtener el icono de la categoría
+  const getCategoryIcon = (categoryName: string) => {
+    return categoryIcons[categoryName] || "category";
+  };
 
-                        {/* Ubicación */}
-                        <View className="flex-row items-start mb-4">
-                            <MaterialIcons
-                                name="location-on"
-                                size={20}
-                                color="#6B7280"
-                            />
-                            <Text className="text-gray-600 ml-2 text-base flex-1">
-                                {request.location.address}
-                            </Text>
-                        </View>
+  const getPaymentStatus = () => {
+    // Mock payment status - esto vendría de la API
+    switch (request.status) {
+      case "searching":
+        return {
+          status: "searching",
+          label: "Esperando presupuestos",
+          color: "text-blue-600",
+        };
+      case "pending":
+        return {
+          status: "pending",
+          label: "Pendiente de pago",
+          color: "text-yellow-600",
+        };
+      case "payed":
+        return {
+          status: "payed",
+          label: "Pagado",
+          color: "text-green-600",
+        };
+      case "working":
+        return {
+          status: "working",
+          label: "Trabajo en progreso",
+          color: "text-blue-600",
+        };
+      case "completed":
+        return {
+          status: "completed",
+          label: "Trabajo completado",
+          color: "text-green-600",
+        };
+      case "cancelled":
+        return {
+          status: "cancelled",
+          label: "Cancelado",
+          color: "text-red-600",
+        };
+      case "refunded":
+        return {
+          status: "refunded",
+          label: "Reembolsado",
+          color: "text-red-600",
+        };
+      default:
+        return {
+          status: "pending",
+          label: "Pendiente",
+          color: "text-gray-600",
+        };
+    }
+  };
 
-                        {/* Fecha */}
-                        <View className="flex-row items-center mb-6">
-                            <MaterialIcons
-                                name="schedule"
-                                size={20}
-                                color="#6B7280"
-                            />
-                            <Text className="text-gray-600 ml-2 text-base">
-                                Creada el {formatDate(request.createdAt)}
-                            </Text>
-                        </View>
-                    </View>
+  const paymentStatus = getPaymentStatus();
 
-                    {/* Estados */}
-                    <View className="px-4 py-4 bg-gray-50">
-                        <Text className="text-lg font-semibold text-gray-900 mb-4">
-                            Estados
-                        </Text>
+  // Determinar qué acciones mostrar según el rol y estado
+  const getAvailableActions = () => {
+    const actions = [];
 
-                        <View className="space-y-3">
-                            {/* Estado del servicio */}
-                            <View className="flex-row items-center justify-between bg-white p-3 rounded-lg">
-                                <View className="flex-row items-center">
-                                    <MaterialIcons
-                                        name="build"
-                                        size={20}
-                                        color="#6B7280"
-                                    />
-                                    <Text className="text-gray-700 ml-2">
-                                        Estado del servicio
-                                    </Text>
-                                </View>
-                                <RequestStatusBadge status={request.status} />
-                            </View>
+    if (
+      request.status === "cancelled" ||
+      request.status === "refunded" ||
+      (request.status === "completed" && userId === request.client.id)
+    ) {
+      return [];
+    }
 
-                            {/* Estado del pago */}
-                            <View className="flex-row items-center justify-between bg-white p-3 rounded-lg">
-                                <View className="flex-row items-center">
-                                    <MaterialIcons
-                                        name="payment"
-                                        size={20}
-                                        color="#6B7280"
-                                    />
-                                    <Text className="text-gray-700 ml-2">
-                                        Estado del pago
-                                    </Text>
-                                </View>
-                                <Text
-                                    className={`font-medium ${paymentStatus.color}`}
-                                >
-                                    {paymentStatus.label}
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
+    if (userId !== request.client.id) {
+      // Profesionales pueden iniciar trabajo (solo si está pendiente) y cancelar
+      actions.push({
+        id: "start_work",
+        label: "Ir al chat",
+        color: "bg-green-mannwork",
+        onPress: handleCreateChat,
+      });
 
-                    {/* Usuarios involucrados */}
-                    <View className="px-4 py-4">
-                        <Text className="text-lg font-semibold text-gray-900 mb-4">
-                            {currentUserRole === "client"
-                                ? "Profesionales"
-                                : isProSent
-                                ? "Profesionales"
-                                : "Cliente"}
-                        </Text>
+      if (request.status === "pending" || request.status === "searching") {
+        actions.push({
+          id: "cancel",
+          label: "Rechazar solicitud",
+          color: "bg-red-500",
+          onPress: async () => {
+            await updateRefuseRequest(request.id, userId as string);
 
-                        {users.map((user, index) => {
-                            // Permitir navegar al perfil de cualquier usuario menos a mí mismo
-                            const isMyself = userId === user.id;
-                            const isPressable =
-                                !isMyself && !!onProfessionalPress;
-                            const CardWrapper = isPressable ? Pressable : View;
-                            const cardProps = isPressable
-                                ? {
-                                      onPress: () =>
-                                          onProfessionalPress &&
-                                          onProfessionalPress(user.id),
-                                      className:
-                                          "bg-gray-50 p-4 rounded-lg mb-3",
-                                  }
-                                : {
-                                      className:
-                                          "bg-gray-50 p-4 rounded-lg mb-3",
-                                  };
-                            return (
-                                <CardWrapper key={user.id} {...cardProps}>
-                                    <View className="flex-row items-center justify-between">
-                                        <View className="flex-row items-center">
-                                            <View className="w-12 h-12 bg-green-mannwork rounded-full items-center justify-center">
-                                                <Text className="text-white font-bold text-lg">
-                                                    {user.name.charAt(0)}
-                                                    {user.last_name.charAt(0)}
-                                                </Text>
-                                            </View>
-                                            <View className="ml-3">
-                                                <Text className="text-gray-900 font-semibold text-base">
-                                                    {user.name}{" "}
-                                                    {user.last_name.charAt(0)}.
-                                                </Text>
-                                                <Text className="text-gray-600 text-sm">
-                                                    {isProSent ||
-                                                    currentUserRole === "client"
-                                                        ? "Profesional"
-                                                        : "Cliente"}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </CardWrapper>
-                            );
-                        })}
-                    </View>
+            router.replace("/(protected)/(mainTabs)/requests");
+          },
+        });
+      }
 
-                    {/* Acciones */}
-                    {availableActions.length > 0 && (
-                        <View className="px-4 py-4 bg-gray-50">
-                            <Text className="text-lg font-semibold text-gray-900 mb-4">
-                                Acciones
-                            </Text>
+      if (
+        request.status === "completed" ||
+        request.status === "working" ||
+        request.status === "payed"
+      ) {
+        actions.push({
+          id: "facturation",
+          label: "Ver facturación",
+          color: "bg-green-mannwork",
+          onPress: () => {
+            router.push({
+              pathname: "/requests/facturation-modal",
+              params: {
+                requestId: request.id,
+                requestStatus: request.status,
+              },
+            });
+          },
+        });
+      }
+    } else {
+      if (request.status === "searching" || request.status === "pending") {
+        actions.push({
+          id: "cancel",
+          label: "Cancelar solicitud",
+          color: "bg-red-500",
+          onPress: async () => {
+            await updateRequestStatus("cancelled", request.id);
 
-                            <View className="flex-1 gap-y-3">
-                                {availableActions.map((action) => (
-                                    <Pressable
-                                        key={action.id}
-                                        onPress={action.onPress}
-                                        className={`${action.color} p-4 rounded-lg items-center justify-center disabled:opacity-50`}
-                                        disabled={
-                                            (action.id === "complete_request" &&
-                                                isLoadingPay) ||
-                                            isLoading
-                                        }
-                                    >
-                                        <Text className="text-white font-semibold text-base">
-                                            {(action.id ===
-                                                "complete_request" &&
-                                                isLoadingPay) ||
-                                            isLoading
-                                                ? "Cargando..."
-                                                : action.label}
-                                        </Text>
-                                    </Pressable>
-                                ))}
-                            </View>
-                        </View>
-                    )}
+            router.replace(
+              "/(protected)/(mainTabs)/requests?activeTab=completed"
+            );
+          },
+        });
+      }
 
-                    <View className="h-8" />
-                </ScrollView>
+      if (
+        (request.status === "searching" || request.status === "pending") &&
+        request.professionalsCount === 0
+      ) {
+        actions.push({
+          id: "new-quotes",
+          label: "Pedir nuevas cotizaciones",
+          color: "bg-green-mannwork",
+          onPress: async () => {
+            router.push({
+              pathname:
+                "/(protected)/(mainTabs)/requests/reselect-professionals",
+              params: {
+                requestId: request.id,
+                categoryName: request.category,
+                subcategoryName: request.subcategory,
+              },
+            });
+          },
+        });
+      }
+
+      if (request.status === "working" || request.status === "payed") {
+        actions.push({
+          id: "complete_request",
+          label: "Marcar trabajo como finalizado y pagar",
+          color: "bg-green-mannwork",
+          onPress: async () => {
+            setIsLoadingPay(true);
+            try {
+              const url = await putFinalizeRequest(request.id);
+              Linking.openURL(url);
+            } catch (error) {
+              console.error("Error al obtener URL de pago:", error);
+            } finally {
+              setIsLoadingPay(false);
+            }
+
+            router.replace("/(protected)/(mainTabs)/requests");
+          },
+        });
+      }
+    }
+
+    return actions;
+  };
+
+  const availableActions = getAvailableActions();
+
+  const menuActions = [
+    {
+      title: "Reportar solicitud",
+      icon: "alert-circle-outline" as const,
+      isDestructive: true,
+      onPress: () => {
+        setMenuVisible(false);
+        setReportModalVisible(true);
+      },
+    },
+  ];
+
+  return (
+    <>
+      <View className="flex-1 bg-white">
+        {/* Header */}
+        <View
+          className="bg-green-mannwork flex-row items-center justify-between px-4 py-4"
+          style={{ paddingTop: insets.top + 16 }}
+        >
+          <Pressable onPress={onClose} className="p-2">
+            <MaterialIcons name="arrow-back" size={24} color="white" />
+          </Pressable>
+
+          <Text className="text-xl font-semibold text-white">
+            Detalle de Solicitud
+          </Text>
+
+          <Pressable onPress={() => setMenuVisible(true)} className="p-2">
+            <MaterialIcons name="more-vert" size={24} color="white" />
+          </Pressable>
+        </View>
+
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          {/* Imágenes */}
+          {request.images && request.images.length > 0 && (
+            <View className="px-4 py-4">
+              <Text className="text-lg font-semibold text-gray-900 mb-3">
+                Fotos del trabajo
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="flex-row space-x-3"
+              >
+                {request.images.map((image, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: image }}
+                    className="w-80 h-60 rounded-lg"
+                    resizeMode="cover"
+                  />
+                ))}
+              </ScrollView>
             </View>
-            <OptionsMenu
-                isVisible={isMenuVisible}
-                onClose={() => setMenuVisible(false)}
-                actions={menuActions}
-                title="Opciones de la Solicitud"
-            />
-            <ReportModal
-                isVisible={isReportModalVisible}
-                onClose={() => setReportModalVisible(false)}
-                onSubmit={handleReportSubmit}
-            />
-        </>
-    );
+          )}
+
+          {/* Información principal */}
+          <View className="px-4 py-4">
+            <View className="flex-row items-start justify-between mb-4">
+              <Text className="text-2xl font-bold text-center text-gray-900 flex-1 mr-4">
+                {request.title}
+              </Text>
+            </View>
+
+            <Text className="text-gray-700 text-base leading-6 mb-6">
+              {request.description}
+            </Text>
+
+            {/* Categoría */}
+            <View className="flex-row items-center mb-4">
+              <MaterialIcons
+                name={getCategoryIcon(request.category) as any}
+                size={20}
+                color="#6B7280"
+              />
+              <Text className="text-gray-600 ml-2 text-base">
+                {request.category} • {request.subcategory}
+              </Text>
+            </View>
+
+            {/* Ubicación */}
+            <View className="flex-row items-start mb-4">
+              <MaterialIcons name="location-on" size={20} color="#6B7280" />
+              <Text className="text-gray-600 ml-2 text-base flex-1">
+                {request.location.address}
+              </Text>
+            </View>
+
+            {/* Fecha */}
+            <View className="flex-row items-center mb-6">
+              <MaterialIcons name="schedule" size={20} color="#6B7280" />
+              <Text className="text-gray-600 ml-2 text-base">
+                Creada el {formatDate(request.createdAt)}
+              </Text>
+            </View>
+          </View>
+
+          {/* Estados */}
+          <View className="px-4 py-4 bg-gray-50">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              Estados
+            </Text>
+
+            <View className="space-y-3">
+              {/* Estado del servicio */}
+              <View className="flex-row items-center justify-between bg-white p-3 rounded-lg">
+                <View className="flex-row items-center">
+                  <MaterialIcons name="build" size={20} color="#6B7280" />
+                  <Text className="text-gray-700 ml-2">
+                    Estado del servicio
+                  </Text>
+                </View>
+                <RequestStatusBadge status={request.status} />
+              </View>
+
+              {/* Estado del pago */}
+              <View className="flex-row items-center justify-between bg-white p-3 rounded-lg">
+                <View className="flex-row items-center">
+                  <MaterialIcons name="payment" size={20} color="#6B7280" />
+                  <Text className="text-gray-700 ml-2">Estado del pago</Text>
+                </View>
+                <Text className={`font-medium ${paymentStatus.color}`}>
+                  {paymentStatus.label}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Usuarios involucrados */}
+          <View className="px-4 py-4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {currentUserRole === "client"
+                ? "Profesionales"
+                : isProSent
+                ? "Profesionales"
+                : "Cliente"}
+            </Text>
+
+            {users.map((user, index) => {
+              // Permitir navegar al perfil de cualquier usuario menos a mí mismo, que no esté bloqueado por mí, y que no me haya bloqueado
+              const isMyself = userId === user.id;
+              const isBlockedByMe = blockedUsers.includes(user.id);
+              const hasBlockedMe = blockedByUsers.includes(user.id);
+              const isPressable =
+                !isMyself &&
+                !isBlockedByMe &&
+                !hasBlockedMe &&
+                !!onProfessionalPress;
+              const CardWrapper = isPressable ? Pressable : View;
+              const cardProps = isPressable
+                ? {
+                    onPress: () =>
+                      onProfessionalPress && onProfessionalPress(user.id),
+                    className: "bg-gray-50 p-4 rounded-lg mb-3",
+                  }
+                : {
+                    className: "bg-gray-50 p-4 rounded-lg mb-3",
+                  };
+              return (
+                <CardWrapper key={user.id} {...cardProps}>
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <View className="w-12 h-12 bg-green-mannwork rounded-full items-center justify-center">
+                        <Text className="text-white font-bold text-lg">
+                          {user.name.charAt(0)}
+                          {user.last_name.charAt(0)}
+                        </Text>
+                      </View>
+                      <View className="ml-3">
+                        <Text className="text-gray-900 font-semibold text-base">
+                          {user.name} {user.last_name.charAt(0)}.
+                        </Text>
+                        <Text className="text-gray-600 text-sm">
+                          {isProSent || currentUserRole === "client"
+                            ? "Profesional"
+                            : "Cliente"}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </CardWrapper>
+              );
+            })}
+          </View>
+
+          {/* Acciones */}
+          {availableActions.length > 0 && (
+            <View className="px-4 py-4 bg-gray-50">
+              <Text className="text-lg font-semibold text-gray-900 mb-4">
+                Acciones
+              </Text>
+
+              <View className="flex-1 gap-y-3">
+                {availableActions.map((action) => (
+                  <Pressable
+                    key={action.id}
+                    onPress={action.onPress}
+                    className={`${action.color} p-4 rounded-lg items-center justify-center disabled:opacity-50`}
+                    disabled={
+                      (action.id === "complete_request" && isLoadingPay) ||
+                      isLoading
+                    }
+                  >
+                    <Text className="text-white font-semibold text-base">
+                      {(action.id === "complete_request" && isLoadingPay) ||
+                      isLoading
+                        ? "Cargando..."
+                        : action.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+
+          <View className="h-8" />
+        </ScrollView>
+      </View>
+      <OptionsMenu
+        isVisible={isMenuVisible}
+        onClose={() => setMenuVisible(false)}
+        actions={menuActions}
+        title="Opciones de la Solicitud"
+      />
+      <ReportModal
+        isVisible={isReportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        onSubmit={handleReportSubmit}
+      />
+    </>
+  );
 };
 
 export default RequestDetailModal;

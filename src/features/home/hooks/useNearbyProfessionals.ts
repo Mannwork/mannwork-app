@@ -1,4 +1,5 @@
 import { supabase } from "@/common/lib/supabase/supabaseClient";
+import { useAuth } from "@clerk/clerk-expo";
 import { useQuery } from "@tanstack/react-query";
 
 interface Location {
@@ -43,12 +44,19 @@ export const useNearbyProfessionals = ({
   maxDistance = 50,
   enabled
 }: UseNearbyProfessionalsOptions) => {
+  const { userId } = useAuth();
+
   return useQuery({
-    queryKey: ["nearby-professionals", location, categoryId, subcategoryId],
+    queryKey: ["nearby-professionals", location, categoryId, subcategoryId, userId],
     queryFn: async (): Promise<NearbyProfessional[]> => {
 
       if (!location?.latitude || !location?.longitude) {
         throw new Error("Ubicación requerida");
+      }
+
+      // Si no hay usuario autenticado, no mostrar profesionales
+      if (!userId) {
+        return [];
       }
 
       // Buscar profesionales con la categoría y subcategoría
@@ -69,45 +77,68 @@ export const useNearbyProfessionals = ({
       // Obtener los user_ids únicos
       const userIds = [...new Set(professionalServices.map(ps => ps.user_id))];
 
-      // Buscar los usuarios profesionales
+      // Obtener usuarios bloqueados por el usuario actual
+      const { data: blockedUsers, error: blockedError } = await supabase
+        .from("user_blocks")
+        .select("blocked_id")
+        .eq("blocker_id", userId);
+
+      if (blockedError) {
+        console.error("Error fetching blocked users:", blockedError);
+      }
+
+      // Filtrar usuarios bloqueados
+      const blockedIds = blockedUsers?.map(block => block.blocked_id) || [];
+      const filteredUserIds = userIds.filter(id => !blockedIds.includes(id));
+
+      if (filteredUserIds.length === 0) {
+        return [];
+      }
+
+      // Buscar los usuarios profesionales (excluyendo los bloqueados)
       const { data: users, error: usersError } = await supabase
         .from("users")
         .select("id, name, last_name, profile_pic, calification, total_califications, service_radius, ubication_json, rol, membership_json")
-        .in("id", userIds)
+        .in("id", filteredUserIds)
         .eq("rol", "professional");
 
       if (usersError) {
         throw usersError;
       }
 
-      // Combinar los datos
-      const combinedData = professionalServices.map(ps => {
-        const user = users?.find(u => u.id === ps.user_id);
-        return {
-          ...ps,
-          users: user
-        };
-      }).filter(item => item.users);
+      // Combinar los datos (solo con usuarios no bloqueados)
+      const combinedData = professionalServices
+        .filter(ps => filteredUserIds.includes(ps.user_id))
+        .map(ps => {
+          const user = users?.find(u => u.id === ps.user_id);
+          return {
+            ...ps,
+            users: user
+          };
+        }).filter(item => item.users);
 
       // Si no encontramos usuarios por RLS, intentar consulta directa
       if (combinedData.length === 0) {
         const { data: directUsers, error: directError } = await supabase
           .from("users")
           .select("id, name, last_name, profile_pic, calification, total_califications, service_radius, ubication_json, rol, membership_json ")
+          .in("id", filteredUserIds)
           .eq("rol", "professional");
 
         if (directError) {
           throw directError;
         }
 
-        // Simular datos combinados para testing
-        const mockCombinedData = professionalServices.map(ps => {
-          const user = directUsers?.find(u => u.id === ps.user_id);
-          return {
-            ...ps,
-            users: user
-          };
-        }).filter(item => item.users);
+        // Simular datos combinados para testing (solo usuarios no bloqueados)
+        const mockCombinedData = professionalServices
+          .filter(ps => filteredUserIds.includes(ps.user_id))
+          .map(ps => {
+            const user = directUsers?.find(u => u.id === ps.user_id);
+            return {
+              ...ps,
+              users: user
+            };
+          }).filter(item => item.users);
 
         // Procesar profesionales
         const professionals: NearbyProfessional[] =
