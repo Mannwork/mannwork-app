@@ -1,7 +1,7 @@
 import { useCurrentUser } from "@/features/profile";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import InfoCard from "./InfoCard";
 
 const infoCards = [
@@ -27,14 +27,14 @@ const InfoCardSkeleton = () => (
     <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       {/* Skeleton para el título */}
       <View className="h-6 bg-gray-200 rounded-lg mb-3 w-3/4" />
-      
+
       {/* Skeleton para la descripción */}
       <View className="space-y-2 mb-4">
         <View className="h-4 bg-gray-200 rounded w-full" />
         <View className="h-4 bg-gray-200 rounded w-5/6" />
         <View className="h-4 bg-gray-200 rounded w-4/5" />
       </View>
-      
+
       {/* Skeleton para los botones */}
       <View className="flex-row justify-between items-center">
         <View className="h-8 w-8 bg-gray-200 rounded-full" />
@@ -52,17 +52,24 @@ const InfoCardSwiper = () => {
   // Filtrar cards cuando cambie el usuario
   useEffect(() => {
     let filteredCards = [...infoCards];
-    
-    // Si el usuario es PRO o es cliente, filtra la card de membresía
-    if (user?.membership_json?.isPro || user?.rol === "client") {
+
+    // Si el usuario es PRO, es cliente, O la plataforma es iOS, filtra la card de membresía
+    if (
+      user?.membership_json?.isPro ||
+      user?.rol === "client" ||
+      Platform.OS === "ios"
+    ) {
       filteredCards = filteredCards.filter((card) => card.type !== "membresia");
     }
-    
+
     // Si la URL de la foto de perfil NO contiene 'https://img.clerk.com', filtra la card de perfil
-    if (user?.profile_pic && !user.profile_pic.includes('https://img.clerk.com')) {
+    if (
+      user?.profile_pic &&
+      !user.profile_pic.includes("https://img.clerk.com")
+    ) {
       filteredCards = filteredCards.filter((card) => card.type !== "perfil");
     }
-    
+
     setVisibleCards(filteredCards);
   }, [user]);
 
