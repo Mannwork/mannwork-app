@@ -100,22 +100,6 @@ export const createChatForRequest = async ({
 
   // 2. Si el chat ya existe, mapeamos los datos y lo retornamos.
   if (existingChat) {
-     const { error: notificationError } = await supabase.from("notifications").insert({
-          user_id: clientId,
-          title: "Nuevo chat",
-          body: "Uno de los profesionales ha creado un chat para tu solicitud.",
-          type: "created_chat",
-          redirect_id: existingChat.id,
-          creator_id: professionalId,
-      });
-
-      if (notificationError) {
-          console.error("Error al crear notificación:", notificationError);
-          console.error("Notificación de error:", notificationError.message);
-            
-          throw notificationError
-      };
-
     return mapChatDataToResponse(existingChat);
   }
 
