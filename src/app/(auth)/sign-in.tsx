@@ -5,6 +5,9 @@ import { useEffect, useRef } from "react";
 import {
     Animated,
     Keyboard,
+    Linking,
+    Platform,
+    Pressable,
     SafeAreaView,
     Text,
     TouchableWithoutFeedback,
@@ -18,6 +21,10 @@ import SignInWith from "@/features/auth/sign-in/components/SignInWith";
 const SignIn = () => {
     const openSignInModal = () => {
         router.push("/(auth)/sign-in-modal");
+    };
+
+    const openWebsite = () => {
+        Linking.openURL("https://www.mannwork.com");
     };
 
     const slideUpAnim = useRef(new Animated.Value(300)).current;
@@ -68,6 +75,12 @@ const SignIn = () => {
                 >
                     <View className="flex-1 gap-y-2">
                         <SignInWith strategy="oauth_google" variant="outline" />
+                        {Platform.OS === "ios" && (
+                            <SignInWith
+                                strategy="oauth_apple"
+                                variant="outline"
+                            />
+                        )}
 
                         <View className="flex-row items-center my-4">
                             <View className="flex-1 h-px bg-gray-200" />
@@ -104,6 +117,17 @@ const SignIn = () => {
                                 Política de Privacidad
                             </Text>
                         </Text>
+                    </View>
+
+                    <View className="mt-1 mb-4">
+                        <Pressable onPress={openWebsite}>
+                            <Text className="text-center text-gray-400 text-xs">
+                                ¿Queres saber que te espera en Mannwork?
+                            </Text>
+                            <Text className="text-center text-green-600 text-xs font-medium">
+                                Mirá nuestra web.
+                            </Text>
+                        </Pressable>
                     </View>
                 </Animated.View>
             </SafeAreaView>

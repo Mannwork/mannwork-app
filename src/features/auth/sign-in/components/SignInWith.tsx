@@ -8,12 +8,14 @@ import { useSSO } from "@clerk/clerk-expo";
 
 import AuthButton from "@/features/auth/components/AuthButton";
 
+import Apple from "@/assets/social/icon-apple.png";
 import Facebook from "@/assets/social/icon-fb.png";
 import Google from "@/assets/social/icon-google.png";
 
 const strategyIcons = {
     oauth_google: Google,
     oauth_facebook: Facebook,
+    oauth_apple: Apple,
 };
 
 export const useWarmUpBrowser = () => {
@@ -31,7 +33,7 @@ WebBrowser.maybeCompleteAuthSession();
 type Variant = "primary" | "secondary" | "outline" | "ghost";
 
 interface SignInWithProps {
-    strategy: "oauth_google" | "oauth_facebook";
+    strategy: "oauth_google" | "oauth_facebook" | "oauth_apple";
     variant?: Variant;
 }
 
@@ -46,12 +48,12 @@ const SignInWith = ({ strategy, variant = "primary" }: SignInWithProps) => {
                 path: "home",
             });
 
-            console.log("Redirect URL:", redirectUrl);
-
             const { createdSessionId, setActive } = await startSSOFlow({
                 strategy:
                     strategy === "oauth_google"
                         ? "oauth_google"
+                        : strategy === "oauth_apple"
+                        ? "oauth_apple"
                         : "oauth_facebook",
                 redirectUrl: redirectUrl,
             });
@@ -76,6 +78,8 @@ const SignInWith = ({ strategy, variant = "primary" }: SignInWithProps) => {
                     ? "Acceda con Google"
                     : strategy === "oauth_facebook"
                     ? "Acceda con Facebook"
+                    : strategy === "oauth_apple"
+                    ? "Acceda con Apple"
                     : "Acceda con correo electrónico"}
             </Text>
         </AuthButton>
