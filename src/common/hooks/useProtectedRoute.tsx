@@ -30,6 +30,10 @@ export const useProtectedRoute = () => {
 
         const inAuthGroup = segments[0] === "(auth)";
         const inProtectedRouteGroup = segments[0] === "(protected)";
+        const inHomeRoute =
+            inProtectedRouteGroup &&
+            segments[1] === "(mainTabs)" &&
+            segments[2] === "home";
 
         // Caso 1: El usuario ESTÁ autenticado.
         if (isSignedIn) {
@@ -50,10 +54,12 @@ export const useProtectedRoute = () => {
             }
             // Caso 2: El usuario NO ESTÁ autenticado.
         } else {
-            // ... entonces DEBE estar en el grupo de autenticación. Si no, redirígelo.
-            if (!inAuthGroup) {
-                router.replace("/(auth)/sign-in");
+            // Si está en la ruta home o en el grupo de autenticación, permitir acceso
+            if (inHomeRoute || inAuthGroup) {
+                return;
             }
+            // ... si no está en home ni en auth, redirígelo a home (acceso público por defecto)
+            router.replace("/(auth)/sign-in");
         }
     }, [
         isClerkLoaded,
