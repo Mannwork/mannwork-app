@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 import type { Request } from "@/features/request";
 import {
@@ -11,6 +11,7 @@ import {
     useUserRequests,
     useUserRole,
 } from "@/features/request";
+import { useAuth } from "@clerk/clerk-expo";
 
 const RequestsScreen = () => {
     const params = useLocalSearchParams();
@@ -22,6 +23,7 @@ const RequestsScreen = () => {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
     const { data: userRole, isLoading: isLoadingRole } = useUserRole();
+    const { userId } = useAuth();
 
     // Cambiar la tab inicial según el rol
     useEffect(() => {
@@ -138,6 +140,35 @@ const RequestsScreen = () => {
                     onSearchQueryChange={setSearchQuery}
                 />
                 <LoadingState />
+            </View>
+        );
+    }
+
+    // Guest user state
+    if (!userId || !userRole) {
+        return (
+            <View className="flex-1 bg-gray-50">
+                <RequestsHeader
+                    onSearch={handleSearch}
+                    onCreate={handleCreate}
+                    isSearchVisible={isSearchVisible}
+                    searchQuery={searchQuery}
+                    onSearchQueryChange={setSearchQuery}
+                />
+                <View className="flex-1 justify-center items-center px-6">
+                    <Text className="text-2xl font-bold text-gray-800 mb-4 text-center">
+                        Función no disponible
+                    </Text>
+                    <Text className="text-gray-600 text-center mb-6">
+                        Para acceder a las solicitudes, necesitas iniciar sesión con tu cuenta.
+                    </Text>
+                    <Pressable
+                        onPress={() => router.push("/(auth)/sign-in")}
+                        className="bg-green-mannwork px-6 py-3 rounded-lg"
+                    >
+                        <Text className="text-white font-semibold">Iniciar Sesión</Text>
+                    </Pressable>
+                </View>
             </View>
         );
     }

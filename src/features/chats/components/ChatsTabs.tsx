@@ -36,7 +36,7 @@ const ChatsTabs = ({ activeTab, onTabChange }: ChatsTabsProps) => {
         // Subscribe to new messages in chats where the user is a participant
         const setupSubscription = async () => {
             const chatIds = await getChatIds();
-            if (chatIds.length === 0) return;
+            if (chatIds.length === 0) return null;
 
             const subscription = supabase
                 .channel("unread_messages")

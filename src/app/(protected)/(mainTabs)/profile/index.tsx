@@ -8,10 +8,14 @@ import {
 } from "@/features/profile";
 import SectionDivider from "@/features/profile/components/initial-profile/SectionDivider";
 import { useUserReviews } from "@/features/profile/hooks/useUserReviews";
+import { useAuth } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
 import { useMemo } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 
 const ProfileScreen = () => {
+  const { userId } = useAuth();
+  const router = useRouter();
   const { data: user, isLoading, error } = useCurrentUser();
   // Traer reviews reales del usuario logueado con paginación
   const {
@@ -22,7 +26,6 @@ const ProfileScreen = () => {
     hasMore,
     totalReviews,
     loadMoreReviews,
-    refreshReviews,
   } = useUserReviews(user?.id || "");
 
   // Calcular estadísticas con todas las reseñas
@@ -80,6 +83,26 @@ const ProfileScreen = () => {
     [paginatedReviews]
   );
 
+  // Guest user state - verificar PRIMERO antes del loading
+  if (!userId) {
+    return (
+      <View className="flex-1 bg-white justify-center items-center px-6">
+        <Text className="text-2xl font-bold text-gray-800 mb-4 text-center">
+          Función no disponible
+        </Text>
+        <Text className="text-gray-600 text-center mb-6">
+          Para acceder a tu perfil, necesitas iniciar sesión con tu cuenta.
+        </Text>
+        <Pressable
+          onPress={() => router.push("/(auth)/sign-in")}
+          className="bg-green-mannwork px-6 py-3 rounded-lg"
+        >
+          <Text className="text-white font-semibold">Iniciar Sesión</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   // Loading state
   if (isLoading || loadingReviews) {
     return (
@@ -117,6 +140,7 @@ const ProfileScreen = () => {
 
   // Preparar datos del usuario para los componentes
   const userData = {
+    id: user.id,
     firstName: user.name,
     lastName: user.last_name,
     profileImage: user.profile_pic || undefined,
