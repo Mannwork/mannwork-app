@@ -30,6 +30,8 @@ export const useProtectedRoute = () => {
 
         const inAuthGroup = segments[0] === "(auth)";
         const inProtectedRouteGroup = segments[0] === "(protected)";
+        const inMainTabsGroup =
+            inProtectedRouteGroup && segments[1] === "(mainTabs)";
 
         // Caso 1: El usuario ESTÁ autenticado.
         if (isSignedIn) {
@@ -50,10 +52,13 @@ export const useProtectedRoute = () => {
             }
             // Caso 2: El usuario NO ESTÁ autenticado.
         } else {
-            // ... entonces DEBE estar en el grupo de autenticación. Si no, redirígelo.
-            if (!inAuthGroup) {
-                router.replace("/(auth)/sign-in");
+            // Permitir acceso a mainTabs (home, chats, requests, profile) como invitado
+            // Los componentes manejan internamente el estado de usuario no autenticado
+            if (inMainTabsGroup || inAuthGroup) {
+                return;
             }
+            // ... si no está en mainTabs ni en auth, redirígelo a sign-in
+            router.replace("/(auth)/sign-in");
         }
     }, [
         isClerkLoaded,

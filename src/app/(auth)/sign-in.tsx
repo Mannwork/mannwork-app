@@ -23,6 +23,10 @@ const SignIn = () => {
         router.push("/(auth)/sign-in-modal");
     };
 
+    const openGuestRoutes = () => {
+        router.push("/(protected)/(mainTabs)/home");
+    };
+
     const openWebsite = () => {
         Linking.openURL("https://www.mannwork.com");
     };
@@ -105,6 +109,12 @@ const SignIn = () => {
                             </Text>
                         </AuthButton>
                     </View>
+
+                    <Pressable className="mt-8" onPress={openGuestRoutes}>
+                        <Text className="text-center text-green-600 text-sm font-medium">
+                            Ingresa como invitado
+                        </Text>
+                    </Pressable>
 
                     <View className="mt-8 mb-4">
                         <Text className="text-center text-gray-400 text-xs">
